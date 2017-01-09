@@ -1,0 +1,206 @@
+.browsehappy {
+  margin: 0.2em 0;
+  background: #ccc;
+  color: #000;
+  padding: 0.2em 0;
+}
+
+
+body {
+  padding:0px;
+}
+
+.chordBtn {
+  max-width: 10px;
+}
+
+/* Everything but the jumbotron gets side spacing for mobile first views */
+.header,
+.marketing,
+.footer {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Custom page header */
+.header {
+  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 10px;
+}
+/* Make the masthead heading the same height as the navigation */
+.header h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 10px;
+  padding-bottom: 19px;
+}
+
+/* Custom page footer */
+.footer {
+  padding-top: 19px;
+  color: #777;
+  border-top: 1px solid #e5e5e5;
+}
+
+.container-narrow > hr {
+  margin: 0px 0;
+}
+
+/* Main marketing message and sign up button */
+.jumbotron {
+  text-align: center;
+  border-bottom: 1px solid #e5e5e5;
+  background-color: white;
+}
+.jumbotron .btn {
+  font-size: 21px;
+  padding: 14px 0px;
+}
+
+/* Supporting marketing content */
+.marketing {
+  margin: 40px 0;
+}
+.marketing p + h4 {
+  margin-top: 28px;
+}
+
+.tolowercase {
+    text-transform: lowercase;
+}
+.italic {
+  font-style: italic;
+}
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 768px) {
+  .container {
+    max-width: 1024px;
+  }
+
+  /* Remove the padding we set earlier */
+  .header,
+  .marketing,
+  .footer {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  /* Space out the masthead */
+  .header {
+    margin-bottom: 30px;
+  }
+  /* Remove the bottom border on the jumbotron for visual effect */
+  .jumbotron {
+    border-bottom: 0;
+  }
+}
+
+
+fieldset {
+
+/*border:2px solid blue;*/
+-moz-border-radius:8px;
+-webkit-border-radius:8px;
+border-radius:8px;
+padding: 10px;
+heigth:100%;
+}
+
+legend {
+  float: left;
+  width: 100%;
+
+}
+
+.button {
+  display: inline-block;
+  padding: 15px 25px;
+  margin-right: 4px;
+  font-size: 24px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #999;
+}
+.button:hover {background-color: #3e8e41}
+
+.button:active {
+  background-color: #3e8e41;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+table{
+
+  width:100%;
+  height:10%;
+}
+
+table, th, td {
+    border: 1px solid black;
+    padding: 15px;
+    text-align: center;
+
+}
+tr{
+  min-height: 20px;
+  max-height: 20px;
+
+}
+td{
+  min-width: 40px;
+  max-width: 40px;
+
+}
+
+
+
+
+.wrapper {
+  margin: 0 0 20px 0;
+  width: 500px;
+  height: 400px;
+  border: 2px solid #CCC;
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(4, 80px);
+  grid-template-rows: repeat(3,100px);
+  justify-content: center;
+  align-content: end;
+}
+
+.box {
+  background-color: #FFFFF3;
+  justify-content: center;
+  color: blue;
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 20px;
+  position: relative;
+}
+.box-font-style
+{
+  font-size: 1.5vw;
+}
+.box:hover{
+  background-color: gray;
+}
+.box-selected {
+  background-color: gray;
+}
+
+.box-selected:hover {
+  background-color: gray;
+}

@@ -1,0 +1,21 @@
+{
+  "name": "angular-authentication",
+  "version": "1.0.4",
+  "main": "./js/angular-authentication.js",
+  "ignore": [
+    ".gitignore",
+    "package.json",
+    "server.js",
+    "Gruntfile.js",
+    "node_modules",
+    "components",
+    "config",
+    "example",
+    "test"
+  ],
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/qloo/angular-authentication.git"
+  }
+}

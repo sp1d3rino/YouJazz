@@ -1,0 +1,38 @@
+<div class="container">
+    <div class="col-md-12">
+      <h3>Sign Up</h3>
+
+
+
+      <form ng-submit="registerUser()" class="form">
+        <div class="col-md-4">
+          <md-input-container class="md-block">
+            <input type="text" class="form-control" ng-model="username" placeholder="username" required/>
+            <div ng-messages="userName.$error">
+                     <div ng-message="required">This is required.</div>
+            </div>
+          </md-input-container>
+
+          <md-input-container class="md-block">
+            <input type="password" class="form-control" ng-model="password" placeholder="password" required/>
+            <div ng-messages="password.$error">
+                     <div ng-message="required">This is required.</div>
+            </div>
+          </md-input-container>
+          <md-input-container class="md-block">
+            <input type="password" class="form-control" ng-model="password2"   placeholder='retype password' required/>
+            <div ng-messages="confirm_password.$error">
+                     <div ng-message="required">This is required.</div>
+            </div>
+          </md-input-container>
+
+          <div class="form-group">
+            <md-button type="submit" class="btn btn-primary">Register</md-button>
+
+            <span class="text-danger">{{ error }}</span>
+          </div>
+
+        </div>
+      </form>
+    </div>
+</div>

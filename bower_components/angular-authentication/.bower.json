@@ -1,0 +1,32 @@
+{
+  "name": "angular-authentication",
+  "version": "1.0.4",
+  "main": "./js/angular-authentication.js",
+  "ignore": [
+    ".gitignore",
+    "package.json",
+    "server.js",
+    "Gruntfile.js",
+    "node_modules",
+    "components",
+    "config",
+    "example",
+    "test"
+  ],
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/qloo/angular-authentication.git"
+  },
+  "homepage": "https://github.com/qloo/angular-authentication",
+  "_release": "1.0.4",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.0.4",
+    "commit": "6568509c89c2c1080349611d2df459aac9c66b36"
+  },
+  "_source": "https://github.com/qloo/angular-authentication.git",
+  "_target": "^1.0.4",
+  "_originalSource": "angular-authentication",
+  "_direct": true
+}
