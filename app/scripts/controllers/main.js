@@ -7,7 +7,6 @@ angular.module('yeomanApp')
 
   $scope.formData.numCol=0;
   $scope.formData.numRow=0;
-
   $scope.formData.tuneTitle='';
   $scope.formData.tuneAuthorName='';
   $scope.formData.comments='';
@@ -54,16 +53,19 @@ angular.module('yeomanApp')
     {'symbId':2,'symbName':'b'},
     {'symbId':3,'symbName':'/'},
     {'symbId':4,'symbName':'°'},
-    {'symbId':5,'symbName':'∆'},
-    {'symbId':6,'symbName':'-'},
-    {'symbId':7,'symbName':'%'},
-    {'symbId':8,'symbName':'6'},
-    {'symbId':9,'symbName':'7'},
-    {'symbId':10,'symbName':'9'},
-    {'symbId':11,'symbName':'11'},
-    {'symbId':12,'symbName':'13'},
-    {'symbId':13,'symbName':'+'},
-    {'symbId':14,'symbName':'maj'}
+    {'symbId':5,'symbName':'Ø'},
+    {'symbId':6,'symbName':'∆'},
+    {'symbId':7,'symbName':'maj'},
+    {'symbId':8,'symbName':'-'},
+    {'symbId':9,'symbName':'+'},
+    {'symbId':10,'symbName':'5'},
+    {'symbId':11,'symbName':'6'},
+    {'symbId':12,'symbName':'7'},
+    {'symbId':13,'symbName':'9'},
+    {'symbId':14,'symbName':'11'},
+    {'symbId':15,'symbName':'13'},
+    {'symbId':16,'symbName':'%'}
+
   ];
 
 
@@ -94,11 +96,14 @@ angular.module('yeomanApp')
   };
 
   $scope.resetGrid = function(){
+    window.alert("user"+$rootScope.userSignedIn+"user");
+
     console.log('resetGrid ');
     $scope.selectedTune='';
     $scope.formData.tuneTitle='';
     $scope.formData.tuneAuthorName='';
     $scope.formData.comments='';
+    $scope.formData.grilleAuthorName=null;
     $scope.formData.grille=[];
 
   }
@@ -167,7 +172,7 @@ angular.module('yeomanApp')
 		window.alert ("Error authentication!!");
 		return false;
 		}
-	
+
     $http.post('/api/tunes', $scope.formData)
         .then(function(response) {
           if (response.status!='200'){

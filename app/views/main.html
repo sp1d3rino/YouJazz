@@ -11,62 +11,55 @@
 
 
 
+<!-- The grid-->
+<div layout="row">
+
+      <form name="formData">
+        <md-content layout-gt-sm="row">
+          <div>
+            <md-input-container><label>Tune title</label><input required ng-model="formData.tuneTitle"></md-input-container>
+            <md-input-container><label>Tune author name</label><input required ng-model="formData.tuneAuthorName"></md-input-container>
+            <md-input-container><textarea  class="form-control input-lg text-center" placeholder="notes" ng-model="formData.comments" md-maxlength="150" md-select-on-focus/></md-input-container>
+            <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num rows" ng-model="formData.numRow" min="1" max="10"></md-input-container>
+            <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num cols" ng-model="formData.numCol" min="1" max="10"></md-input-container>
+          </div>
+          <div>
+            <md-button class="md-raised md-primary"  ng-click="createGrid()"  ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null  || ( formData.grilleAuthorName!==null  && formData.grilleAuthorName!==undefined && userSignedIn!==formData.grilleAuthorName)">Create grid</md-button>
+            <md-button class="md-raised md-primary"  ng-click="resetGrid()">Reset grid</md-button>
+            <md-button type="submit" class="md-raised md-primary" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="createTune()">Save this tune</md-button>
+          </div>
+        </md-content>
+      </form>
 
 
+</div>
+<div layout="row">
+  <div flex="80">
+    <fieldset>
+      <legend style="font-family:'Comic Sans MS'" ng-show='formData.tuneTitle'>{{formData.tuneTitle}}</legend>
+      <h5 style ="float:right; font-size: 15px; font-family:'Comic Sans MS';">{{formData.tuneAuthorName}}</h5>
+      <table>
+        <tr ng-repeat="row in formData.grille">
+          <td  ng-repeat="col in row"  ng-click="selectCell(col)" ng-class="{'box box-selected noselect' : col===cellSelected, 'box noselect':col!==cellSelected }" class="box" style="font-family:'Comic Sans MS';font-size:150%;">
+            {{col.cellValue}}
+          </td>
+        </tr>
+      </table>
+      <h5 style ="float:right; font-size: 15px; font-family:'Comic Sans MS';" ng-show='formData.grilleAuthorName'>Grid written by {{formData.grilleAuthorName}}</h5>
+    </fieldset>
 
-    <!-- The grid-->
-    <div layout="row">
-     <div flex>
-      <fieldset>
-        <form name="formData">
-		<md-content md-theme="docs-dark" layout-gt-sm="row" layout-padding>
-		 <div>
-  	      <md-input-container><label>Tune title</label><input required ng-model="formData.tuneTitle"></md-input-container>
-          <md-input-container><label>Tune author name</label><input required ng-model="formData.tuneAuthorName"></md-input-container>
-          <md-input-container><textarea  class="form-control input-lg text-center" placeholder="notes" ng-model="formData.comments" md-maxlength="150" md-select-on-focus/></md-input-container>
-          <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num rows" ng-model="formData.numRow" min="1" max="10"></md-input-container>
-          <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num cols" ng-model="formData.numCol" min="1" max="10"></md-input-container>
-		 </div>
-		</md-content>
-        </form>
-        <md-button class="md-raised md-primary"  ng-click="createGrid()"  ng-disabled="formData.$invalid">Create grid</md-button>
-        <md-button class="md-raised md-primary"  ng-click="resetGrid()">Reset grid</md-button>
-        <md-button type="submit" class="md-raised md-primary" ng-disabled="formData.$invalid || isSignedin===false" ng-click="createTune()">Save this tune</md-button>
-      </fieldset>
-     </div>
-    </div>
-    <div layout="row">
-     <div flex="80">
-       <fieldset>
-         <legend style="font-family:'Comic Sans MS'" ng-show='formData.tuneTitle'>{{formData.tuneTitle}}</legend>
-           <h5 style ="float:right; font-size: 15px; font-family:'Comic Sans MS';">{{formData.tuneAuthorName}}</h5>
-         <table>
-          <tr ng-repeat="row in formData.grille">
-            <td  ng-repeat="col in row"  ng-click="selectCell(col)" ng-class="{'box box-selected noselect' : col===cellSelected, 'box noselect':col!==cellSelected }" class="box" style="font-family:'Comic Sans MS';font-size:150%;">
-              {{col.cellValue}}
-            </td>
-          </tr>
-        </table>
-        <h5 style ="float:right; font-size: 15px; font-family:'Comic Sans MS';" ng-show='formData.grilleAuthorName'>Grid written by {{formData.grilleAuthorName}}</h5>
-      </fieldset>
-
-     </div> <!-- div flex-->
-     <div flex=20 hide-sm hide-xs>
-      <fieldset>
-        <legend>Chords palette</legend>
-        <md-button ng-repeat="chord in chords" class="md-fab md-mini md-primary"  ng-click="select(chord.chordId)">{{chord.chordName}}</md-button>
-      </fieldset>
-      <fieldset>
-        <legend>Symbols palette</legend>
-        <md-button ng-repeat="symb in symbols" class="md-fab md-mini md-primary tolowercase italic" ng-click="selectSymb(symb.symbId)">{{symb.symbName}}</md-button>
-      </fieldset>
-     </div>
-    </div>
-  </fieldset>
-
-
-
-
-
+  </div> <!-- div flex-->
+  <div flex=20>
+    <fieldset>
+      <legend>Chords palette</legend>
+      <md-button ng-repeat="chord in chords" class="md-fab md-mini md-primary"  ng-click="select(chord.chordId)">{{chord.chordName}}</md-button>
+    </fieldset>
+    <fieldset>
+      <legend>Symbols palette</legend>
+      <md-button ng-repeat="symb in symbols" class="md-fab md-mini md-primary tolowercase italic" ng-click="selectSymb(symb.symbId)">{{symb.symbName}}</md-button>
+    </fieldset>
+  </div>
+</div>
+</fieldset>
 
 </div>

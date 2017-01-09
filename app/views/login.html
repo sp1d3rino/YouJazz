@@ -1,22 +1,23 @@
-
+<div class="container">
     <div class="col-md-12">
       <h3>Login</h3>
 
       <form ng-submit="loginUser()" class="form" name="formData">
         <div class="col-md-4">
-          <div class="form-group">
+          <md-input-container class="md-block">
             <input type="text" class="form-control" ng-model="formData.username" placeholder="username" required=""/>
-          </div>
+          </md-input-container>
 
-          <div class="form-group">
+          <md-input-container class="md-block">
             <input type="password" class="form-control" ng-model="formData.password" placeholder="password" required=""/>
-          </div>
+          </md-input-container>
 
           <div class="form-group">
-            <button type="submit" class="btn btn-success">Login</button>
+            <button type="submit" class="btn btn-primary">Login</button>
             <span class="text-danger">{{ error }}</span>
           </div>
 
         </div>
       </form>
     </div>
+</div>
