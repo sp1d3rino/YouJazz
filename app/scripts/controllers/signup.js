@@ -60,10 +60,12 @@ angular.module('yeomanApp')
         }).then (function successCallback(response){
               console.log('response status:' + JSON.stringify(response.status));
               $scope.showToast1('You have signed up successfully!');
+			  
           },
           function errorCallback(response) {
             console.log('error  response status:' +  JSON.stringify(response.status));
             $scope.showToast1('Sorry, the username already exists. Please, choose another one');
+			
           }
         );
     }; // end of registerUser

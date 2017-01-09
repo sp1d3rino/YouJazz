@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('yeomanApp')
-.controller('MainCtrl',['$scope','$http', function functionName($scope,$http) {
+.controller('MainCtrl',['$scope','$rootScope','$http', function functionName($scope,$rootScope,$http) {
   $scope.formData = {};
 
   $scope.formData.numCol=0;
@@ -163,6 +163,11 @@ angular.module('yeomanApp')
     //$scope.formData.grille=[{cellId:'00',cellValue:'sdd'},{cellId:'01',cellValue:'aaa'}];
     console.log('print grid '+ JSON.stringify($scope.formData.grille));
 
+	if ($rootScope.isSignedin==false){
+		window.alert ("Error authentication!!");
+		return false;
+		}
+	
     $http.post('/api/tunes', $scope.formData)
         .then(function(response) {
           if (response.status!='200'){

@@ -18,18 +18,20 @@
     <div layout="row">
      <div flex>
       <fieldset>
-        <legend>Grid palette</legend>
         <form name="formData">
-          <md-input-container class="md-block"><input required type="text" class="form-control input-lg text-center" placeholder="tune title" ng-model="formData.tuneTitle"></md-input-container>
-          <md-input-container class="md-block"><input required type="text" class="form-control input-lg text-center" placeholder="tune author name" ng-model="formData.tuneAuthorName"></md-input-container>
-          <md-input-container class="md-block"><textarea  class="form-control input-lg text-center" placeholder="notes" ng-model="formData.comments" md-maxlength="150" md-select-on-focus/></md-input-container>
-          <md-input-container class="md-block"><input required type="number" class="form-control input-lg text-center" placeholder="num rows" ng-model="formData.numRow" min="1" max="10"></md-input-container>
-          <md-input-container class="md-block"><input required type="number" class="form-control input-lg text-center" placeholder="num cols" ng-model="formData.numCol" min="1" max="10"></md-input-container>
-
+		<md-content md-theme="docs-dark" layout-gt-sm="row" layout-padding>
+		 <div>
+  	      <md-input-container><label>Tune title</label><input required ng-model="formData.tuneTitle"></md-input-container>
+          <md-input-container><label>Tune author name</label><input required ng-model="formData.tuneAuthorName"></md-input-container>
+          <md-input-container><textarea  class="form-control input-lg text-center" placeholder="notes" ng-model="formData.comments" md-maxlength="150" md-select-on-focus/></md-input-container>
+          <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num rows" ng-model="formData.numRow" min="1" max="10"></md-input-container>
+          <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num cols" ng-model="formData.numCol" min="1" max="10"></md-input-container>
+		 </div>
+		</md-content>
         </form>
         <md-button class="md-raised md-primary"  ng-click="createGrid()"  ng-disabled="formData.$invalid">Create grid</md-button>
         <md-button class="md-raised md-primary"  ng-click="resetGrid()">Reset grid</md-button>
-        <md-button type="submit" class="md-raised md-primary" ng-disabled="formData.$invalid" ng-click="createTune()">Save this tune</md-button>
+        <md-button type="submit" class="md-raised md-primary" ng-disabled="formData.$invalid || isSignedin===false" ng-click="createTune()">Save this tune</md-button>
       </fieldset>
      </div>
     </div>
