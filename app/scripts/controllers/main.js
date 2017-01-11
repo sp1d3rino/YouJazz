@@ -15,6 +15,7 @@ angular.module('yeomanApp')
 
   /** check if user already logged in */
   $rootScope.userSignedIn = $cookies.get('youjazz_user');
+  $rootScope.basicAuth = $cookies.get('youjazz_basic_auth');
 
   /* chords */
   $scope.chords = [
@@ -105,10 +106,11 @@ angular.module('yeomanApp')
 
 
     console.log('resetGrid ');
-    $scope.selectedTune='';
-    $scope.formData.tuneTitle='';
-    $scope.formData.tuneAuthorName='';
+    $scope.selectedTune=null;
+    $scope.formData.tuneTitle=null;
+    $scope.formData.tuneAuthorName=null;
     $scope.formData.comments='';
+
     $scope.formData.grilleAuthorName=null;
     $scope.formData.grille=[];
 
@@ -143,7 +145,7 @@ angular.module('yeomanApp')
 
   /* Load all tunes when the page opens */
   // when landing on the page, get all todos and show them
-var self = this;
+    var self = this;
     $http.get('/api/tunes')
     .then(function(response) {
       if (response.status!='200'){
@@ -166,18 +168,10 @@ var self = this;
 
         self.newState = $scope.newState;
 
-        $scope.newState = function(state) {
-          alert("Sorry! You'll need to create a Constitution for " + state + " first!");
+        $scope.newTune = function(tTitle) {
+            $scope.formData.tuneTitle=tTitle;
         }
 
-        // ******************************
-        // Internal methods
-        // ******************************
-
-        /**
-        * Search for states... use $timeout to simulate
-        * remote dataservice call.
-        */
         $scope.querySearch = function (query) {
           var results = query ? self.tunes.filter( $scope.createFilterFor(query) ) : self.tunes,
           deferred;
@@ -195,8 +189,13 @@ var self = this;
         }
 
         $scope.selectedItemChange = function(item) {
-          $scope.loadTune(item._id);
-          return item.tuneTitle;
+          console.log("selected item change");
+          if (typeof item !== "undefined") {
+            console.log("selected item change");
+            $scope.loadTune(item._id);
+            return item.tuneTitle;
+          }
+
         }
 
 
@@ -234,17 +233,36 @@ var self = this;
       return false;
     }
 
+    //post new tune and put tune list in the search box
+    $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
     $http.post('/api/tunes', $scope.formData)
     .then(function(response) {
       if (response.status!='200'){
         alert("get Error!");
         throw new Error("Error during call to POST api");
       }else{
-        $scope.tuneData = {}; // clear the form so our user is ready to enter another
         $scope.tunes = response.data;
-        console.log(JSON.stringify(response.data, null, 4));
+        self.tunes=$scope.tunes;
+        console.log("tune list "+ JSON.stringify(response.data, null, 4));
       }
+
     });
+
+    //now get lastest tune of this user
+    $http.get('/api/tunes/'+ 'mylatest')
+    .then(function(response) {
+      if (response.status!='200'){
+        alert("get Error!");
+        throw new Error("Error during call to GET api");
+      }else{
+        $scope.formData= response.data;
+        $scope.selectedTune =response.data._id;
+        console.log("latest tune "+JSON.stringify(response.data, null, 4));
+      }
+
+    });
+
+
   };
 
 
@@ -258,18 +276,36 @@ var self = this;
         throw new Error("Error during call to GET api");
       }else{
         $scope.formData= response.data[0];
+        $scope.selectedTune = tuneId; //for delete and update;
         console.log(JSON.stringify(response.data, null, 4));
       }
     });
   };
 
+  // delete a tune
+
+  $scope.deleteTune = function() {
+    console.log('selected tune id is:' + $scope.selectedTune);
+    $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
+    $http.delete('/api/tunes/'+ $scope.selectedTune)
+    .then(function(response) {
+      if (response.status!='200'){
+        alert("get Error!");
+        throw new Error("Error during call to DELETE api");
+      }else{
 
 
+        self.tunes.forEach(function(result, index) {
+          if(result['_id'] ===  $scope.selectedTune) {
+            //Remove from array
+            self.tunes.splice(index, 1);
+          }
+        });
+        $scope.resetGrid();
 
-/****************** start *************/
-
-
-
+      }
+    });
+  };
 
 
 

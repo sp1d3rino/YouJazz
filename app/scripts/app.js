@@ -51,7 +51,8 @@ angular
   }).controller('IndexController',['$scope','$rootScope','$cookies',function ($scope,$rootScope, $cookies) {
     $scope.logout = function(){
       $cookies.remove('youjazz_user');
+      $cookies.remove('youjazz_basic_auth');
       $rootScope.userSignedIn=null;
-
+      $rootScope.basicAuth=null;
     }
   }]);

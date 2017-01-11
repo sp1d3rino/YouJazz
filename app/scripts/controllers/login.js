@@ -28,6 +28,7 @@ angular.module('yeomanApp')
     console.log("loginUser function start");
     var auth = $base64.encode(angular.lowercase($scope.formData.username)+':'+$scope.formData.password);
     $http.defaults.headers.common['Authorization'] = 'Basic ' + auth;
+    $rootScope.basicAuth =auth;
     $http.get('/api/users')
     .then (
       function successCallback(response){
@@ -38,6 +39,7 @@ angular.module('yeomanApp')
         var login_expired = new Date(login_today);
         login_expired.setDate(login_today.getDate() + 1); //Set expired date to tomorrow
         $cookies.put('youjazz_user', $rootScope.userSignedIn, {expires : login_expired });
+        $cookies.put('youjazz_basic_auth',  $rootScope.basicAuth, {expires : login_expired });
       },
       function errorCallback(response) {
         console.log('error  response status:' +  JSON.stringify(response.status));

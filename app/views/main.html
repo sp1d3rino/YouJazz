@@ -16,7 +16,7 @@
     </md-item-template>
     <md-not-found>
       No tunes matching "{{searchText}}" were found.
-      <a ng-click="newState(searchText)">Create a new one!</a>
+      <a ng-click="newTune(searchText)">Create a new one!</a>
     </md-not-found>
   </md-autocomplete>
 </md-content>
@@ -36,6 +36,7 @@
       <md-button class="md-raised md-primary"  ng-click="createGrid()"  ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null  || ( formData.grilleAuthorName!==null  && formData.grilleAuthorName!==undefined && userSignedIn!==formData.grilleAuthorName)">Create grid</md-button>
       <md-button class="md-raised md-primary"  ng-click="resetGrid()">Reset grid</md-button>
       <md-button type="submit" class="md-raised md-primary" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="createTune()">Save this tune</md-button>
+      <md-button class="md-raised md-primary" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="deleteTune()">Delete this tune</md-button>
     </div>
   </md-content>
 </form>
