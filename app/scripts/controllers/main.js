@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('yeomanApp')
-.controller('MainCtrl',['$scope','$rootScope','$http','$q', function functionName($scope,$rootScope,$http,$q) {
+.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies', function functionName($scope,$rootScope,$http,$q,$cookies) {
   $scope.formData = {};
 
   $scope.formData.numCol=0;
@@ -11,7 +11,10 @@ angular.module('yeomanApp')
   $scope.formData.tuneAuthorName='';
   $scope.formData.comments='';
   $scope.selectedTune='';
-  $rootScope.userName; 
+
+
+  /** check if user already logged in */
+  $rootScope.userSignedIn = $cookies.get('youjazz_user');
 
   /* chords */
   $scope.chords = [
@@ -47,6 +50,7 @@ angular.module('yeomanApp')
 
 
 
+
   /* symbols */
   $scope.symbols = [
     {'symbId':1,'symbName':'#'},
@@ -67,6 +71,8 @@ angular.module('yeomanApp')
     {'symbId':16,'symbName':'%'}
 
   ];
+
+
 
 
 

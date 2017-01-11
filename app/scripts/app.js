@@ -17,10 +17,10 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngMaterial',
+    'ngCookies'
 
 
-  ])
-  .config(function ($routeProvider) {
+  ]).config(function ($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -45,4 +45,13 @@ angular
       .otherwise({
         redirectTo: '/'
       });
-  });
+
+
+
+  }).controller('IndexController',['$scope','$rootScope','$cookies',function ($scope,$rootScope, $cookies) {
+    $scope.logout = function(){
+      $cookies.remove('youjazz_user');
+      $rootScope.userSignedIn=null;
+
+    }
+  }]);

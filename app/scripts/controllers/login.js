@@ -8,11 +8,11 @@
 * Controller of the yeomanApp
 */
 angular.module('yeomanApp')
-.controller('LoginCtrl',['$scope','$rootScope','$http','$mdToast', '$base64',
-function ($scope,$rootScope, $http, $mdToast, $base64) {
+.controller('LoginCtrl',['$scope','$rootScope','$http','$mdToast', '$base64','$cookies',function ($scope,$rootScope, $http, $mdToast, $base64,$cookies) {
   $scope.formData={};
   $scope.formData.username='';
   $scope.formData.password='';
+
 
 
   $scope.showToast1 = function(msg) {
@@ -34,6 +34,10 @@ function ($scope,$rootScope, $http, $mdToast, $base64) {
         console.log('response status:' + JSON.stringify(response.status));
         $scope.showToast1('You have signed up successfully!');
         $rootScope.userSignedIn=$scope.formData.username;
+        var login_today = new Date();
+        var login_expired = new Date(login_today);
+        login_expired.setDate(login_today.getDate() + 1); //Set expired date to tomorrow
+        $cookies.put('youjazz_user', $rootScope.userSignedIn, {expires : login_expired });
       },
       function errorCallback(response) {
         console.log('error  response status:' +  JSON.stringify(response.status));
