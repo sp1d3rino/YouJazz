@@ -8,6 +8,7 @@ var TuneSchema   = new mongoose.Schema({
   tuneAuthorName: String,
   grilleAuthorName: String,
   comments: String,
+  timestamp: { type: Date, default: Date.now },
   votes: Number,
   numRow:Number,
   numCol:Number,

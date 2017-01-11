@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('yeomanApp')
-.controller('MainCtrl',['$scope','$rootScope','$http', function functionName($scope,$rootScope,$http) {
+.controller('MainCtrl',['$scope','$rootScope','$http','$q', function functionName($scope,$rootScope,$http,$q) {
   $scope.formData = {};
 
   $scope.formData.numCol=0;
@@ -36,13 +36,13 @@ angular.module('yeomanApp')
   $scope.cellSelected =null;
 
   $scope.select= function(index) {
-      console.log(index);
-      //When insert a chord or symbols delete % before
-      if ($scope.cellSelected.cellValue.indexOf('%') > -1){
-        $scope.cellSelected.cellValue='';
-      }
-        $scope.selected = index;
-        $scope.cellSelected.cellValue=$scope.cellSelected.cellValue.concat($scope.chords[index-1].chordName);
+    console.log(index);
+    //When insert a chord or symbols delete % before
+    if ($scope.cellSelected.cellValue.indexOf('%') > -1){
+      $scope.cellSelected.cellValue='';
+    }
+    $scope.selected = index;
+    $scope.cellSelected.cellValue=$scope.cellSelected.cellValue.concat($scope.chords[index-1].chordName);
   };
 
 
@@ -71,28 +71,28 @@ angular.module('yeomanApp')
 
 
   $scope.selectSymb = function(index) {
-      console.log(index);
-        //When insert a chord or symbols delete % before
-        if ($scope.cellSelected.cellValue.indexOf('%') > -1){
-          $scope.cellSelected.cellValue='';
-        }
-        // when the symbol is % reset the cell
-        if($scope.symbols[index-1].symbName.indexOf('%') > -1){
-          $scope.cellSelected.cellValue='';
-        }
-        $scope.symbSelected = index;
-        $scope.cellSelected.cellValue=$scope.cellSelected.cellValue.concat($scope.symbols[index-1].symbName);
+    console.log(index);
+    //When insert a chord or symbols delete % before
+    if ($scope.cellSelected.cellValue.indexOf('%') > -1){
+      $scope.cellSelected.cellValue='';
+    }
+    // when the symbol is % reset the cell
+    if($scope.symbols[index-1].symbName.indexOf('%') > -1){
+      $scope.cellSelected.cellValue='';
+    }
+    $scope.symbSelected = index;
+    $scope.cellSelected.cellValue=$scope.cellSelected.cellValue.concat($scope.symbols[index-1].symbName);
 
   };
 
   $scope.finalChord={chordName:''};
 
   $scope.resetChord= function() {
-       $scope.finalChord.chordName='';
+    $scope.finalChord.chordName='';
   };
   $scope.isEmptyChord = function(){
 
-     return (!$scope.finalChord || 0 === $scope.finalChord.length);
+    return (!$scope.finalChord || 0 === $scope.finalChord.length);
   };
 
   $scope.resetGrid = function(){
@@ -133,33 +133,88 @@ angular.module('yeomanApp')
 
 
 
-/***************** REST API calls ********************/
+  /***************** REST API calls ********************/
 
-/* Load all tunes and current username when the page opens */
-// when landing on the page, get all todos and show them
-  $http.get('/api/tunes')
+  /* Load all tunes when the page opens */
+  // when landing on the page, get all todos and show them
+var self = this;
+    $http.get('/api/tunes')
     .then(function(response) {
       if (response.status!='200'){
         alert("get Error!");
         throw new Error("Error during call to GET api");
       }
       else{
-        $scope.tunes = response.data;
         console.log(response.status);
+        //return response.data;
+        $scope.tunes = response.data;
+
+
+        self.simulateQuery = false;
+        self.isDisabled    = false;
+
+        self.tunes        = $scope.tunes;
+        self.querySearch   = $scope.querySearch;
+        self.selectedItemChange = $scope.selectedItemChange;
+        self.searchTextChange   = $scope.searchTextChange;
+
+        self.newState = $scope.newState;
+
+        $scope.newState = function(state) {
+          alert("Sorry! You'll need to create a Constitution for " + state + " first!");
+        }
+
+        // ******************************
+        // Internal methods
+        // ******************************
+
+        /**
+        * Search for states... use $timeout to simulate
+        * remote dataservice call.
+        */
+        $scope.querySearch = function (query) {
+          var results = query ? self.tunes.filter( $scope.createFilterFor(query) ) : self.tunes,
+          deferred;
+          if (self.simulateQuery) {
+            deferred = $q.defer();
+            //$timeout(function () { deferred.resolve( results ); }, Math.random() * 1000, false);
+            return deferred.promise;
+          } else {
+            return results;
+          }
+        }
+
+        $scope.searchTextChange= function(text) {
+          //console.log('Text changed to ' + text);
+        }
+
+        $scope.selectedItemChange = function(item) {
+          $scope.loadTune(item._id);
+          return item.tuneTitle;
+        }
+
+
+
+        /**
+        * Create filter function for a query string
+        */
+        $scope.createFilterFor = function(query) {
+          var lowercaseQuery = angular.lowercase(query);
+        //  console.log('lowercaseQuery '+lowercaseQuery);
+          return function filterFn(tune) {
+            return (angular.lowercase(tune.tuneTitle).indexOf(lowercaseQuery) === 0);
+          };
+
+        }
+
+
       }
 
     });
-/*    $http.get('/api/users/'+ $scope.formData.grilleAuthorName)
-        .then(function(response) {
-          if (response.status!='200'){
-            alert("get Error!");
-            throw new Error("Error during call to GET users/currentUsername api");
-          }else{
-            $scope.user= response.data;
-            console.log(JSON.stringify(response.data, null, 4));
-          }
-        });
-*/
+
+
+
+
 
 
   // when submitting the add form, send the text to the node API
@@ -168,38 +223,49 @@ angular.module('yeomanApp')
     //$scope.formData.grille=[{cellId:'00',cellValue:'sdd'},{cellId:'01',cellValue:'aaa'}];
     console.log('print grid '+ JSON.stringify($scope.formData.grille));
 
-	if ($rootScope.isSignedin==false){
-		window.alert ("Error authentication!!");
-		return false;
-		}
+    if ($rootScope.isSignedin==false){
+      window.alert ("Error authentication!!");
+      return false;
+    }
 
     $http.post('/api/tunes', $scope.formData)
-        .then(function(response) {
-          if (response.status!='200'){
-            alert("get Error!");
-            throw new Error("Error during call to POST api");
-          }else{
-            $scope.tuneData = {}; // clear the form so our user is ready to enter another
-            $scope.tunes = response.data;
-            console.log(JSON.stringify(response.data, null, 4));
-          }
-        });
+    .then(function(response) {
+      if (response.status!='200'){
+        alert("get Error!");
+        throw new Error("Error during call to POST api");
+      }else{
+        $scope.tuneData = {}; // clear the form so our user is ready to enter another
+        $scope.tunes = response.data;
+        console.log(JSON.stringify(response.data, null, 4));
+      }
+    });
   };
 
 
   //load a specific loadTune
-  $scope.loadTune = function() {
-    console.log('selected tune id is:' + $scope.selectedTune );
-    $http.get('/api/tunes/'+ $scope.selectedTune)
-        .then(function(response) {
-          if (response.status!='200'){
-            alert("get Error!");
-            throw new Error("Error during call to GET api");
-          }else{
-            $scope.formData= response.data[0];
-            console.log(JSON.stringify(response.data, null, 4));
-          }
-        });
+  $scope.loadTune = function(tuneId) {
+    console.log('selected tune id is:' + tuneId);
+    $http.get('/api/tunes/'+ tuneId)
+    .then(function(response) {
+      if (response.status!='200'){
+        alert("get Error!");
+        throw new Error("Error during call to GET api");
+      }else{
+        $scope.formData= response.data[0];
+        console.log(JSON.stringify(response.data, null, 4));
+      }
+    });
   };
+
+
+
+
+/****************** start *************/
+
+
+
+
+
+
 
 }]);

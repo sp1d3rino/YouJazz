@@ -1,42 +1,49 @@
-<fieldset>
-  <md-input-container class="md-block" flex-gt-sm>
-    <label>Choose the tune</label>
-    <md-select ng-model="selectedTune"  ng-change="loadTune()">
-      <md-option ng-repeat="tune in tunes | orderBy:'tuneTitle'" value="{{tune._id}}">
-        {{tune.tuneTitle}} (by {{tune.grilleAuthorName}})
-      </md-option>
-    </md-select>
-  </md-input-container>
-</fieldset>
 
+  <md-content class="md-padding" style="padding-top: 60px;">
+    <md-autocomplete
+    ng-disabled="isDisabled"
+    md-no-cache="noCache"
+    md-selected-item="selectedItem"
+    md-search-text-change="searchTextChange(searchText)"
+    md-search-text="searchText"
+    md-selected-item-change="selectedItemChange(item)"
+    md-items="item in querySearch(searchText)"
+    md-item-text="item.tuneTitle"
+    md-min-length="0"
+    placeholder="Find your tune here...">
+    <md-item-template>
+      <span md-highlight-text="searchText" md-highlight-flags="^i">{{item.tuneTitle}}</span>
+    </md-item-template>
+    <md-not-found>
+      No states matching "{{searchText}}" were found.
+      <a ng-click="newState(searchText)">Create a new one!</a>
+    </md-not-found>
+  </md-autocomplete>
+</md-content>
 
 
 <!-- The grid-->
-<div layout="row">
+<form name="formData" style="padding-top: 10px;" >
+  <md-content layout-gt-sm="row" >
+    <div  >
+      <md-input-container><label>Tune title</label><input required ng-model="formData.tuneTitle"></md-input-container>
+      <md-input-container><label>Tune author name</label><input required ng-model="formData.tuneAuthorName"></md-input-container>
+      <md-input-container><textarea  class="form-control input-lg text-center" placeholder="notes" ng-model="formData.comments" md-maxlength="150" md-select-on-focus/></md-input-container>
+      <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num rows" ng-model="formData.numRow" min="1" max="10"></md-input-container>
+      <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num cols" ng-model="formData.numCol" min="1" max="10"></md-input-container>
+    </div>
+    <div>
+      <md-button class="md-raised md-primary"  ng-click="createGrid()"  ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null  || ( formData.grilleAuthorName!==null  && formData.grilleAuthorName!==undefined && userSignedIn!==formData.grilleAuthorName)">Create grid</md-button>
+      <md-button class="md-raised md-primary"  ng-click="resetGrid()">Reset grid</md-button>
+      <md-button type="submit" class="md-raised md-primary" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="createTune()">Save this tune</md-button>
+    </div>
+  </md-content>
+</form>
 
-      <form name="formData">
-        <md-content layout-gt-sm="row">
-          <div>
-            <md-input-container><label>Tune title</label><input required ng-model="formData.tuneTitle"></md-input-container>
-            <md-input-container><label>Tune author name</label><input required ng-model="formData.tuneAuthorName"></md-input-container>
-            <md-input-container><textarea  class="form-control input-lg text-center" placeholder="notes" ng-model="formData.comments" md-maxlength="150" md-select-on-focus/></md-input-container>
-            <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num rows" ng-model="formData.numRow" min="1" max="10"></md-input-container>
-            <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num cols" ng-model="formData.numCol" min="1" max="10"></md-input-container>
-          </div>
-          <div>
-            <md-button class="md-raised md-primary"  ng-click="createGrid()"  ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null  || ( formData.grilleAuthorName!==null  && formData.grilleAuthorName!==undefined && userSignedIn!==formData.grilleAuthorName)">Create grid</md-button>
-            <md-button class="md-raised md-primary"  ng-click="resetGrid()">Reset grid</md-button>
-            <md-button type="submit" class="md-raised md-primary" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="createTune()">Save this tune</md-button>
-          </div>
-        </md-content>
-      </form>
-
-
-</div>
 <div layout="row">
   <div flex="80">
     <fieldset>
-      <legend style="font-family:'Comic Sans MS'" ng-show='formData.tuneTitle'>{{formData.tuneTitle}}</legend>
+      <center><legend style="font-family:'Comic Sans MS'" ng-show='formData.tuneTitle'>{{formData.tuneTitle}}</legend></center>
       <h5 style ="float:right; font-size: 15px; font-family:'Comic Sans MS';">{{formData.tuneAuthorName}}</h5>
       <table>
         <tr ng-repeat="row in formData.grille">
@@ -59,7 +66,4 @@
       <md-button ng-repeat="symb in symbols" class="md-fab md-mini md-primary tolowercase italic" ng-click="selectSymb(symb.symbId)">{{symb.symbName}}</md-button>
     </fieldset>
   </div>
-</div>
-</fieldset>
-
 </div>

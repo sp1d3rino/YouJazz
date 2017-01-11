@@ -11,6 +11,7 @@ exports.postTunes = function(req, res) {
   tune.tuneTitle = req.body.tuneTitle;
   tune.tuneAuthorName= req.body.tuneAuthorName;
   tune.numRow= req.body.numRow;
+  tune.timestamp=new Date();
   tune.numCol= req.body.numCol;
   tune.grille = req.body.grille;
   tune.comments = req.body.comments;
@@ -20,27 +21,27 @@ exports.postTunes = function(req, res) {
   // Save the tune and check for errors
   tune.save(function(err) {
     if (err)
-      res.send(err);
+    res.send(err);
 
 
     //retrive all tunes
     Tune.find(function(err, tunes) {
-        if (err)
-            res.send(err)
-          res.json(tunes);
+      if (err)
+      res.send(err)
+      res.json(tunes);
     });
   });
 };
 
 // Create endpoint /api/tunes for GET
 exports.getTunes = function(req, res) {
-console.log('get all Tunes');
+  console.log('get all Tunes');
   //retrive all tunes
   //Tune.find(function(err, tunes) {
-var query = Tune.find({}).select('tuneTitle , grilleAuthorName');
-    query.exec(function (err, tunes) {
+  var query = Tune.find({}).select('tuneTitle , grilleAuthorName');
+  query.exec(function (err, tunes) {
     if (err)
-      res.send(err);
+    res.send(err);
     res.json(tunes);
   });
 };
@@ -50,10 +51,20 @@ var query = Tune.find({}).select('tuneTitle , grilleAuthorName');
 exports.getTune = function(req, res) {
   console.log('get Tune' +req.params.tune_id);
   // Use the Beer model to find a specific beer
-  Tune.find({_id: req.params.tune_id}, function(err, tune) {
-    if (err)
+  if (req.params.tune_id=='latest'){
+    Tune.findOne({}, {}, { sort: { 'timestamp' : -1 } }, function(err, tune) {
+      if (err)
       res.send(err);
 
-    res.json(tune);
-  });
+      res.json(tune);
+    });
+  }else {
+    Tune.find({_id: req.params.tune_id}, function(err, tune) {
+      if (err)
+      res.send(err);
+
+      res.json(tune);
+
+    });
+  }
 };

@@ -26,7 +26,7 @@ function ($scope,$rootScope, $http, $mdToast, $base64) {
 
   $scope.loginUser = function() {
     console.log("loginUser function start");
-    var auth = $base64.encode($scope.formData.username+':'+$scope.formData.password);
+    var auth = $base64.encode(angular.lowercase($scope.formData.username)+':'+$scope.formData.password);
     $http.defaults.headers.common['Authorization'] = 'Basic ' + auth;
     $http.get('/api/users')
     .then (
