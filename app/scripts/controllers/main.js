@@ -11,7 +11,7 @@ angular.module('yeomanApp')
   $scope.formData.tuneAuthorName='';
   $scope.formData.comments='';
   $scope.selectedTune='';
-  $scope.user;
+  $rootScope.userName; 
 
   /* chords */
   $scope.chords = [
@@ -96,7 +96,7 @@ angular.module('yeomanApp')
   };
 
   $scope.resetGrid = function(){
-   
+
 
     console.log('resetGrid ');
     $scope.selectedTune='';

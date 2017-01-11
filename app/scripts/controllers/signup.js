@@ -14,7 +14,16 @@ angular.module('yeomanApp')
     $scope.password='';
     $scope.password2='';
 
-
+    $scope.avatars = [
+      {avatarId:'guitar', svgImage:'img/guitar.svg'},
+      {avatarId:'guitar', svgImage:'img/piano.svg'},
+      {avatarId:'guitar', svgImage:'img/drum.svg'},
+      {avatarId:'guitar', svgImage:'img/dbass.svg'},
+      {avatarId:'guitar', svgImage:'img/trumpet.svg'},
+      {avatarId:'guitar', svgImage:'img/violin.svg'},
+      {avatarId:'guitar', svgImage:'img/sax.svg'},
+      {avatarId:'guitar', svgImage:'img/manouche.svg'}
+    ];
 
     $scope.showToast1 = function(msg) {
                       $mdToast.show(
@@ -60,12 +69,12 @@ angular.module('yeomanApp')
         }).then (function successCallback(response){
               console.log('response status:' + JSON.stringify(response.status));
               $scope.showToast1('You have signed up successfully!');
-			  
+
           },
           function errorCallback(response) {
             console.log('error  response status:' +  JSON.stringify(response.status));
             $scope.showToast1('Sorry, the username already exists. Please, choose another one');
-			
+
           }
         );
     }; // end of registerUser

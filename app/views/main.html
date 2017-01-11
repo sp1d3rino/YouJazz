@@ -1,5 +1,5 @@
 
-  <md-content class="md-padding" style="padding-top: 60px;">
+  <md-content class="md-padding" style="padding-top: 80px; padding-bottom: 80px;">
     <md-autocomplete
     ng-disabled="isDisabled"
     md-no-cache="noCache"
@@ -15,7 +15,7 @@
       <span md-highlight-text="searchText" md-highlight-flags="^i">{{item.tuneTitle}}</span>
     </md-item-template>
     <md-not-found>
-      No states matching "{{searchText}}" were found.
+      No tunes matching "{{searchText}}" were found.
       <a ng-click="newState(searchText)">Create a new one!</a>
     </md-not-found>
   </md-autocomplete>
@@ -23,7 +23,7 @@
 
 
 <!-- The grid-->
-<form name="formData" style="padding-top: 10px;" >
+<form name="formData" >
   <md-content layout-gt-sm="row" >
     <div  >
       <md-input-container><label>Tune title</label><input required ng-model="formData.tuneTitle"></md-input-container>
