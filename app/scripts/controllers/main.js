@@ -96,7 +96,7 @@ angular.module('yeomanApp')
   };
 
   $scope.resetGrid = function(){
-    window.alert("user"+$rootScope.userSignedIn+"user");
+   
 
     console.log('resetGrid ');
     $scope.selectedTune='';
