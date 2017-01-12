@@ -59,7 +59,8 @@ router.route('/tunes')
   .get(tuneController.getTunes);
 
 router.route('/tunes/:tune_id')
-  .get(tuneController.getTune);
+  .get(tuneController.getTune)
+  .delete(authController.isAuthenticated,tuneController.deleteTune);
 
 
 
