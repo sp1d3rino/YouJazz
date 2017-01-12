@@ -1,5 +1,6 @@
 
-  <md-content class="md-padding" style="padding-top: 80px; padding-bottom: 80px;">
+<md-content class="md-padding" layout-gt-sm="row" style="padding-top: 80px; padding-bottom: 50px;">
+  <div flex="80">
     <md-autocomplete
     ng-disabled="isDisabled"
     md-no-cache="noCache"
@@ -19,6 +20,10 @@
       <a ng-click="newTune(searchText)">Create a new one!</a>
     </md-not-found>
   </md-autocomplete>
+</div>
+<div flex="20">
+    <button type="button" class="btn btn-primary"> <span class="badge">{{count}} tunes available!</span></button>
+</div>
 </md-content>
 
 
@@ -33,9 +38,10 @@
       <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num cols" ng-model="formData.numCol" min="1" max="10"></md-input-container>
     </div>
     <div>
+      <md-button class="md-raised md-primary"  ng-click="newTune('')">New tune</md-button>
       <md-button class="md-raised md-primary"  ng-click="createGrid()"  ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null  || ( formData.grilleAuthorName!==null  && formData.grilleAuthorName!==undefined && userSignedIn!==formData.grilleAuthorName)">Create grid</md-button>
       <md-button class="md-raised md-primary"  ng-click="resetGrid()">Reset grid</md-button>
-      <md-button type="submit" class="md-raised md-primary" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="createTune()">Save this tune</md-button>
+      <md-button type="submit" class="md-raised md-primary" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="addOrUpdateTune()">Save this tune</md-button>
       <md-button class="md-raised md-primary" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="deleteTune()">Delete this tune</md-button>
     </div>
   </md-content>

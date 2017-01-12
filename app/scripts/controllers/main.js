@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('yeomanApp')
-.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies', function functionName($scope,$rootScope,$http,$q,$cookies) {
+.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast) {
   $scope.formData = {};
 
   $scope.formData.numCol=0;
@@ -11,7 +11,7 @@ angular.module('yeomanApp')
   $scope.formData.tuneAuthorName='';
   $scope.formData.comments='';
   $scope.selectedTune='';
-
+  $scope.newTuneFlag=false;
 
   /** check if user already logged in */
   $rootScope.userSignedIn = $cookies.get('youjazz_user');
@@ -49,7 +49,13 @@ angular.module('yeomanApp')
     $scope.cellSelected.cellValue=$scope.cellSelected.cellValue.concat($scope.chords[index-1].chordName);
   };
 
-
+  $scope.showToast1 = function(msg) {
+    $mdToast.show(
+      $mdToast.simple()
+      .textContent(msg)
+      .hideDelay(3000)
+    );
+  }
 
 
   /* symbols */
@@ -109,8 +115,9 @@ angular.module('yeomanApp')
     $scope.selectedTune=null;
     $scope.formData.tuneTitle=null;
     $scope.formData.tuneAuthorName=null;
-    $scope.formData.comments='';
-
+    $scope.formData.comments=null;
+    $scope.formData.numRow=null;
+    $scope.formData.numCol=null;
     $scope.formData.grilleAuthorName=null;
     $scope.formData.grille=[];
 
@@ -145,93 +152,88 @@ angular.module('yeomanApp')
 
   /* Load all tunes when the page opens */
   // when landing on the page, get all todos and show them
-    var self = this;
-    $http.get('/api/tunes')
-    .then(function(response) {
-      if (response.status!='200'){
-        alert("get Error!");
-        throw new Error("Error during call to GET api");
+  var self = this;
+  $http.get('/api/tunes')
+  .then(function(response) {
+    if (response.status!='200'){
+      alert("get Error!");
+      throw new Error("Error during call to GET api");
+    }
+    else{
+      console.log(response.status);
+      //return response.data;
+
+      $scope.tunes = response.data;
+      $scope.count = $scope.tunes.length;
+      if($scope.count>0)$scope.newTuneFlag=false;
+
+
+      self.isDisabled    = false;
+
+      self.tunes        = $scope.tunes;
+      self.querySearch   = $scope.querySearch;
+      self.selectedItemChange = $scope.selectedItemChange;
+      self.searchTextChange   = $scope.searchTextChange;
+
+      self.newState = $scope.newState;
+
+      $scope.newTune = function(tTitle) {
+        $scope.resetGrid();
+        $scope.formData.tuneTitle=tTitle;
+        $scope.newTuneFlag=true;
       }
-      else{
-        console.log(response.status);
-        //return response.data;
-        $scope.tunes = response.data;
 
+      $scope.querySearch = function (query) {
+        var results = query ? self.tunes.filter( $scope.createFilterFor(query) ) : self.tunes,
+        deferred;
 
-        self.simulateQuery = false;
-        self.isDisabled    = false;
+        return results;
 
-        self.tunes        = $scope.tunes;
-        self.querySearch   = $scope.querySearch;
-        self.selectedItemChange = $scope.selectedItemChange;
-        self.searchTextChange   = $scope.searchTextChange;
+      }
 
-        self.newState = $scope.newState;
+      $scope.searchTextChange= function(text) {
+        //console.log('Text changed to ' + text);
+      }
 
-        $scope.newTune = function(tTitle) {
-            $scope.formData.tuneTitle=tTitle;
-        }
-
-        $scope.querySearch = function (query) {
-          var results = query ? self.tunes.filter( $scope.createFilterFor(query) ) : self.tunes,
-          deferred;
-          if (self.simulateQuery) {
-            deferred = $q.defer();
-            //$timeout(function () { deferred.resolve( results ); }, Math.random() * 1000, false);
-            return deferred.promise;
-          } else {
-            return results;
-          }
-        }
-
-        $scope.searchTextChange= function(text) {
-          //console.log('Text changed to ' + text);
-        }
-
-        $scope.selectedItemChange = function(item) {
+      $scope.selectedItemChange = function(item) {
+        console.log("selected item change");
+        if (typeof item !== "undefined") {
           console.log("selected item change");
-          if (typeof item !== "undefined") {
-            console.log("selected item change");
-            $scope.loadTune(item._id);
-            return item.tuneTitle;
-          }
-
+          $scope.loadTune(item._id);
+          return item.tuneTitle;
         }
-
-
-
-        /**
-        * Create filter function for a query string
-        */
-        $scope.createFilterFor = function(query) {
-          var lowercaseQuery = angular.lowercase(query);
-        //  console.log('lowercaseQuery '+lowercaseQuery);
-          return function filterFn(tune) {
-            return (angular.lowercase(tune.tuneTitle).indexOf(lowercaseQuery) === 0);
-          };
-
-        }
-
 
       }
 
-    });
+
+
+      /**
+      * Create filter function for a query string
+      */
+      $scope.createFilterFor = function(query) {
+        var lowercaseQuery = angular.lowercase(query);
+        //  console.log('lowercaseQuery '+lowercaseQuery);
+        return function filterFn(tune) {
+          return (angular.lowercase(tune.tuneTitle).indexOf(lowercaseQuery) === 0);
+        };
+
+      }
+
+
+    }
+
+  });
 
 
 
-
-
+  $scope.addOrUpdateTune = function(){
+    if ($scope.newTuneFlag) $scope.createTune();
+    else $scope.updateTune();
+  }
 
   // when submitting the add form, send the text to the node API
   $scope.createTune = function() {
     $scope.formData.votes = 0;
-    //$scope.formData.grille=[{cellId:'00',cellValue:'sdd'},{cellId:'01',cellValue:'aaa'}];
-    console.log('print grid '+ JSON.stringify($scope.formData.grille));
-
-    if ($rootScope.isSignedin==false){
-      window.alert ("Error authentication!!");
-      return false;
-    }
 
     //post new tune and put tune list in the search box
     $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
@@ -243,7 +245,9 @@ angular.module('yeomanApp')
       }else{
         $scope.tunes = response.data;
         self.tunes=$scope.tunes;
+        $scope.count = $scope.tunes.length;
         console.log("tune list "+ JSON.stringify(response.data, null, 4));
+        $scope.showToast1($scope.formData.tuneTitle + " has been added!");
       }
 
     });
@@ -257,6 +261,7 @@ angular.module('yeomanApp')
       }else{
         $scope.formData= response.data;
         $scope.selectedTune =response.data._id;
+        $scope.newTuneFlag=false;
         console.log("latest tune "+JSON.stringify(response.data, null, 4));
       }
 
@@ -264,6 +269,23 @@ angular.module('yeomanApp')
 
 
   };
+
+
+  $scope.updateTune = function(){
+    console.log("update Tune "+$scope.selectedTune);
+    $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
+    $http.put('/api/tunes/'+ $scope.selectedTune,$scope.formData)
+    .then(function(response) {
+      if (response.status!='200'){
+        alert("get Error!");
+        throw new Error("Error during call to POST api");
+      }
+      else{
+          $scope.showToast1($scope.formData.tuneTitle + " updated!");
+      }
+    });
+
+  }
 
 
   //load a specific loadTune
@@ -278,6 +300,7 @@ angular.module('yeomanApp')
         $scope.formData= response.data[0];
         $scope.selectedTune = tuneId; //for delete and update;
         console.log(JSON.stringify(response.data, null, 4));
+        $scope.newTuneFlag=false;
       }
     });
   };
@@ -301,6 +324,8 @@ angular.module('yeomanApp')
             self.tunes.splice(index, 1);
           }
         });
+        $scope.showToast1($scope.formData.tuneTitle +" has been removed!");
+        $scope.count = self.tunes.length;
         $scope.resetGrid();
 
       }

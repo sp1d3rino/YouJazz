@@ -54,14 +54,14 @@ exports.getTune = function(req, res) {
   console.log('get Tune' +req.params.tune_id);
   // Use the Beer model to find a specific beer
   if (req.params.tune_id=='mylatest'){
-         
-//        console.log("mylatest : "+req.user.username);
-        Tune.findOne({}, {}, { sort: { 'timestamp' : -1 } }, function(err, tune) {
-          if (err)
-            res.send(err);
 
-          res.json(tune);
-        });
+    //        console.log("mylatest : "+req.user.username);
+    Tune.findOne({}, {}, { sort: { 'timestamp' : -1 } }, function(err, tune) {
+      if (err)
+      res.send(err);
+
+      res.json(tune);
+    });
 
   }else
   if (req.params.tune_id=='latest'){
@@ -100,4 +100,18 @@ exports.deleteTune = function(req, res) {
       res.json(tunes);
     });
   });
+};
+
+
+// Create endpoint /api/tunes/:tune_id for PUT
+exports.putTune= function(req, res) {
+  console.log("putTune enter");
+  Tune.update({ userId: req.user._id, _id: req.params.tune_id },{ tuneTitle: req.body.tuneTitle,tuneAuthorName:req.body.tuneAuthorName,comments:req.body.comments, timestamp:new Date(), numRow:req.body.numRow, numCol:req.body.numCol,grille:req.body.grille},
+  function(err, num, raw)
+  {
+      if (err)
+        res.send(err);
+      res.send("ok");
+
+    });
 };
