@@ -200,6 +200,10 @@ angular.module('yeomanApp')
         if (typeof item !== "undefined") {
           console.log("selected item change");
           $scope.loadTune(item._id);
+          $scope.searchText = '';
+          $scope.selectedItem= undefined;
+          document.getElementById("tuneTitleId").focus();
+          $scope.formData.tuneTitle.focus();
           return item.tuneTitle;
         }
 

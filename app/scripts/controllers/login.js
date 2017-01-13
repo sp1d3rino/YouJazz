@@ -40,7 +40,7 @@ angular.module('yeomanApp')
         login_expired.setDate(login_today.getDate() + 1); //Set expired date to tomorrow
         $cookies.put('youjazz_user', $rootScope.userSignedIn, {expires : login_expired });
         $cookies.put('youjazz_basic_auth',  $rootScope.basicAuth, {expires : login_expired });
-		$location.url('/' );
+        $location.url('/' );
       },
       function errorCallback(response) {
         console.log('error  response status:' +  JSON.stringify(response.status));
@@ -49,7 +49,7 @@ angular.module('yeomanApp')
       }
     );
   }
-  
- 
+
+
 
 }]);

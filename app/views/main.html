@@ -1,6 +1,10 @@
 
-<md-content class="md-padding" layout-gt-sm="row" style="padding-top: 80px; padding-bottom: 50px;">
-  <div flex="80">
+<md-content class="md-padding" layout-gt-sm="row" style="padding-top: 60px; padding-bottom: 50px;">
+
+  <div flex="20" layout-gt-sm="col" >
+      <h5><div class="w3-badge w3-large w3-padding w3-indigo"> {{count}}</div> tunes available!</h5>
+  </div>
+  <div flex="50">
     <md-autocomplete
     ng-disabled="isDisabled"
     md-no-cache="noCache"
@@ -11,9 +15,19 @@
     md-items="item in querySearch(searchText)"
     md-item-text="item.tuneTitle"
     md-min-length="0"
+    md-menu-class="autocomplete-custom-template"
     placeholder="Find your tune here...">
     <md-item-template>
-      <span md-highlight-text="searchText" md-highlight-flags="^i">{{item.tuneTitle}} (by {{item.grilleAuthorName}})</span>
+      <span class="item-title">
+        <md-icon md-svg-icon="images/svg/guitar.svg"></md-icon>
+        <span><strong>{{item.tuneTitle}} </strong> </span>
+      </span>
+      <span class="item-metadata">
+        <span class="item-metastat">
+          by <strong>{{item.grilleAuthorName}}</strong>
+        </span>
+       </span>
+      <!--      <span md-highlight-text="searchText" md-highlight-flags="^i">{{item.tuneTitle}} (by {{item.grilleAuthorName}})</span>-->
     </md-item-template>
     <md-not-found>
       No tunes matching "{{searchText}}" were found.
@@ -21,9 +35,7 @@
     </md-not-found>
   </md-autocomplete>
 </div>
-<div flex="20">
-    <button type="button" class="btn btn-primary"> <span class="badge">{{count}} tunes available!</span></button>
-</div>
+
 </md-content>
 
 
@@ -31,7 +43,7 @@
 <form name="formData" >
   <md-content layout-gt-sm="row" >
     <div  >
-      <md-input-container><label>Tune title</label><input required ng-model="formData.tuneTitle"></md-input-container>
+      <md-input-container><label>Tune title</label><input id='tuneTitleId' required ng-model="formData.tuneTitle"></md-input-container>
       <md-input-container><label>Tune author name</label><input required ng-model="formData.tuneAuthorName"></md-input-container>
       <md-input-container><textarea  class="form-control input-lg text-center" placeholder="notes" ng-model="formData.comments" md-maxlength="150" md-select-on-focus/></md-input-container>
       <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num rows" ng-model="formData.numRow" min="1" max="10"></md-input-container>
@@ -50,7 +62,7 @@
 <div layout="row">
   <div flex="80">
     <fieldset>
-      <center><legend style="font-family:'Comic Sans MS'" ng-show='formData.tuneTitle'>{{formData.tuneTitle}}</legend></center>
+      <legend style="font-family:'Comic Sans MS'" ng-show='formData.tuneTitle'><center>{{formData.tuneTitle}}</center></legend>
       <h5 style ="float:right; font-size: 15px; font-family:'Comic Sans MS';">{{formData.tuneAuthorName}}</h5>
       <table>
         <tr ng-repeat="row in formData.grille">
