@@ -8,7 +8,7 @@
  * Controller of the yeomanApp
  */
 angular.module('yeomanApp')
-  .controller('SignupCtrl', ['$scope','$http','$mdToast','$document',function functionName($scope,$http, $mdToast, $document) {
+  .controller('SignupCtrl', ['$scope','$http','$mdToast','$document','$location',function functionName($scope,$http, $mdToast, $document,$location) {
 
     $scope.error='';
     $scope.password='';
@@ -35,7 +35,7 @@ angular.module('yeomanApp')
 
     $scope.showToast2 = function() {
                       var toast = $mdToast.simple()
-                         .textContent('Registration completed. Now you can create and modify your tunes')
+                         .textContent('Well done! Now login and build your tune!')
                          .action('Ok!')
                          .highlightAction(false);
                       $mdToast.show(toast).then(function(response) {
@@ -68,7 +68,8 @@ angular.module('yeomanApp')
             headers: {'Content-Type' : 'application/x-www-form-urlencoded'}
         }).then (function successCallback(response){
               console.log('response status:' + JSON.stringify(response.status));
-              $scope.showToast1('You have signed up successfully!');
+              $scope.showToast1('Well done! Now login and build your tune!');
+			  $location.url('login' );
 
           },
           function errorCallback(response) {
