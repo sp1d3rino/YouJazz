@@ -12,7 +12,7 @@ angular.module('yeomanApp')
   $scope.formData.comments='';
   $scope.selectedTune='';
   $scope.newTuneFlag=false;
-
+  $scope.barClipboard=null;
   /** check if user already logged in */
   $rootScope.userSignedIn = $cookies.get('youjazz_user');
   $rootScope.basicAuth = $cookies.get('youjazz_basic_auth');
@@ -39,8 +39,12 @@ angular.module('yeomanApp')
   $scope.symbSelected = 0;
   $scope.cellSelected =null;
 
+
+
+
   $scope.select= function(index) {
-    console.log(index);
+
+
     //When insert a chord or symbols delete % before
     if ($scope.cellSelected.cellValue.indexOf('%') > -1){
       $scope.cellSelected.cellValue='';
@@ -58,30 +62,75 @@ angular.module('yeomanApp')
   }
 
 
+
   /* symbols */
   $scope.symbols = [
-    {'symbId':1,'symbName':'#'},
-    {'symbId':2,'symbName':'b'},
-    {'symbId':3,'symbName':'/'},
-    {'symbId':4,'symbName':'°'},
-    {'symbId':5,'symbName':'Ø'},
-    {'symbId':6,'symbName':'∆'},
-    {'symbId':7,'symbName':'maj'},
-    {'symbId':8,'symbName':'-'},
-    {'symbId':9,'symbName':'+'},
-    {'symbId':10,'symbName':'5'},
-    {'symbId':11,'symbName':'6'},
-    {'symbId':12,'symbName':'7'},
-    {'symbId':13,'symbName':'9'},
-    {'symbId':14,'symbName':'11'},
-    {'symbId':15,'symbName':'13'},
-    {'symbId':16,'symbName':'%'}
+    {'symbId':1,'symbName':'#','symbKey':'#'},
+    {'symbId':2,'symbName':'b','symbKey':'l'},
+    {'symbId':3,'symbName':'/','symbKey':'/'},
+    {'symbId':4,'symbName':'°','symbKey':'°'},
+    {'symbId':5,'symbName':'Ø','symbKey':'.'},
+    {'symbId':6,'symbName':'∆','symbKey':'r'},
+    {'symbId':7,'symbName':'maj','symbKey':'j'},
+    {'symbId':8,'symbName':'m','symbKey':'m'},
+    {'symbId':9,'symbName':'-','symbKey':'-'},
+    {'symbId':10,'symbName':'+','symbKey':'+'},
+    {'symbId':11,'symbName':'5','symbKey':'5'},
+    {'symbId':12,'symbName':'6','symbKey':'6'},
+    {'symbId':13,'symbName':'7','symbKey':'7'},
+    {'symbId':14,'symbName':'9','symbKey':'9'},
+    {'symbId':15,'symbName':'11','symbKey':'1'},
+    {'symbId':16,'symbName':'13','symbKey':'3'},
+    {'symbId':17,'symbName':'%','symbKey':'%'},
+    {'symbId':18,'symbName':',','symbKey':','},
+    {'symbId':19,'symbName':' ','symbKey':'s'},
+
 
   ];
 
+  $scope.isFunctionKey= function(eventKey){
+    var keyPressed = eventKey.originalEvent;
+    if (keyPressed.key =="Backspace"){
+        eventKey.preventDefault();
+        var str=$scope.cellSelected.cellValue;
+        str = str.substring(0, str.length - 1);
+        $scope.cellSelected.cellValue =str;
+       return true;
+     }
+     else   if (keyPressed.key =="c" && keyPressed.ctrlKey ){
+       $scope.barClipboard=$scope.cellSelected.cellValue;
+       return true;
+     }
+
+     else   if (keyPressed.key =="v" && keyPressed.ctrlKey ){
+       if($scope.barClipboard != null && $scope.barClipboard.length>0)
+        $scope.cellSelected.cellValue =$scope.barClipboard;
+        return true;
+     }
+
+     return false;
+  }
 
 
 
+
+  $scope.cellKeyPressed = function(eventKey){
+    var keyPressed = eventKey.originalEvent.key;
+    if ($scope.isFunctionKey(eventKey))return;
+
+    //check if key pressed is a chord
+    angular.forEach($scope.chords, function(item){
+      if(keyPressed.toUpperCase() == item.chordName)
+        $scope.select(item.chordId);
+    });
+    //check if key pressed is a symbol
+    angular.forEach($scope.symbols, function(item){
+      if(keyPressed.toLowerCase() == item.symbKey)
+        $scope.selectSymb(item.symbId);
+    });
+
+
+  }
 
   $scope.selectSymb = function(index) {
     console.log(index);
@@ -145,7 +194,11 @@ angular.module('yeomanApp')
 
   };
 
-
+  $scope.newTune = function(tTitle) {
+    $scope.resetGrid();
+    $scope.formData.tuneTitle=tTitle;
+    $scope.newTuneFlag=true;
+  }
 
 
   /***************** REST API calls ********************/
@@ -165,7 +218,6 @@ angular.module('yeomanApp')
 
       $scope.tunes = response.data;
       $scope.count = $scope.tunes.length;
-      if($scope.count>0)$scope.newTuneFlag=false;
 
 
       self.isDisabled    = false;
@@ -177,11 +229,7 @@ angular.module('yeomanApp')
 
       self.newState = $scope.newState;
 
-      $scope.newTune = function(tTitle) {
-        $scope.resetGrid();
-        $scope.formData.tuneTitle=tTitle;
-        $scope.newTuneFlag=true;
-      }
+
 
       $scope.querySearch = function (query) {
         var results = query ? self.tunes.filter( $scope.createFilterFor(query) ) : self.tunes,
@@ -208,9 +256,6 @@ angular.module('yeomanApp')
         }
 
       }
-
-
-
       /**
       * Create filter function for a query string
       */
@@ -224,6 +269,21 @@ angular.module('yeomanApp')
       }
 
 
+    }
+
+  });
+
+  //now get lastest tune
+  $http.get('/api/tunes/'+ 'latest')
+  .then(function(response) {
+    if (response.status!='200'){
+      alert("get Error!");
+      throw new Error("Error during call to GET api");
+    }else{
+      $scope.formData= response.data;
+      $scope.selectedTune =response.data._id;
+      $scope.newTuneFlag=false;
+//      console.log("latest tune "+JSON.stringify(response.data, null, 4));
     }
 
   });
@@ -285,7 +345,7 @@ angular.module('yeomanApp')
         throw new Error("Error during call to POST api");
       }
       else{
-          $scope.showToast1($scope.formData.tuneTitle + " updated!");
+        $scope.showToast1($scope.formData.tuneTitle + " updated!");
       }
     });
 

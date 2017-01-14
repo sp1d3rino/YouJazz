@@ -50,9 +50,9 @@
       <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num cols" ng-model="formData.numCol" min="1" max="10"></md-input-container>
     </div>
     <div>
-      <md-button class="md-raised md-primary"  ng-click="newTune('')">New tune</md-button>
+      <md-button class="md-raised md-primary"  ng-disabled ="userSignedIn==undefined || userSignedIn==null" ng-click="newTune('')">New tune</md-button>
       <md-button class="md-raised md-primary"  ng-click="createGrid()"  ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null  || ( formData.grilleAuthorName!==null  && formData.grilleAuthorName!==undefined && userSignedIn!==formData.grilleAuthorName)">Create grid</md-button>
-      <md-button class="md-raised md-primary"  ng-click="resetGrid()">Reset grid</md-button>
+      <md-button class="md-raised md-primary"  ng-disabled ="userSignedIn===undefined || userSignedIn===null " ng-click="resetGrid()">Reset grid</md-button>
       <md-button type="submit" class="md-raised md-primary" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="addOrUpdateTune()">Save this tune</md-button>
       <md-button class="md-raised md-primary" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="deleteTune()">Delete this tune</md-button>
     </div>
@@ -66,7 +66,7 @@
       <h5 style ="float:right; font-size: 15px; font-family:'Comic Sans MS';">{{formData.tuneAuthorName}}</h5>
       <table>
         <tr ng-repeat="row in formData.grille">
-          <td  ng-repeat="col in row"  ng-click="selectCell(col)" ng-class="{'box box-selected noselect' : col===cellSelected, 'box noselect':col!==cellSelected }" class="box" style="font-family:'Comic Sans MS';font-size:150%;">
+          <td  ng-repeat="col in row"  ng-click="selectCell(col)" ng-keypress="cellKeyPressed($event)" ng-class="{'box box-selected noselect' : col===cellSelected, 'box noselect':col!==cellSelected }" class="box" style="font-family:'Comic Sans MS';font-size:150%;color:black;">
             {{col.cellValue}}
           </td>
         </tr>
@@ -78,11 +78,19 @@
   <div flex=20>
     <fieldset>
       <legend>Chords palette</legend>
-      <md-button ng-repeat="chord in chords" class="md-fab md-mini md-primary"  ng-click="select(chord.chordId)">{{chord.chordName}}</md-button>
+      <md-button ng-repeat="chord in chords" class="md-fab md-mini md-primary"  ng-click="select(chord.chordId)">{{chord.chordName}}
+        <md-tooltip>
+            key code: {{chord.chordName}}
+          </md-tooltip>
+      </md-button>
     </fieldset>
     <fieldset>
       <legend>Symbols palette</legend>
-      <md-button ng-repeat="symb in symbols" class="md-fab md-mini md-primary tolowercase italic" ng-click="selectSymb(symb.symbId)">{{symb.symbName}}</md-button>
+      <md-button ng-repeat="symb in symbols" class="md-fab md-mini md-primary tolowercase italic" ng-click="selectSymb(symb.symbId)">{{symb.symbName}}
+        <md-tooltip>
+            key code: {{symb.symbKey}}
+          </md-tooltip>
+      </md-button>
     </fieldset>
   </div>
 </div>
