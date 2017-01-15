@@ -143,13 +143,12 @@ legend {
                                   not supported by any browser */
 }
 table{
-
   width:100%;
   height:10%;
 }
 
 table, th, td {
-    border: 1px solid black;
+    border: 3px solid black;
     padding: 15px;
     text-align: center;
 
@@ -189,21 +188,28 @@ td{
   border-radius: 5px;
   padding: 20px;
   position: relative;
+  font-family:'Comic Sans MS';
+  font-size:150%;
+  color:black;
 }
 .box-font-style
 {
   font-size: 1.5vw;
 }
+.tuneTitle{
+  font-family:'Comic Sans MS';
+  font-size:150%;
+}
 .box:hover{
   background-color: #FFFFA0;
 }
 .box-selected {
-  border: 2px solid red;
+  border: 3px solid red;
 
 }
 
 .box-selected:hover {
-  border: 2px solid red;
+  border: 3px solid red;
 }
 
 .autocomplete-custom-template .item-title {
@@ -231,3 +237,12 @@ td{
 .autocomplete-custom-template .item-title md-icon {
   height: 36px;
   width: 36px; }
+
+md-icon {
+  margin-left: 0;
+  margin-right:0;
+  margin-top: 0;
+  width: 36px;
+  height: 36px;
+  color:#f00;
+}

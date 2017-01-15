@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('yeomanApp')
-.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast) {
+.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast','$window', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast,$window) {
   $scope.formData = {};
 
   $scope.formData.numCol=0;
@@ -91,24 +91,24 @@ angular.module('yeomanApp')
   $scope.isFunctionKey= function(eventKey){
     var keyPressed = eventKey.originalEvent;
     if (keyPressed.key =="Backspace"){
-        eventKey.preventDefault();
-        var str=$scope.cellSelected.cellValue;
-        str = str.substring(0, str.length - 1);
-        $scope.cellSelected.cellValue =str;
-       return true;
-     }
-     else   if (keyPressed.key =="c" && keyPressed.ctrlKey ){
-       $scope.barClipboard=$scope.cellSelected.cellValue;
-       return true;
-     }
+      eventKey.preventDefault();
+      var str=$scope.cellSelected.cellValue;
+      str = str.substring(0, str.length - 1);
+      $scope.cellSelected.cellValue =str;
+      return true;
+    }
+    else   if (keyPressed.key =="c" && keyPressed.ctrlKey ){
+      $scope.barClipboard=$scope.cellSelected.cellValue;
+      return true;
+    }
 
-     else   if (keyPressed.key =="v" && keyPressed.ctrlKey ){
-       if($scope.barClipboard != null && $scope.barClipboard.length>0)
-        $scope.cellSelected.cellValue =$scope.barClipboard;
-        return true;
-     }
+    else   if (keyPressed.key =="v" && keyPressed.ctrlKey ){
+      if($scope.barClipboard != null && $scope.barClipboard.length>0)
+      $scope.cellSelected.cellValue =$scope.barClipboard;
+      return true;
+    }
 
-     return false;
+    return false;
   }
 
 
@@ -121,12 +121,12 @@ angular.module('yeomanApp')
     //check if key pressed is a chord
     angular.forEach($scope.chords, function(item){
       if(keyPressed.toUpperCase() == item.chordName)
-        $scope.select(item.chordId);
+      $scope.select(item.chordId);
     });
     //check if key pressed is a symbol
     angular.forEach($scope.symbols, function(item){
       if(keyPressed.toLowerCase() == item.symbKey)
-        $scope.selectSymb(item.symbId);
+      $scope.selectSymb(item.symbId);
     });
 
 
@@ -169,10 +169,28 @@ angular.module('yeomanApp')
     $scope.formData.numCol=null;
     $scope.formData.grilleAuthorName=null;
     $scope.formData.grille=[];
+    $scope.formData.grille_intro=[];
+    $scope.formData.grille_outro=[];
 
   }
+
+
+  $scope.createG = function(gridType) {
+    if(gridType=='Intro'){
+      $scope.createIntroGrid();
+    }else if(gridType=='Body'){
+      $scope.createGrid();
+    }
+    else if(gridType=='Outro'){
+      $scope.createOutroGrid();
+    }
+
+  }
+
   /* jazz grid */
   $scope.createGrid = function() {
+    if($scope.formData.numRow=='0' || $scope.formData.numCol=='0') {$scope.formData.grille=null;return;}
+
     console.log('createGrid ' +$scope.formData.numRow +'x'+$scope.formData.numCol);
     var rows=$scope.formData.numRow;
     var cols=$scope.formData.numCol;
@@ -187,6 +205,47 @@ angular.module('yeomanApp')
       }
     }
   };
+
+  /* jazz grid */
+  $scope.createIntroGrid = function() {
+    if($scope.formData.numRow=='0' || $scope.formData.numCol=='0') {$scope.formData.grille_intro=null;return;}
+
+    console.log('createGrid Intro' +$scope.formData.numRow +'x'+$scope.formData.numCol);
+    var rows=$scope.formData.numRow;
+    var cols=$scope.formData.numCol;
+    $scope.formData.grille_intro = new Array(rows);
+    for (var i = 0; i < rows; i++) {
+      $scope.formData.grille_intro[i] = new Array(cols);
+    }
+    for (var r = 0; r < rows;r++){
+      for(var c = 0; c< cols;c++){
+
+        $scope.formData.grille_intro[r][c] = {cellId:r.toString().concat(c.toString()),cellValue:'%'};
+      }
+    }
+  };
+
+  /* jazz grid */
+  $scope.createOutroGrid = function() {
+    if($scope.formData.numRow=='0' || $scope.formData.numCol=='0') {$scope.formData.grille_outro=null;return;}
+
+    console.log('createGrid Outro ' +$scope.formData.numRow +'x'+$scope.formData.numCol);
+    var rows=$scope.formData.numRow;
+    var cols=$scope.formData.numCol;
+    $scope.formData.grille_outro = new Array(rows);
+    for (var i = 0; i < rows; i++) {
+      $scope.formData.grille_outro[i] = new Array(cols);
+    }
+    for (var r = 0; r < rows;r++){
+      for(var c = 0; c< cols;c++){
+
+        $scope.formData.grille_outro[r][c] = {cellId:r.toString().concat(c.toString()),cellValue:'%'};
+      }
+    }
+  };
+
+
+
 
   $scope.selectCell = function(cell) {
     console.log(cell);
@@ -273,21 +332,23 @@ angular.module('yeomanApp')
 
   });
 
-  //now get lastest tune
-  $http.get('/api/tunes/'+ 'latest')
+
+/*  $http.get('/api/tunes/'+ 'latest')
   .then(function(response) {
     if (response.status!='200'){
       alert("get Error!");
       throw new Error("Error during call to GET api");
     }else{
-      $scope.formData= response.data;
-      $scope.selectedTune =response.data._id;
-      $scope.newTuneFlag=false;
-//      console.log("latest tune "+JSON.stringify(response.data, null, 4));
+      if(response.data !=null){
+        $scope.formData= response.data;
+        $scope.selectedTune =response.data._id;
+        $scope.newTuneFlag=false;
+      }else $scope.newTuneFlag=true;
+      //      console.log("latest tune "+JSON.stringify(response.data, null, 4));
     }
 
   });
-
+*/
 
 
   $scope.addOrUpdateTune = function(){
@@ -396,6 +457,23 @@ angular.module('yeomanApp')
     });
   };
 
+
+  $scope.printIt = function(){
+    var printableGrid = document.getElementById('printableGrid');
+    printableGrid.setAttribute("style","table tr td{border: solid 1px;}");
+    var myWindow = $window.open('', '', 'width=800, height=600');
+    myWindow.document.write('<html><head><title>YouJazz</title><link rel="stylesheet" type="text/css" href="styles/main.css"></head><body>');
+    myWindow.document.write(printableGrid.innerHTML);
+    myWindow.document.write('</body>');
+    myWindow.document.write('</html>');
+
+    myWindow.print();
+  };
+
+
+  //now get lastest tune
+
+  $scope.loadTune('latest');
 
 
 

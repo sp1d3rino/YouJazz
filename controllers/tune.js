@@ -12,8 +12,9 @@ exports.postTunes = function(req, res) {
   tune.tuneAuthorName= req.body.tuneAuthorName;
   tune.numRow= req.body.numRow;
   tune.timestamp=new Date();
-  tune.numCol= req.body.numCol;
   tune.grille = req.body.grille;
+  tune.grille_intro = req.body.grille_intro;
+  tune.grille_outro = req.body.grille_outro;
   tune.comments = req.body.comments;
   tune.votes = req.body.votes;
 
