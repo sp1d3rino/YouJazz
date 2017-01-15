@@ -2,7 +2,8 @@
 'use strict';
 
 angular.module('yeomanApp')
-.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast','$window', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast,$window) {
+.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast','$window','$mdDialog', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast,$window,$mdDialog) {
+  var originatorEv;
   $scope.formData = {};
 
   $scope.formData.numCol=0;
@@ -162,11 +163,11 @@ angular.module('yeomanApp')
 
     console.log('resetGrid ');
     $scope.selectedTune=null;
-    $scope.formData.tuneTitle=null;
+/*    $scope.formData.tuneTitle=null;
     $scope.formData.tuneAuthorName=null;
     $scope.formData.comments=null;
     $scope.formData.numRow=null;
-    $scope.formData.numCol=null;
+    $scope.formData.numCol=null;*/
     $scope.formData.grilleAuthorName=null;
     $scope.formData.grille=[];
     $scope.formData.grille_intro=[];
@@ -178,7 +179,7 @@ angular.module('yeomanApp')
   $scope.createG = function(gridType) {
     if(gridType=='Intro'){
       $scope.createIntroGrid();
-    }else if(gridType=='Body'){
+    }else if(gridType=='Chorus'){
       $scope.createGrid();
     }
     else if(gridType=='Outro'){
@@ -255,7 +256,7 @@ angular.module('yeomanApp')
 
   $scope.newTune = function(tTitle) {
     $scope.resetGrid();
-    $scope.formData.tuneTitle=tTitle;
+    //if (tTitle.length>0) $scope.formData.tuneTitle=tTitle;
     $scope.newTuneFlag=true;
   }
 
@@ -333,7 +334,7 @@ angular.module('yeomanApp')
   });
 
 
-/*  $http.get('/api/tunes/'+ 'latest')
+  $http.get('/api/tunes/'+ 'latest')
   .then(function(response) {
     if (response.status!='200'){
       alert("get Error!");
@@ -348,7 +349,6 @@ angular.module('yeomanApp')
     }
 
   });
-*/
 
 
   $scope.addOrUpdateTune = function(){
@@ -371,7 +371,8 @@ angular.module('yeomanApp')
         $scope.tunes = response.data;
         self.tunes=$scope.tunes;
         $scope.count = $scope.tunes.length;
-        console.log("tune list "+ JSON.stringify(response.data, null, 4));
+        $scope.announceClick('Your tune "'+$scope.formData.tuneTitle+'" has been added!');
+        //console.log("tune list "+ JSON.stringify(response.data, null, 4));
         $scope.showToast1($scope.formData.tuneTitle + " has been added!");
       }
 
@@ -387,7 +388,7 @@ angular.module('yeomanApp')
         $scope.formData= response.data;
         $scope.selectedTune =response.data._id;
         $scope.newTuneFlag=false;
-        console.log("latest tune "+JSON.stringify(response.data, null, 4));
+        //console.log("latest tune "+JSON.stringify(response.data, null, 4));
       }
 
     });
@@ -424,7 +425,7 @@ angular.module('yeomanApp')
       }else{
         $scope.formData= response.data[0];
         $scope.selectedTune = tuneId; //for delete and update;
-        console.log(JSON.stringify(response.data, null, 4));
+        //console.log(JSON.stringify(response.data, null, 4));
         $scope.newTuneFlag=false;
       }
     });
@@ -432,7 +433,7 @@ angular.module('yeomanApp')
 
   // delete a tune
 
-  $scope.deleteTune = function() {
+  $scope.deleteTune = function($event) {
     console.log('selected tune id is:' + $scope.selectedTune);
     $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
     $http.delete('/api/tunes/'+ $scope.selectedTune)
@@ -471,9 +472,81 @@ angular.module('yeomanApp')
   };
 
 
-  //now get lastest tune
+  $scope.announceClick = function(msg) {
+    $mdDialog.show(
+      $mdDialog.alert()
+      .title('YouJazz')
+      .textContent(msg)
+      .ok('Ok!')
+      .targetEvent(originatorEv)
+    );
+    originatorEv = null;
+  };
 
-  $scope.loadTune('latest');
+
+  $scope.showDeleteConfirm = function(ev,msg) {
+    // Appending dialog to document.body to cover sidenav in docs app
+    var confirm = $mdDialog.confirm()
+    .title(msg)
+    .textContent('Will not possible to recover this tune!')
+    .ariaLabel('Lucky day')
+    .targetEvent(ev)
+    .ok('Delete it!')
+    .cancel('Nevermind');
+
+    $mdDialog.show(confirm).then(function() {
+      $scope.deleteTune();
+    }, function() {
+      return false;
+    });
+  };
+
+
+
+  $scope.createPrompt1 = function(ev,tuneTitle) {
+      // Appending dialog to document.body to cover sidenav in docs app
+
+      var confirm = $mdDialog.prompt()
+        .title('Tune name')
+        .textContent('What is the name of the new tune?')
+        .placeholder('Tune name')
+        .ariaLabel('Tune name')
+        .initialValue(tuneTitle)
+        .targetEvent(ev)
+        .ok('Next')
+        .cancel('Nevermind');
+
+      $mdDialog.show(confirm).then(function(result) {
+        $scope.formData.tuneTitle=result;
+        $scope.createPrompt2(ev,tuneTitle);
+      }, function() {
+        $scope.formData.tuneTitle='';
+      });
+
+    };
+
+    $scope.createPrompt2 = function(ev,tuneTitle) {
+        // Appending dialog to document.body to cover sidenav in docs app
+        var confirm = $mdDialog.prompt()
+          .title('Author name')
+          .textContent('What is the name of the composer?')
+          .placeholder('Author name')
+          .ariaLabel('Author name')
+          .initialValue('')
+          .targetEvent(ev)
+          .ok('Next')
+          .cancel('Nevermind');
+
+        $mdDialog.show(confirm).then(function(result) {
+          $scope.formData.tuneAuthorName=result;
+          $scope.newTune(tuneTitle);
+        }, function() {
+          $scope.formData.tuneTitle='';
+          $scope.formData.tuneAuthorName='';
+        });
+      };
+
+
 
 
 

@@ -106,7 +106,7 @@ heigth:100%;
 }
 
 legend {
-  float: left;
+  text-align:  right;
   width: 100%;
 
 }

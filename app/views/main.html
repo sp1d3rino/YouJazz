@@ -31,7 +31,7 @@
     </md-item-template>
     <md-not-found>
       No tunes matching "{{searchText}}" were found.
-      <a ng-click="newTune(searchText)">Create a new one!</a>
+      <a ng-click="createPrompt1($event,searchText)">Create a new one!</a>
     </md-not-found>
   </md-autocomplete>
 </div>
@@ -40,44 +40,37 @@
 
 
 <!-- The grid-->
-<form name="formData" >
-  <md-content layout-gt-sm="row" >
-    <div>
-      <md-input-container><label>Tune title</label><input id='tuneTitleId' required ng-model="formData.tuneTitle"></md-input-container>
-      <md-input-container><label>Tune author name</label><input required ng-model="formData.tuneAuthorName"></md-input-container>
-      <md-input-container><textarea  class="form-control input-lg text-center" placeholder="notes" ng-model="formData.comments" md-maxlength="150" md-select-on-focus/></md-input-container>
-      <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num rows" ng-model="formData.numRow" min="0" max="10" style="width:50px;"></md-input-container>
-      <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="num cols" ng-model="formData.numCol" min="0" max="10" style="width:50px;"></md-input-container>
-        <md-menu>
-          <md-button  class="md-icon-button" ng-click="$mdOpenMenu($event)">
-            <md-icon md-menu-origin md-svg-icon="images/svg/simple_grid.svg"></md-icon>
+<form name="formData"  >
+
+  <div layout="row" layout-sm="column"> <!-- tune input text fields -->
+    <md-input-container style="display:none;"><label>Tune title</label><input id='tuneTitleId' required ng-model="formData.tuneTitle"></md-input-container>
+    <md-input-container style="display:none;"><label>Tune author name</label><input required ng-model="formData.tuneAuthorName"></md-input-container>
+    <md-input-container style="display:none;"><textarea  class="form-control input-lg text-center" placeholder="notes" ng-model="formData.comments" md-maxlength="150" md-select-on-focus/></md-input-container>
+    <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="rows" ng-model="formData.numRow" min="0" max="10" style="width:50px;"></md-input-container>
+    <md-input-container><input required type="number" class="form-control input-lg text-center" placeholder="cols" ng-model="formData.numCol" min="0" max="10" style="width:50px;"></md-input-container>
+  </div>
+  <div layout="row" layout-sm="column">
+    <!-- new tune, print, save... buttons  -->
+    <md-button class="md-fab md-raised md-inform"  ng-disabled ="userSignedIn==undefined || userSignedIn==null" ng-click="createPrompt1($event)"><md-tooltip>Create a new tune</md-tooltip><md-icon  class="md-icon" md-svg-src="images/svg/new_tune.svg"/></md-button>
+    <!--<md-button class="md-fab md-raised md-inform"  ng-disabled ="userSignedIn===undefined || userSignedIn===null " ng-click="resetGrid()"><md-tooltip>Reset the grid</md-tooltip><md-icon  class="md-icon" md-svg-src="images/svg/remove-button.svg"/></md-button>-->
+    <md-button type="submit" class=" md-fab md-raised md-inform" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="addOrUpdateTune()"><md-tooltip>Save tune</md-tooltip><md-icon  class="md-icon" md-svg-src="images/svg/check-mark.svg"/></md-button>
+    <md-button class="md-fab md-raised md-inform" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="showDeleteConfirm($event,'Do you want to delete this tune?')"><md-tooltip>Delete tune</md-tooltip><md-icon  class="md-icon" md-svg-src="images/svg/rubbish-bin.svg"/></md-button>
+    <md-button class="md-fab md-raised md-inform" ng-disabled ="userSignedIn==undefined || userSignedIn==null" ng-click="printIt()"><md-tooltip>Print the grid</md-tooltip><md-icon  class="md-icon" md-svg-src="images/svg/printer-.svg"/></md-button>
+    <md-menu style="padding-top:0px">
+      <md-button  class="md-fab md-raised md-inform" ng-click="$mdOpenMenu($event)" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null  || ( formData.grilleAuthorName!==null  && formData.grilleAuthorName!==undefined && userSignedIn!==formData.grilleAuthorName)">
+        <md-tooltip>Build the grid</md-tooltip><md-icon md-menu-origin md-svg-icon="images/svg/grid.svg"></md-icon>
+      </md-button>
+      <md-menu-content width="6">
+        <md-menu-item ng-repeat="gridtype in ['Intro', 'Chorus', 'Outro']">
+          <md-button ng-click="createG(gridtype)">
+            <md-icon md-menu-align-target md-svg-icon="images/svg/grid.svg"></md-icon>
+            {{gridtype}} Grid
           </md-button>
-          <md-menu-content width="6">
-            <md-menu-item ng-repeat="gridtype in ['Intro', 'Body', 'Outro']">
-              <md-button ng-click="createG(gridtype)">
-                <md-icon md-menu-align-target md-svg-icon="images/svg/simple_grid.svg"></md-icon>
-                {{gridtype}} Grid
-              </md-button>
-            </md-menu-item>
-          </md-menu-content>
-        </md-menu>
-        <md-button  class="md-icon">
-          <md-icon   class="md-icon" md-svg-src="images/svg/garbage.svg">
-       </md-icon>
-     </md-button>
+        </md-menu-item>
+      </md-menu-content>
+    </md-menu>
+  </div>
 
-    </div>
-
-    <div>
-      <md-button class="md-raised md-primary"  ng-disabled ="userSignedIn==undefined || userSignedIn==null" ng-click="newTune('')">New tune</md-button>
-      <md-button class="md-raised md-primary"  ng-click="createGrid()"  ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null  || ( formData.grilleAuthorName!==null  && formData.grilleAuthorName!==undefined && userSignedIn!==formData.grilleAuthorName)">Create grid</md-button>
-      <md-button class="md-raised md-primary" ng-disabled ="userSignedIn==undefined || userSignedIn==null" ng-click="printIt()">Print it</md-button>
-      <md-button class="md-raised md-primary"  ng-disabled ="userSignedIn===undefined || userSignedIn===null " ng-click="resetGrid()">Reset grid</md-button>
-      <md-button type="submit" class="md-raised md-primary" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="addOrUpdateTune()">Save tune</md-button>
-      <md-button class="md-raised md-primary" ng-disabled="formData.$invalid || userSignedIn===undefined || userSignedIn===null || ( formData.grilleAuthorName!==null && formData.grilleAuthorName!==undefined  && userSignedIn!==formData.grilleAuthorName)" ng-click="deleteTune()">Delete tune</md-button>
-    </div>
-
-  </md-content>
 </form>
 
 <div layout="row">
