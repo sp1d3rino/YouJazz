@@ -548,6 +548,58 @@ angular.module('yeomanApp')
 
 
 
+      $scope.showDialog = function($event) {
+           var parentEl = angular.element(document.body);
+           $mdDialog.show({
+             parent: parentEl,
+             targetEvent: $event,
+             template:
+               '<md-dialog aria-label="List dialog">' +
+               '  <md-dialog-content>'+
+               '  <h5 class="md-inform" style="padding:10px 10px;">Choose the grid type and size</h5>'+
+               '   <div layout="row" style="justify-content: center; padding-top:10px; padding-left:20px;padding-right:20px" layout-sm="column">'+
+               '      <md-radio-group layout="row"  ng-model="data.group1">'+
+               '          <md-radio-button value="Intro" class="md-primary">Intro</md-radio-button>'+
+               '          <md-radio-button value="Chorus" class="md-primary"> Chorus </md-radio-button>'+
+               '          <md-radio-button value="Outro" class="md-primary" >Outro</md-radio-button>'+
+               '      </md-radio-group>'+
+               '   </div>'+
+               '  <div layout="row">'+
+               '   <md-slider-container layout="row" flex>'+
+               '    <input type="number"  placeholder="row" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numRow" aria-label="volume" aria-controls="volume-slider">'+
+               '    <md-slider ng-model="formData.numRow" min="0" max="10" aria-label="volume" id="volume-slider" class="md-accent" style="padding-right:20px;" md-horizontal md-range></md-slider>'+
+               '   </md-slider-container>'+
+               '  </div>'+
+               '  <div layout="row">'+
+               '   <md-slider-container layout="row" flex>'+
+               '    <input type="number"  placeholder="col" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numCol" aria-label="volume" aria-controls="volume-slider">'+
+               '    <md-slider ng-model="formData.numCol" min="0" max="10" aria-label="volume" id="volume-slider" class="md-accent" style="padding-right:20px;" md-horizontal md-range></md-slider>'+
+               '   </md-slider-container>'+
+               '  </div>'+
+               '  </md-dialog-content>' +
+               '  <md-dialog-actions>' +
+               '    <md-button ng-click="closeDialog()" class="md-primary">' +
+               '      Nervermind' +
+               '    </md-button>' +
+               '    <md-button ng-click="closeDialog()" class="md-primary">' +
+               '      Create!' +
+               '    </md-button>' +
+               '  </md-dialog-actions>' +
+               '</md-dialog>',
+             locals: {
+               items: $scope.items
+             },
+             controller: DialogController
+          });
+          function DialogController($scope, $mdDialog, items) {
+            $scope.items = items;
+            $scope.closeDialog = function() {
+              $mdDialog.hide();
+            }
+          }
+        }
+
+
 
 
 }]);
