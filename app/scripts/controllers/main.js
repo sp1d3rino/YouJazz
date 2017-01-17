@@ -163,12 +163,14 @@ angular.module('yeomanApp')
 
 
     console.log('resetGrid ');
+
     $scope.selectedTune=null;
 /*    $scope.formData.tuneTitle=null;
     $scope.formData.tuneAuthorName=null;
     $scope.formData.comments=null;
     $scope.formData.numRow=null;
     $scope.formData.numCol=null;*/
+    $scope.formData._id=undefined;
     $scope.formData.grilleAuthorName=null;
     $scope.formData.grille=[];
     $scope.formData.grille_intro=[];
@@ -311,8 +313,8 @@ angular.module('yeomanApp')
           $scope.loadTune(item._id);
           $scope.searchText = '';
           $scope.selectedItem= undefined;
-          document.getElementById("tuneTitleId").focus();
-          $scope.formData.tuneTitle.focus();
+//          document.getElementById("tuneTitleId").focus();
+          //$scope.formData.tuneTitle.focus();
           return item.tuneTitle;
         }
 
@@ -622,8 +624,6 @@ angular.module('yeomanApp')
           }
 
         }
-
-
 
 
 }]);

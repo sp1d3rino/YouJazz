@@ -107,12 +107,24 @@ exports.deleteTune = function(req, res) {
 // Create endpoint /api/tunes/:tune_id for PUT
 exports.putTune= function(req, res) {
   console.log("putTune enter");
-  Tune.update({ userId: req.user._id, _id: req.params.tune_id },{ tuneTitle: req.body.tuneTitle,tuneAuthorName:req.body.tuneAuthorName,comments:req.body.comments, timestamp:new Date(), numRow:req.body.numRow, numCol:req.body.numCol,grille:req.body.grille},
-  function(err, num, raw)
-  {
-      if (err)
-        res.send(err);
-      res.send("ok");
+  Tune.findById(req.params.tune_id,function (err,tune){
+    if (err)
+    res.send(err);
+    else{
+      tune.tuneTitle = req.body.tuneTitle;
+      tune.tuneAuthorName=req.body.tuneAuthorName;
+      tune.comments=req.body.comments;
+      tune.timestamp=new Date();
+      tune.grille=req.body.grille;
+      tune.grille_intro=req.body.grille_intro;
+      tune.grille_outro=req.body.grille_outro;
+      // save the bear
+      tune.save(function(err) {
+        if (err)
+          res.send(err);
 
-    });
+          res.json({ message: 'Tune updated!' });
+      });
+    }
+  });
 };
