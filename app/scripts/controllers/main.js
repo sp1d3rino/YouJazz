@@ -14,6 +14,7 @@ angular.module('yeomanApp')
   $scope.selectedTune='';
   $scope.newTuneFlag=false;
   $scope.barClipboard=null;
+  $scope.currentGridType=null;
   /** check if user already logged in */
   $rootScope.userSignedIn = $cookies.get('youjazz_user');
   $rootScope.basicAuth = $cookies.get('youjazz_basic_auth');
@@ -488,7 +489,7 @@ angular.module('yeomanApp')
     // Appending dialog to document.body to cover sidenav in docs app
     var confirm = $mdDialog.confirm()
     .title(msg)
-    .textContent('Will not possible to recover this tune!')
+    .textContent('This tune will be removed!')
     .ariaLabel('Lucky day')
     .targetEvent(ev)
     .ok('Delete it!')
@@ -548,17 +549,18 @@ angular.module('yeomanApp')
 
 
 
-      $scope.showDialog = function($event) {
+      $scope.showBuildGridDialog = function($event) {
            var parentEl = angular.element(document.body);
            $mdDialog.show({
              parent: parentEl,
+             scope: $scope.$new(),
              targetEvent: $event,
              template:
                '<md-dialog aria-label="List dialog">' +
                '  <md-dialog-content>'+
                '  <h5 class="md-inform" style="padding:10px 10px;">Choose the grid type and size</h5>'+
                '   <div layout="row" style="justify-content: center; padding-top:10px; padding-left:20px;padding-right:20px" layout-sm="column">'+
-               '      <md-radio-group layout="row"  ng-model="data.group1">'+
+               '      <md-radio-group layout="row"  ng-model="currentGridType" ng-init="currentGridType=\'Chorus\'">'+
                '          <md-radio-button value="Intro" class="md-primary">Intro</md-radio-button>'+
                '          <md-radio-button value="Chorus" class="md-primary"> Chorus </md-radio-button>'+
                '          <md-radio-button value="Outro" class="md-primary" >Outro</md-radio-button>'+
@@ -566,13 +568,13 @@ angular.module('yeomanApp')
                '   </div>'+
                '  <div layout="row">'+
                '   <md-slider-container layout="row" flex>'+
-               '    <input type="number"  placeholder="row" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numRow" aria-label="volume" aria-controls="volume-slider">'+
+               '    <input type="number" ng-init="formData.numRow=0"  placeholder="row" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numRow" aria-label="volume" aria-controls="volume-slider">'+
                '    <md-slider ng-model="formData.numRow" min="0" max="10" aria-label="volume" id="volume-slider" class="md-accent" style="padding-right:20px;" md-horizontal md-range></md-slider>'+
                '   </md-slider-container>'+
                '  </div>'+
                '  <div layout="row">'+
                '   <md-slider-container layout="row" flex>'+
-               '    <input type="number"  placeholder="col" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numCol" aria-label="volume" aria-controls="volume-slider">'+
+               '    <input type="number"  ng-init="formData.numCol=0" placeholder="col" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numCol" aria-label="volume" aria-controls="volume-slider">'+
                '    <md-slider ng-model="formData.numCol" min="0" max="10" aria-label="volume" id="volume-slider" class="md-accent" style="padding-right:20px;" md-horizontal md-range></md-slider>'+
                '   </md-slider-container>'+
                '  </div>'+
@@ -581,7 +583,7 @@ angular.module('yeomanApp')
                '    <md-button ng-click="closeDialog()" class="md-primary">' +
                '      Nervermind' +
                '    </md-button>' +
-               '    <md-button ng-click="closeDialog()" class="md-primary">' +
+               '    <md-button ng-click="buildGrid()" class="md-primary">' +
                '      Create!' +
                '    </md-button>' +
                '  </md-dialog-actions>' +
@@ -596,7 +598,29 @@ angular.module('yeomanApp')
             $scope.closeDialog = function() {
               $mdDialog.hide();
             }
+            $scope.buildGrid = function() {
+
+              switch($scope.currentGridType){
+                case "Intro":
+                   $scope.createIntroGrid();
+                break;
+                case "Outro":
+                  $scope.createOutroGrid();
+                break;
+                case "Chorus":
+                  $scope.createGrid();
+                break;
+                default:
+                  $scope.createGrid();
+
+              }
+
+              $mdDialog.hide();
+
+            }
+
           }
+
         }
 
 
