@@ -19,6 +19,54 @@ angular.module('yeomanApp')
   $rootScope.userSignedIn = $cookies.get('youjazz_user');
   $rootScope.basicAuth = $cookies.get('youjazz_basic_auth');
 
+
+
+  $scope.isPrintButtonDisabled = function() {
+    if ($scope.formData._id==undefined
+      || $scope.formData.tuneTitle==null || $scope.formData.tuneTitle=='' || $scope.formData.tuneTitle==undefined
+      || $scope.userSignedIn==undefined || $scope.userSignedIn==null
+      || ( $scope.formData.grille.length==0 && $scope.formData.grille_intro.length==0 && $scope.formData.grille_outro.length==0 )
+    )
+    return true;
+    else return false;
+  };
+
+  $scope.isDeleteButtonDisabled = function() {
+    if (
+      $scope.formData._id===undefined
+      || $scope.formData.tuneTitle==null || $scope.formData.tuneTitle=='' || $scope.formData.tuneTitle==undefined
+      || $scope.userSignedIn==undefined || $scope.userSignedIn===null
+      || ( $scope.formData.grilleAuthorName!==null && $scope.formData.grilleAuthorName!==undefined  && $scope.userSignedIn!==$scope.formData.grilleAuthorName)
+    )
+    return true;
+    else return false;
+  };
+
+  $scope.isSaveButtonDisabled = function(event) {
+    if (
+      //$scope.formData._id==undefined
+        ( $scope.newTuneFlag!==true && $scope.userSignedIn!==$scope.formData.grilleAuthorName)
+      || $scope.formData.tuneTitle==null || $scope.formData.tuneTitle=='' || $scope.formData.tuneTitle==undefined
+      || $scope.userSignedIn==undefined || $scope.userSignedIn===null
+      || ( $scope.formData.grilleAuthorName!==null && $scope.formData.grilleAuthorName!==undefined  && $scope.userSignedIn!==$scope.formData.grilleAuthorName)
+    )
+    return true;
+    else return false;
+
+  };
+
+  $scope.isBuildGridButtonDisabled = function() {
+    if (
+      $scope.formData.tuneTitle==null || $scope.formData.tuneTitle=='' || $scope.formData.tuneTitle==undefined
+      || $scope.userSignedIn==undefined || $scope.userSignedIn===null
+      || ( $scope.formData.grilleAuthorName!==null && $scope.formData.grilleAuthorName!==undefined  && $scope.userSignedIn!==$scope.formData.grilleAuthorName)
+    )
+    return true;
+    else return false;
+  };
+
+
+
   /* chords */
   $scope.chords = [
     {'chordId':1,
@@ -90,6 +138,8 @@ angular.module('yeomanApp')
 
   ];
 
+
+
   $scope.isFunctionKey= function(eventKey){
     var keyPressed = eventKey.originalEvent;
     if (keyPressed.key =="Backspace"){
@@ -112,6 +162,7 @@ angular.module('yeomanApp')
 
     return false;
   }
+
 
 
 
@@ -165,7 +216,7 @@ angular.module('yeomanApp')
     console.log('resetGrid ');
 
     $scope.selectedTune=null;
-/*    $scope.formData.tuneTitle=null;
+    /*    $scope.formData.tuneTitle=null;
     $scope.formData.tuneAuthorName=null;
     $scope.formData.comments=null;
     $scope.formData.numRow=null;
@@ -311,9 +362,9 @@ angular.module('yeomanApp')
         if (typeof item !== "undefined") {
           console.log("selected item change");
           $scope.loadTune(item._id);
-          $scope.searchText = '';
-          $scope.selectedItem= undefined;
-//          document.getElementById("tuneTitleId").focus();
+          $scope.searchText = item.tuneTitle;
+          //    $scope.selectedItem= undefined;
+          //          document.getElementById("tuneTitleId").focus();
           //$scope.formData.tuneTitle.focus();
           return item.tuneTitle;
         }
@@ -456,6 +507,8 @@ angular.module('yeomanApp')
         $scope.showToast1($scope.formData.tuneTitle +" has been removed!");
         $scope.count = self.tunes.length;
         $scope.resetGrid();
+        $scope.formData.tuneTitle=null;
+        $scope.formData.tuneAuthorName=null;
 
       }
     });
@@ -507,123 +560,125 @@ angular.module('yeomanApp')
 
 
   $scope.createPrompt1 = function(ev,tuneTitle) {
-      // Appending dialog to document.body to cover sidenav in docs app
+    // Appending dialog to document.body to cover sidenav in docs app
 
-      var confirm = $mdDialog.prompt()
-        .title('Tune name')
-        .textContent('What is the name of the new tune?')
-        .placeholder('Tune name')
-        .ariaLabel('Tune name')
-        .initialValue(tuneTitle)
-        .targetEvent(ev)
-        .ok('Next')
-        .cancel('Nevermind');
+    var confirm = $mdDialog.prompt()
+    .title('Tune name')
+    .textContent('What is the name of the new tune?')
+    .placeholder('Tune name')
+    .ariaLabel('Tune name')
+    .initialValue(tuneTitle)
+    .targetEvent(ev)
+    .ok('Next')
+    .cancel('Nevermind');
 
-      $mdDialog.show(confirm).then(function(result) {
-        $scope.formData.tuneTitle=result;
-        $scope.createPrompt2(ev,tuneTitle);
-      }, function() {
-        $scope.formData.tuneTitle='';
-      });
+    $mdDialog.show(confirm).then(function(result) {
+      $scope.formData.tuneTitle=result;
+      $scope.createPrompt2(ev,tuneTitle);
+    }, function() {
+      $scope.newTuneFlag=false;
+      $scope.formData.tuneTitle='';
+    });
 
-    };
+  };
 
-    $scope.createPrompt2 = function(ev,tuneTitle) {
-        // Appending dialog to document.body to cover sidenav in docs app
-        var confirm = $mdDialog.prompt()
-          .title('Author name')
-          .textContent('What is the name of the composer?')
-          .placeholder('Author name')
-          .ariaLabel('Author name')
-          .initialValue('')
-          .targetEvent(ev)
-          .ok('Next')
-          .cancel('Nevermind');
+  $scope.createPrompt2 = function(ev,tuneTitle) {
+    // Appending dialog to document.body to cover sidenav in docs app
+    var confirm = $mdDialog.prompt()
+    .title('Author name')
+    .textContent('What is the name of the composer?')
+    .placeholder('Author name')
+    .ariaLabel('Author name')
+    .initialValue('')
+    .targetEvent(ev)
+    .ok('Next')
+    .cancel('Nevermind');
 
-        $mdDialog.show(confirm).then(function(result) {
-          $scope.formData.tuneAuthorName=result;
-          $scope.newTune(tuneTitle);
-        }, function() {
-          $scope.formData.tuneTitle='';
-          $scope.formData.tuneAuthorName='';
-        });
-      };
+    $mdDialog.show(confirm).then(function(result) {
+      $scope.formData.tuneAuthorName=result;
+      $scope.newTune(tuneTitle);
+    }, function() {
+      $scope.newTuneFlag=false;
+      $scope.formData.tuneTitle='';
+      $scope.formData.tuneAuthorName='';
+    });
+  };
 
 
 
-      $scope.showBuildGridDialog = function($event) {
-           var parentEl = angular.element(document.body);
-           $mdDialog.show({
-             parent: parentEl,
-             scope: $scope.$new(),
-             targetEvent: $event,
-             template:
-               '<md-dialog aria-label="List dialog">' +
-               '  <md-dialog-content>'+
-               '  <h5 class="md-inform" style="padding:10px 10px;">Choose the grid type and size</h5>'+
-               '   <div layout="row" style="justify-content: center; padding-top:10px; padding-left:20px;padding-right:20px" layout-sm="column">'+
-               '      <md-radio-group layout="row"  ng-model="currentGridType" ng-init="currentGridType=\'Chorus\'">'+
-               '          <md-radio-button value="Intro" class="md-primary">Intro</md-radio-button>'+
-               '          <md-radio-button value="Chorus" class="md-primary"> Chorus </md-radio-button>'+
-               '          <md-radio-button value="Outro" class="md-primary" >Outro</md-radio-button>'+
-               '      </md-radio-group>'+
-               '   </div>'+
-               '  <div layout="row">'+
-               '   <md-slider-container layout="row" flex>'+
-               '    <input type="number" ng-init="formData.numRow=0"  placeholder="row" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numRow" aria-label="volume" aria-controls="volume-slider">'+
-               '    <md-slider ng-model="formData.numRow" min="0" max="10" aria-label="volume" id="volume-slider" class="md-accent" style="padding-right:20px;" md-horizontal md-range></md-slider>'+
-               '   </md-slider-container>'+
-               '  </div>'+
-               '  <div layout="row">'+
-               '   <md-slider-container layout="row" flex>'+
-               '    <input type="number"  ng-init="formData.numCol=0" placeholder="col" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numCol" aria-label="volume" aria-controls="volume-slider">'+
-               '    <md-slider ng-model="formData.numCol" min="0" max="10" aria-label="volume" id="volume-slider" class="md-accent" style="padding-right:20px;" md-horizontal md-range></md-slider>'+
-               '   </md-slider-container>'+
-               '  </div>'+
-               '  </md-dialog-content>' +
-               '  <md-dialog-actions>' +
-               '    <md-button ng-click="closeDialog()" class="md-primary">' +
-               '      Nervermind' +
-               '    </md-button>' +
-               '    <md-button ng-click="buildGrid()" class="md-primary">' +
-               '      Create!' +
-               '    </md-button>' +
-               '  </md-dialog-actions>' +
-               '</md-dialog>',
-             locals: {
-               items: $scope.items
-             },
-             controller: DialogController
-          });
-          function DialogController($scope, $mdDialog, items) {
-            $scope.items = items;
-            $scope.closeDialog = function() {
-              $mdDialog.hide();
-            }
-            $scope.buildGrid = function() {
+  $scope.showBuildGridDialog = function($event) {
+    var parentEl = angular.element(document.body);
+    $mdDialog.show({
+      parent: parentEl,
+      scope: $scope.$new(),
+      targetEvent: $event,
+      template:
+      '<md-dialog aria-label="List dialog">' +
+      '  <md-dialog-content>'+
+      '  <h5 class="md-inform" style="padding:10px 10px;">Choose the grid type and size</h5>'+
+      '   <div layout="row" style="justify-content: center; padding-top:10px; padding-left:20px;padding-right:20px" layout-sm="column">'+
+      '      <md-radio-group layout="row"  ng-model="currentGridType" ng-init="currentGridType=\'Chorus\'">'+
+      '          <md-radio-button value="Intro" class="md-primary">Intro</md-radio-button>'+
+      '          <md-radio-button value="Chorus" class="md-primary"> Chorus </md-radio-button>'+
+      '          <md-radio-button value="Outro" class="md-primary" >Outro</md-radio-button>'+
+      '      </md-radio-group>'+
+      '   </div>'+
+      '  <div layout="row">'+
+      '   <md-slider-container layout="row" flex>'+
+      '    <input type="number" ng-init="formData.numRow=0"  placeholder="row" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numRow" aria-label="volume" aria-controls="volume-slider">'+
+      '    <md-slider ng-model="formData.numRow" min="0" max="10" aria-label="volume" id="volume-slider" class="md-accent" style="padding-right:20px;" md-horizontal md-range></md-slider>'+
+      '   </md-slider-container>'+
+      '  </div>'+
+      '  <div layout="row">'+
+      '   <md-slider-container layout="row" flex>'+
+      '    <input type="number"  ng-init="formData.numCol=0" placeholder="col" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numCol" aria-label="volume" aria-controls="volume-slider">'+
+      '    <md-slider ng-model="formData.numCol" min="0" max="10" aria-label="volume" id="volume-slider" class="md-accent" style="padding-right:20px;" md-horizontal md-range></md-slider>'+
+      '   </md-slider-container>'+
+      '  </div>'+
+      '  </md-dialog-content>' +
+      '  <md-dialog-actions>' +
+      '    <md-button ng-click="closeDialog()" class="md-primary">' +
+      '      Nervermind' +
+      '    </md-button>' +
+      '    <md-button ng-click="buildGrid()" class="md-primary">' +
+      '      Create!' +
+      '    </md-button>' +
+      '  </md-dialog-actions>' +
+      '</md-dialog>',
+      locals: {
+        items: $scope.items
+      },
+      controller: DialogController
+    });
+    function DialogController($scope, $mdDialog, items) {
+      $scope.items = items;
+      $scope.closeDialog = function() {
+        $mdDialog.hide();
+      }
+      $scope.buildGrid = function() {
 
-              switch($scope.currentGridType){
-                case "Intro":
-                   $scope.createIntroGrid();
-                break;
-                case "Outro":
-                  $scope.createOutroGrid();
-                break;
-                case "Chorus":
-                  $scope.createGrid();
-                break;
-                default:
-                  $scope.createGrid();
-
-              }
-
-              $mdDialog.hide();
-
-            }
-
-          }
+        switch($scope.currentGridType){
+          case "Intro":
+          $scope.createIntroGrid();
+          break;
+          case "Outro":
+          $scope.createOutroGrid();
+          break;
+          case "Chorus":
+          $scope.createGrid();
+          break;
+          default:
+          $scope.createGrid();
 
         }
+
+        $mdDialog.hide();
+
+      }
+
+    }
+
+  }
 
 
 }]);
