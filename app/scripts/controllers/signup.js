@@ -15,14 +15,14 @@ angular.module('yeomanApp')
     $scope.password2='';
 
     $scope.avatars = [
-      {avatarId:'guitar', svgImage:'img/guitar.svg'},
-      {avatarId:'guitar', svgImage:'img/piano.svg'},
-      {avatarId:'guitar', svgImage:'img/drum.svg'},
-      {avatarId:'guitar', svgImage:'img/dbass.svg'},
-      {avatarId:'guitar', svgImage:'img/trumpet.svg'},
-      {avatarId:'guitar', svgImage:'img/violin.svg'},
-      {avatarId:'guitar', svgImage:'img/sax.svg'},
-      {avatarId:'guitar', svgImage:'img/manouche.svg'}
+      {avatarId:'guitar', svgImage:'images/svg/guitar1.svg'},
+      {avatarId:'piano', svgImage:'images/svg/piano.svg'},
+      {avatarId:'drum', svgImage:'images/svg/drum.svg'},
+      {avatarId:'dbass', svgImage:'images/svg/dbass.svg'},
+      {avatarId:'trumpet', svgImage:'images/svg/trumpet.svg'},
+      {avatarId:'guitar', svgImage:'images/svg/violin.svg'},
+      {avatarId:'sax', svgImage:'images/svg/sax.svg'},
+      {avatarId:'manouche', svgImage:'images/svg/manouche.svg'}
     ];
 
     $scope.showToast1 = function(msg) {
