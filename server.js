@@ -7,8 +7,6 @@
     var morgan = require('morgan');             // log requests to the console (express4)
     var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
     var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
-    var Todo = require('./models/todo'); //use todo model defined in models/todo.js
-    var todoController = require('./controllers/todo'); //use todo controller defined in controllers/todo.js
     var userController = require('./controllers/user');
     var passport = require('passport');
     var authController = require('./controllers/auth');
@@ -40,18 +38,10 @@ router.route('/users')
   .post(userController.postUsers)
   .get(authController.isAuthenticated, userController.getUsers);
 
+// Create endpoint handlers for /users
+router.route('/users/:username')
+    .get(authController.isAuthenticated, userController.getUser);
 
-
-// Create endpoint handlers for /beers
-router.route('/todos')
-  .post(authController.isAuthenticated,todoController.postTodos)
-  .get(todoController.getTodos);
-
-// Create endpoint handlers for /beers/:beer_id
-router.route('/todos/:todo_id')
-  .get(authController.isAuthenticated,todoController.getTodo)
-  .put(authController.isAuthenticated,todoController.putTodo)
-  .delete(authController.isAuthenticated,todoController.deleteTodo);
 
 // Create endpoint handlers for /tunes
 router.route('/tunes')

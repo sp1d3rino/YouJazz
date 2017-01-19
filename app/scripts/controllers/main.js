@@ -3,6 +3,8 @@
 
 angular.module('yeomanApp')
 .controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast','$window','$mdDialog', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast,$window,$mdDialog) {
+
+
   var originatorEv;
   $scope.formData = {};
 
@@ -18,7 +20,8 @@ angular.module('yeomanApp')
   /** check if user already logged in */
   $rootScope.userSignedIn = $cookies.get('youjazz_user');
   $rootScope.basicAuth = $cookies.get('youjazz_basic_auth');
-
+  $rootScope.avatar = $cookies.get('youjazz_user_avatar');
+  $rootScope.avatarSvg = $rootScope.avatars[0].avatarSvg;
 
 
   $scope.isPrintButtonDisabled = function() {
@@ -139,8 +142,30 @@ angular.module('yeomanApp')
   ];
 
 
+  $scope.contains =function(a, obj) {
+      var r = a.length;
+      while (r--) {
+        var c = a[r].length;
+        while(c--)
+         if (a[r][c] === obj) {
+             return true;
+         }
+      }
+      return false;
+  }
+
 
   $scope.isFunctionKey= function(eventKey){
+    // to determine which is the current used grid
+    var currentGrid=null;
+    var prova=$scope.contains($scope.formData.grille,$scope.cellSelected);
+    console.log(prova);
+    if ($scope.contains($scope.formData.grille,$scope.cellSelected))currentGrid=$scope.formData.grille;
+    else if ($scope.contains($scope.formData.grille_intro,$scope.cellSelected))currentGrid=$scope.formData.grille_intro;
+    else if ($scope.contains($scope.formData.grille_outro,$scope.cellSelected))currentGrid=$scope.formData.grille_outro;
+    var rId = $scope.cellSelected.cellId[0];
+    var cId = $scope.cellSelected.cellId[1];
+
     var keyPressed = eventKey.originalEvent;
     if (keyPressed.key =="Backspace"){
       eventKey.preventDefault();
@@ -149,16 +174,46 @@ angular.module('yeomanApp')
       $scope.cellSelected.cellValue =str;
       return true;
     }
+    // ctrl-c
     else   if (keyPressed.key =="c" && keyPressed.ctrlKey ){
       $scope.barClipboard=$scope.cellSelected.cellValue;
       return true;
     }
-
+    // ctrl-v
     else   if (keyPressed.key =="v" && keyPressed.ctrlKey ){
       if($scope.barClipboard != null && $scope.barClipboard.length>0)
       $scope.cellSelected.cellValue =$scope.barClipboard;
       return true;
     }
+    // up
+    else   if (keyPressed.key =="ArrowUp"  ){
+      if (rId>0)
+        rId--;
+      $scope.cellSelected =currentGrid[rId][cId];
+    }
+    // down
+    else   if (keyPressed.key =="ArrowDown" ){
+      if (rId<currentGrid.length)
+        rId++;
+      $scope.cellSelected =currentGrid[rId][cId];
+      return true;
+    }
+    // right
+    else   if (keyPressed.key =="ArrowRight" ){
+      if (cId<currentGrid[0].length-1)
+        cId++;
+      $scope.cellSelected =currentGrid[rId][cId];
+      return true;
+    }
+    // left
+    else   if (keyPressed.key =="ArrowLeft" ){
+      if (cId>0)
+        cId--;
+      $scope.cellSelected =currentGrid[rId][cId];
+      return true;
+    }
+
+
 
     return false;
   }

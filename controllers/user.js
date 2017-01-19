@@ -16,7 +16,8 @@ exports.postUsers = function(req, res) {
       else{
         var user = new User({
           username: req.body.username,
-          password: req.body.password
+          password: req.body.password,
+          avatar: req.body.avatar
         });
 
         user.save(function(err) {
@@ -40,5 +41,17 @@ exports.getUsers = function(req, res) {
       res.send(err);
 
     res.json(users);
+  });
+};
+
+
+// Create endpoint /api/users for GET
+exports.getUser = function(req, res) {
+  console.log('get User ' +req.params.username);
+  User.find({username: req.params.username}, function(err, user) {
+    if (err)
+      res.send(err);
+
+    res.json(user);
   });
 };

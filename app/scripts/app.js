@@ -49,10 +49,38 @@ angular
 
 
   }).controller('IndexController',['$scope','$rootScope','$cookies',function ($scope,$rootScope, $cookies) {
+
+      $rootScope.avatars = [
+        {avatarId:'guitar', svgImage:'images/svg/guitar1.svg'},
+        {avatarId:'piano', svgImage:'images/svg/piano.svg'},
+        {avatarId:'drum', svgImage:'images/svg/drum.svg'},
+        {avatarId:'dbass', svgImage:'images/svg/dbass.svg'},
+        {avatarId:'trumpet', svgImage:'images/svg/trumpet.svg'},
+        {avatarId:'violin', svgImage:'images/svg/violin.svg'},
+        {avatarId:'sax', svgImage:'images/svg/sax.svg'},
+        {avatarId:'jguitar', svgImage:'images/svg/jguitar.svg'}
+      ];
+
     $scope.logout = function(){
       $cookies.remove('youjazz_user');
       $cookies.remove('youjazz_basic_auth');
+      $cookies.remove('youjazz_user_avatar');
+
       $rootScope.userSignedIn=null;
       $rootScope.basicAuth=null;
-    }
+      $rootScope.avatar=null;
+
+
+
+    };
+
+    $rootScope.getImage = function(id){
+      angular.forEach($rootScope.avatars, function(item){
+            if(item.avatarId==id)
+                        return item.svgImage;
+      });
+    };
+
+
+
   }]);
