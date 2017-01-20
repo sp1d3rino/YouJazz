@@ -13,7 +13,8 @@ var TuneSchema   = new mongoose.Schema({
   grille_intro:[],
   grille_outro:[],
   grille:[],
-  userId: String
+  userId: String,
+  avatarSvg:String
 });
 
 // Export the Mongoose model

@@ -20,7 +20,8 @@
     placeholder="Find your tune here...">
     <md-item-template>
       <span class="item-title">
-        <md-icon md-svg-icon="images/svg/guitar1.svg"></md-icon>
+        <md-icon md-svg-icon={{item.avatarSvg}} style="color:red"></md-icon>
+
         <span><strong>{{item.tuneTitle}} </strong> </span>
       </span>
       <span class="item-metadata">

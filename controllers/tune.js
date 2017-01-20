@@ -17,7 +17,7 @@ exports.postTunes = function(req, res) {
   tune.grille_outro = req.body.grille_outro;
   tune.comments = req.body.comments;
   tune.votes = req.body.votes;
-
+  tune.avatarSvg = req.body.avatarSvg;
 
   // Save the tune and check for errors
   tune.save(function(err) {
@@ -26,10 +26,10 @@ exports.postTunes = function(req, res) {
     }else{
 
       //retrive all tunes
-      var query = Tune.find({}).select('tuneTitle , grilleAuthorName');
+      var query = Tune.find({}).select('tuneTitle grilleAuthorName avatarSvg');
       query.exec(function (err, tunes) {
         if (err)
-        res.send(err);
+          res.send(err);
         res.json(tunes);
       });
     }
@@ -41,7 +41,7 @@ exports.getTunes = function(req, res) {
   console.log('get all Tunes');
   //retrive all tunes
   //Tune.find(function(err, tunes) {
-  var query = Tune.find({}).select('tuneTitle , grilleAuthorName');
+  var query = Tune.find({}).select('tuneTitle grilleAuthorName avatarSvg');
   query.exec(function (err, tunes) {
     if (err)
     res.send(err);
@@ -94,7 +94,7 @@ exports.deleteTune = function(req, res) {
     res.send(err);
 
     //after delete, responds with all remaining tunes
-    var query = Tune.find({}).select('tuneTitle , grilleAuthorName');
+    var query = Tune.find({}).select('tuneTitle grilleAuthorName avatarSvg');
     query.exec(function (err, tunes) {
       if (err)
       res.send(err);

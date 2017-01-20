@@ -13,15 +13,24 @@ angular.module('yeomanApp')
   $scope.formData.tuneTitle='';
   $scope.formData.tuneAuthorName='';
   $scope.formData.comments='';
+  $scope.formData.avatarSvg='';
+
   $scope.selectedTune='';
   $scope.newTuneFlag=false;
   $scope.barClipboard=null;
   $scope.currentGridType=null;
-  /** check if user already logged in */
+
+  /** check if user already logged in and load its data*/
   $rootScope.userSignedIn = $cookies.get('youjazz_user');
   $rootScope.basicAuth = $cookies.get('youjazz_basic_auth');
   $rootScope.avatar = $cookies.get('youjazz_user_avatar');
-  $rootScope.avatarSvg = $rootScope.avatars[0].avatarSvg;
+
+  angular.forEach($rootScope.avatars, function(item){
+          if(item.avatarId==$rootScope.avatar){
+            $rootScope.avatarSvg = item.svgImage;
+
+          };
+  });
 
 
   $scope.isPrintButtonDisabled = function() {
@@ -468,7 +477,7 @@ angular.module('yeomanApp')
   // when submitting the add form, send the text to the node API
   $scope.createTune = function() {
     $scope.formData.votes = 0;
-
+    $scope.formData.avatarSvg = $rootScope.avatarSvg;
     //post new tune and put tune list in the search box
     $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
     $http.post('/api/tunes', $scope.formData)

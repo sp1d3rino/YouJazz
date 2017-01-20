@@ -74,12 +74,7 @@ angular
 
     };
 
-    $rootScope.getImage = function(id){
-      angular.forEach($rootScope.avatars, function(item){
-            if(item.avatarId==id)
-                        return item.svgImage;
-      });
-    };
+ 
 
 
 
