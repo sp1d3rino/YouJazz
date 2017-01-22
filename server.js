@@ -11,6 +11,7 @@
     var passport = require('passport');
     var authController = require('./controllers/auth');
     var tuneController = require('./controllers/tune');
+    var tuneVoteController = require('./controllers/tunevote');
 
     // configuration =================
 
@@ -54,6 +55,8 @@ router.route('/tunes/:tune_id')
   .delete(authController.isAuthenticated,tuneController.deleteTune)
   .put(authController.isAuthenticated,tuneController.putTune);
 
+router.route('/tunevote/:tune_id')
+  .post(authController.isAuthenticated,tuneVoteController.postVote);
 
 
 // Register all our routes with /api

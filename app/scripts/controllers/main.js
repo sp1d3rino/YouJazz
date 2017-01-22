@@ -381,6 +381,22 @@ angular.module('yeomanApp')
 
   /***************** REST API calls ********************/
 
+
+  $scope.voteUp = function (tuneId){
+    console.log(tuneId);
+    $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
+    $http.post('/api/tunevote/' + tuneId)
+    .then(function(response) {
+      if (response.status!='200'){
+        alert("get Error!");
+        throw new Error("Error during call to POST api");
+      }else{
+        $scope.showToast1("This yune has been voted!");
+      }
+
+    });
+  }
+
   /* Load all tunes when the page opens */
   // when landing on the page, get all todos and show them
   var self = this;
