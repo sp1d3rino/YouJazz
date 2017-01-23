@@ -14,6 +14,7 @@ angular.module('yeomanApp')
   $scope.formData.tuneAuthorName='';
   $scope.formData.comments='';
   $scope.formData.avatarSvg='';
+  $scope.formData.vote=0;
 
   $scope.selectedTune='';
   $scope.newTuneFlag=false;
@@ -382,10 +383,11 @@ angular.module('yeomanApp')
   /***************** REST API calls ********************/
 
 
-  $scope.voteUp = function (tuneId){
+  $scope.voteThisTune = function (tuneId, updown){
     console.log(tuneId);
+    $scope.formData.vote=updown;
     $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
-    $http.post('/api/tunevote/' + tuneId)
+    $http.post('/api/tunevote', $scope.formData)
     .then(function(response) {
       if (response.status!='200'){
         alert("get Error!");

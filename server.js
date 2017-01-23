@@ -55,7 +55,7 @@ router.route('/tunes/:tune_id')
   .delete(authController.isAuthenticated,tuneController.deleteTune)
   .put(authController.isAuthenticated,tuneController.putTune);
 
-router.route('/tunevote/:tune_id')
+router.route('/tunevote')
   .post(authController.isAuthenticated,tuneVoteController.postVote);
 
 
