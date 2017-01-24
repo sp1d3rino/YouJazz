@@ -1,5 +1,6 @@
 // Load required packages
 var TuneVote = require('../models/tunevote');
+var Tune = require('../models/tune');
 
 
 // Create endpoint /api/users for POST
@@ -12,27 +13,59 @@ exports.postVote = function(req, res) {
     if (err)
     res.send(err);
     else{
-      console.log("add new vote for "+ req.params.tune_id);
-      console.log("tunevote id "+tunevote.tuneId);
-
       //find the user if already exists and remove last vote
       var idUser=null;
       var found=false;
+      var denied=false;
       tunevote.votelist.forEach(function(entry){
         if(entry.username==req.user.username){
-          entry.vote =req.body.vote;
+          //check if last vote is different from the current. Otherwise is not possibile vote twice
+          if (entry.vote==req.body.vote)denied=true;
           found=true;
+          if (!denied){
+            entry.vote=req.body.vote;
+            updateTune(req.body._id,req.body.vote);
+          }
         }
       });
-      if(!found){
-        //add the new vote
+      if(!found && !denied){
+        //add the first vote
         tunevote.votelist.push({username:req.user.username, vote:req.body.vote});
+        updateTune(req.body._id,req.body.vote);
       }
       //save the tunevote
-      tunevote.save(function (err) {
-        if (!err) console.log('Success!');
-      });
-    } //clese else
+      if (!denied){
+        tunevote.save(function (err) {
+          if (!err)
+            res.json({ message: 'Tune updated!' });
+        });
+      }else {
+        res.json({ message: 'VOTE_DENIED' });
+      }
+    } //close first else
 
   });
+
+  function updateTune(tuneId,vote){
+    Tune.findById(tuneId,function (err,tune){
+      console.log("update tune "+tuneId);
+      if (err)
+        res.send(err);
+      else{
+        tune.votes+=vote;
+
+        // save the bear
+        tune.save(function(err) {
+          if (err)
+            res.send(err);
+        });
+      }
+    });
+  }
+
+
+
+
+
+
 };

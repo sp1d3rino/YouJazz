@@ -27,10 +27,10 @@ angular.module('yeomanApp')
   $rootScope.avatar = $cookies.get('youjazz_user_avatar');
 
   angular.forEach($rootScope.avatars, function(item){
-          if(item.avatarId==$rootScope.avatar){
-            $rootScope.avatarSvg = item.svgImage;
+    if(item.avatarId==$rootScope.avatar){
+      $rootScope.avatarSvg = item.svgImage;
 
-          };
+    };
   });
 
 
@@ -58,7 +58,7 @@ angular.module('yeomanApp')
   $scope.isSaveButtonDisabled = function(event) {
     if (
       //$scope.formData._id==undefined
-        ( $scope.newTuneFlag!==true && $scope.userSignedIn!==$scope.formData.grilleAuthorName)
+      ( $scope.newTuneFlag!==true && $scope.userSignedIn!==$scope.formData.grilleAuthorName)
       || $scope.formData.tuneTitle==null || $scope.formData.tuneTitle=='' || $scope.formData.tuneTitle==undefined
       || $scope.userSignedIn==undefined || $scope.userSignedIn===null
       || ( $scope.formData.grilleAuthorName!==null && $scope.formData.grilleAuthorName!==undefined  && $scope.userSignedIn!==$scope.formData.grilleAuthorName)
@@ -153,15 +153,15 @@ angular.module('yeomanApp')
 
 
   $scope.contains =function(a, obj) {
-      var r = a.length;
-      while (r--) {
-        var c = a[r].length;
-        while(c--)
-         if (a[r][c] === obj) {
-             return true;
-         }
+    var r = a.length;
+    while (r--) {
+      var c = a[r].length;
+      while(c--)
+      if (a[r][c] === obj) {
+        return true;
       }
-      return false;
+    }
+    return false;
   }
 
 
@@ -198,27 +198,27 @@ angular.module('yeomanApp')
     // up
     else   if (keyPressed.key =="ArrowUp"  ){
       if (rId>0)
-        rId--;
+      rId--;
       $scope.cellSelected =currentGrid[rId][cId];
     }
     // down
     else   if (keyPressed.key =="ArrowDown" ){
       if (rId<currentGrid.length)
-        rId++;
+      rId++;
       $scope.cellSelected =currentGrid[rId][cId];
       return true;
     }
     // right
     else   if (keyPressed.key =="ArrowRight" ){
       if (cId<currentGrid[0].length-1)
-        cId++;
+      cId++;
       $scope.cellSelected =currentGrid[rId][cId];
       return true;
     }
     // left
     else   if (keyPressed.key =="ArrowLeft" ){
       if (cId>0)
-        cId--;
+      cId--;
       $scope.cellSelected =currentGrid[rId][cId];
       return true;
     }
@@ -393,7 +393,14 @@ angular.module('yeomanApp')
         alert("get Error!");
         throw new Error("Error during call to POST api");
       }else{
-        $scope.showToast1("This yune has been voted!");
+
+        if (response.data.message=="VOTE_DENIED") {
+          $scope.showToast1("Already voted");
+          return;
+        }else{
+          $scope.showToast1("This tune has been voted!");
+          $scope.formData.votes+= updown;
+        }
       }
 
     });
