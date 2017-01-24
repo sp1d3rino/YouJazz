@@ -236,6 +236,11 @@ td{
 
  }
 
+ .autocomplete-custom-template .item-metadata .item-metastat{
+
+   font-size: 10px;
+  }
+
 .autocomplete-custom-template .item-title md-icon {
   height: 36px;
   width: 36px; }

@@ -57,7 +57,7 @@ exports.getTunes = function(req, res) {
   console.log('get all Tunes');
   //retrive all tunes
   //Tune.find(function(err, tunes) {
-  var query = Tune.find({}).select('tuneTitle grilleAuthorName avatarSvg');
+  var query = Tune.find({}).select('tuneTitle grilleAuthorName avatarSvg votes');
   query.exec(function (err, tunes) {
     if (err)
     res.send(err);

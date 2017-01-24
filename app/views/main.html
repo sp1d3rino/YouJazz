@@ -28,6 +28,10 @@
         <span class="item-metastat">
           by <strong>{{item.grilleAuthorName}}</strong>
         </span>
+        <span class="item-metastat">
+          score <strong>{{item.votes}}</strong>
+        </span>
+
       </span>
     </md-item-template>
     <md-not-found>
@@ -51,7 +55,7 @@
     <md-input-container style="display:none;"><input required type="number" class="form-control input-lg text-center" placeholder="cols" ng-model="formData.numCol" min="0" max="10" style="width:50px;"></md-input-container>
   </div>-->
 
-  <div layout="col" layout-sm="column" style="float:right; padding-right:10px;"> votes: {{formData.votes}} </div>
+  <div layout="col" layout-sm="column" style="float:right; padding-right:10px;"> score: {{formData.votes}} </div>
   <div layout="row" layout-sm="column">
     <!-- new tune, print, save... buttons  -->
     <md-button class="md-fab md-raised md-inform"  ng-disabled ="userSignedIn==undefined || userSignedIn==null" ng-click="createPrompt1($event)"><md-tooltip>Create a new tune</md-tooltip><md-icon  class="md-icon" md-svg-src="images/svg/new_tune.svg"/></md-button>
