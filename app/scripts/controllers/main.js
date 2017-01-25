@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('yeomanApp')
-.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast','$window','$mdDialog', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast,$window,$mdDialog) {
+.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast','$window','$mdDialog','$location', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast,$window,$mdDialog,$location) {
 
 
   var originatorEv;
@@ -650,7 +650,11 @@ angular.module('yeomanApp')
 
   $scope.createPrompt1 = function(ev,tuneTitle) {
     // Appending dialog to document.body to cover sidenav in docs app
-
+    if ($scope.userSignedIn==undefined || $scope.userSignedIn==null){
+      $scope.showToast1("You must login to create a new tune!");
+      $location.url('login');
+      return;
+    }
     var confirm = $mdDialog.prompt()
     .title('Tune name')
     .textContent('What is the name of the new tune?')
