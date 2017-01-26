@@ -23,7 +23,7 @@ exports.postUsers = function(req, res) {
 
       else{
         var user = new User({
-          username: req.body.username,
+          username: req.body.username.toLowerCase(),
           password: req.body.password,
           avatar: req.body.avatar,
           mail: req.body.mail
@@ -34,7 +34,6 @@ exports.postUsers = function(req, res) {
           res.send(err);
 
           res.json({ message: 'New todo maker added to the locker room!' });
-          console.log("mail to : "+user.username+ " password  "+req.body.password+" mail "+user.mail) ;
 
           transport.sendMail({
               from: 'youjazzmail@gmail.com', // sender address
@@ -68,8 +67,8 @@ exports.getUsers = function(req, res) {
 
 // Create endpoint /api/users for GET
 exports.getUser = function(req, res) {
-  console.log('get User ' +req.params.username);
-  User.find({username: req.params.username}, function(err, user) {
+  console.log('get User ' +req.params.username.toLowerCase());
+  User.find({username: req.params.username.toLowerCase()}, function(err, user) {
     if (err)
       res.send(err);
 
