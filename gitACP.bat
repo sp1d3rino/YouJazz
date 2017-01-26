@@ -2,5 +2,7 @@ echo off
 
 echo git add .
 git add .
+echo git commit -m %1
 git commit -m %1
-rem git push
+echo git push
+git push
