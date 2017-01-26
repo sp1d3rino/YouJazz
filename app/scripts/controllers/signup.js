@@ -14,6 +14,7 @@ angular.module('yeomanApp')
   $scope.password='';
   $scope.password2='';
   $scope.selectedAvatar='';
+  $scope.mail='';
 
 
   $scope.showToast1 = function(msg) {
@@ -53,7 +54,9 @@ angular.module('yeomanApp')
     '&password=' +
     encodeURIComponent($scope.password)+
     '&avatar=' +
-    encodeURIComponent($scope.selectedAvatar);
+    encodeURIComponent($scope.selectedAvatar)+
+    '&mail=' +
+    encodeURIComponent($scope.mail);
     $http({
       method:'POST',
       url: 'api/users',

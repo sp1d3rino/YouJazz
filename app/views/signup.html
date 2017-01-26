@@ -25,7 +25,12 @@
             <div ng-message="required">This is required.</div>
           </div>
         </md-input-container>
-
+        <md-input-container class="md-block">
+          <input type="email" class="form-control" ng-model="mail"   placeholder='your email' required/>
+          <div ng-messages="email.$error">
+            <div ng-message="required">This is required.</div>
+          </div>
+        </md-input-container>
 
 
         <!--

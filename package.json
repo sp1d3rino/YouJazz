@@ -23,7 +23,8 @@
     "mongoose": "~3.6.2",
     "morgan": "~1.6.1",
     "passport": "^0.3.2",
-    "passport-http": "^0.3.0"
+    "passport-http": "^0.3.0",
+    "sendmail": "^1.1.1"
   },
   "devDependencies": {
     "grunt-contrib-jshint": "^1.1.0"

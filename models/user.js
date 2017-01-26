@@ -16,6 +16,10 @@ var UserSchema = new mongoose.Schema({
   avatar: {
     type: String,
     required: false
+  },
+  mail: {
+    type: String,
+    required: true
   }
 
 
