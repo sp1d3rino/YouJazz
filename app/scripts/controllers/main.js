@@ -134,7 +134,7 @@ angular.module('yeomanApp')
     {'symbId':4,'symbName':'°','symbKey':'°'},
     {'symbId':5,'symbName':'Ø','symbKey':'.'},
     {'symbId':6,'symbName':'∆','symbKey':'r'},
-    {'symbId':7,'symbName':'maj','symbKey':'j'},
+    {'symbId':7,'symbName':'Maj','symbKey':'j'},
     {'symbId':8,'symbName':'m','symbKey':'m'},
     {'symbId':9,'symbName':'-','symbKey':'-'},
     {'symbId':10,'symbName':'+','symbKey':'+'},
