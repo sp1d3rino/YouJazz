@@ -606,14 +606,31 @@ angular.module('yeomanApp')
 
   $scope.printIt = function(){
     var printableGrid = document.getElementById('printableGrid');
-    printableGrid.setAttribute("style","table tr td{border: solid 1px;}");
+    /*printableGrid.setAttribute("style","table tr td{border: solid 1px;}");
     var myWindow = $window.open('', '', 'width=800, height=600');
+
     myWindow.document.write('<html><head><title>YouJazz</title><link rel="stylesheet" type="text/css" href="styles/main.css"></head><body>');
     myWindow.document.write(printableGrid.innerHTML);
     myWindow.document.write('</body>');
     myWindow.document.write('</html>');
 
     myWindow.print();
+*/
+var cssMainPage='<link rel="stylesheet" type="text/css" href="styles/main.css">';
+var htmlToPrint = '' +
+    '<style type="text/css">' +
+    ' table{width:100%;height:10%;}'+
+    ' table, th, td {border: 3px solid black;padding: 15px; text-align: center;}'+
+    ' tr{      min-height: 20px;      max-height: 20px;    }'+
+    ' td{      min-width: 40px;      max-width: 40px;        }'+
+    ' .tuneTitle{      font-family:"Comic Sans MS";  font-size:150%;} '+
+    '</style>';
+
+    htmlToPrint+=cssMainPage+printableGrid.outerHTML;
+    var newWin = $window.open('', '', 'width=800, height=600');
+   newWin.document.write(htmlToPrint);
+   newWin.print();
+
   };
 
 
