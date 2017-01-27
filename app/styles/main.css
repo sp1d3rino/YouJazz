@@ -213,26 +213,24 @@ td{
 }
 
 .autocomplete-custom-template .item-title {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 
 .autocomplete-custom-template li {
-  border-bottom: 1px solid #ccc;
+  border-bottom: 3px solid #ccc;
   height: auto;
-
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: 18px;
+  padding-bottom: 18px;
   white-space: normal; }
 
-.autocomplete-custom-template li:last-child {
-  border-bottom-width: 0; }
+
 
 .autocomplete-custom-template .item-title,
 .autocomplete-custom-template .item-metadata {
 
-  -display: block;
-  line-height: 3;
+  display:block;
+  line-height: 2;
 
  }
 

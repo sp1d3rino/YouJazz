@@ -441,11 +441,13 @@ angular.module('yeomanApp')
         return results;
 
       }
-
+/*
       $scope.searchTextChange= function(text) {
-        //console.log('Text changed to ' + text);
+        console.log('Text changed to ' + text);
+        $scope.searchText=text;
+        return text;
       }
-
+*/
       $scope.selectedItemChange = function(item) {
         console.log("selected item change");
         if (typeof item !== "undefined") {
