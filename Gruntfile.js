@@ -11,9 +11,13 @@ module.exports = function(grunt) {
 
     // take all the js files and minify them into app.min.js
     uglify: {
+      options: {
+        report: 'min',
+        mangle: false
+      },
       build: {
         files: {
-          'app/dist/js/app.min.js': ['app/src/js/**/*.js', 'app/src/js/*.js']
+          'app/dist/js/app.min.js': ['app/scripts/**/*.js', 'app/scripts/*.js']
         }
       }
     },
@@ -32,7 +36,7 @@ module.exports = function(grunt) {
     cssmin: {
       build: {
         files: {
-          'app/dist/css/style.min.css': 'app/dist/css/style.css'
+          'app/dist/css/main.min.css': 'app/styles/main.css'
         }
       }
     },
@@ -41,11 +45,11 @@ module.exports = function(grunt) {
     // watch css and js files and process the above tasks
     watch: {
       css: {
-        files: ['app/src/css/**/*.less'],
+        files: ['app/styles/**/*.less'],
         tasks: ['less', 'cssmin']
       },
       js: {
-        files: ['app/src/js/**/*.js'],
+        files: ['app/scripts/**/*.js'],
         tasks: ['jshint', 'uglify']
       }
     },
