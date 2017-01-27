@@ -231,8 +231,8 @@ td{
 .autocomplete-custom-template .item-title,
 .autocomplete-custom-template .item-metadata {
 
-  display: block;
-  line-height: 2;
+  -display: block;
+  line-height: 3;
 
  }
 
