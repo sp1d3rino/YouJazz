@@ -33,32 +33,24 @@
         </md-input-container>
 
 
-        <!--
-        <fieldset layout="row" style="border:none">
-        <legend>Choose your avatar</legend>
-        <md-button ng-repeat ="avatar in avatars" class="md-fab md-raised md-inform" aria-label="Use Android">
-        <md-icon md-svg-src="{{avatar.svgImage}}"></md-icon>
-      </md-button>
-    </fieldset>
-  -->
-  <h4 style="padding-bottom:10px">Choose your avatar</h4>
+        <h4 style="padding-bottom:10px">Choose your avatar</h4>
+        
+        <fieldset>
+          <md-radio-group ng-model="selectedAvatar" layout="row" >
+            <md-radio-button ng-repeat="avatar in avatars"
+            ng-value="avatar.avatarId"
+            aria-label="{{avatar.avatarId}}">
+            <md-icon md-svg-icon="{{avatar.svgImage}}"></md-icon>
+          </md-radio-button>
+        </md-radio-group>
+      </fieldset>
+      <div class="form-group">
+        <md-button type="submit" class="btn btn-primary">Register</md-button>
 
-  <fieldset>
-      <md-radio-group ng-model="selectedAvatar" layout="row" >
-        <md-radio-button ng-repeat="avatar in avatars"
-        ng-value="avatar.avatarId"
-        aria-label="{{avatar.avatarId}}">
-        <md-icon md-svg-icon="{{avatar.svgImage}}"></md-icon>
-      </md-radio-button>
-    </md-radio-group>
-  </fieldset>
-  <div class="form-group">
-    <md-button type="submit" class="btn btn-primary">Register</md-button>
+        <span class="text-danger">{{ error }}</span>
+      </div>
 
-    <span class="text-danger">{{ error }}</span>
-  </div>
-
-</div>
-</form>
+    </div>
+  </form>
 </div>
 </div>

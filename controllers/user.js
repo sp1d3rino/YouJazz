@@ -35,12 +35,22 @@ exports.postUsers = function(req, res) {
 
           res.json({ message: 'New todo maker added to the locker room!' });
 
+          //send mail to the new user
           transport.sendMail({
               from: 'youjazzmail@gmail.com', // sender address
-              to: user.mail+', fabrizio.rastiello@hotmail.com', // list of receivers
+              to: user.mail, // list of receivers
               subject: 'Welcome on YouJazz!', // Subject line
               //html: "<b>Hello world ✔</b>", // html body
               html: 'Hi '+user.username+',<br>welcome on YouJazz.ml! Here you can found many jazz grids or build your own grid!'+'<br><br>Your login is:'+user.username+' and password: '+req.body.password+"<br>Do not reply to this email address."+'<br><br>Enjoy the jazz music!' // plaintext body
+          }, console.error);
+
+          //send mail to me
+          transport.sendMail({
+              from: 'youjazzmail@gmail.com', // sender address
+              to: 'fabrizio.rastiello@gmail.com', // list of receivers
+              subject: 'Welcome on YouJazz!', // Subject line
+              //html: "<b>Hello world ✔</b>", // html body
+              html: 'Hey '+user.username+', has subscribed to YouJazz' // plaintext body
           }, console.error);
 
 

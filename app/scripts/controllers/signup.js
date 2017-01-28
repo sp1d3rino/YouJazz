@@ -8,7 +8,7 @@
 * Controller of the yeomanApp
 */
 angular.module('yeomanApp')
-.controller('SignupCtrl', ['$rootScope','$scope','$http','$mdToast','$document','$location',function functionName($rootScope,$scope,$http, $mdToast, $document,$location) {
+.controller('SignupCtrl', ['$rootScope','$scope','$http','$mdToast','$document','$location','$base64','$cookies',function functionName($rootScope,$scope,$http, $mdToast, $document,$location,$base64,$cookies) {
 
   $scope.error='';
   $scope.password='';
@@ -64,8 +64,8 @@ angular.module('yeomanApp')
       headers: {'Content-Type' : 'application/x-www-form-urlencoded'}
     }).then (function successCallback(response){
       console.log('response status:' + JSON.stringify(response.status));
-      $scope.showToast1('Well done! Now login and build your tune!');
-      $location.url('login' );
+      //$scope.showToast1('Well done! Now login and build your tune!');
+      $scope.loginUser();
 
     },
     function errorCallback(response) {
@@ -74,5 +74,39 @@ angular.module('yeomanApp')
 
     }
   );
+
 }; // end of registerUser
+
+
+$scope.loginUser = function() {
+  console.log("loginUser function start");
+  var auth = $base64.encode(angular.lowercase($scope.username)+':'+$scope.password);
+  $http.defaults.headers.common['Authorization'] = 'Basic ' + auth;
+  $rootScope.basicAuth =auth;
+  $http.get('/api/users/'+ $scope.username)
+  .then (
+    function successCallback(response){
+      console.log('response status:' + JSON.stringify(response.status));
+      var res = response.data[0];
+      $rootScope.userSignedIn=$scope.username;
+      $rootScope.avatar=res.avatar;
+      var login_today = new Date();
+      var login_expired = new Date(login_today);
+      login_expired.setDate(login_today.getDate() + 1); //Set expired date to tomorrow
+      $cookies.put('youjazz_user', $rootScope.userSignedIn, {expires : login_expired });
+      $cookies.put('youjazz_basic_auth',  $rootScope.basicAuth, {expires : login_expired });
+
+      $cookies.put('youjazz_user_avatar',res.avatar, {expires : login_expired });
+
+      $location.url('/' );
+    },
+    function errorCallback(response) {
+      console.log('error  response status:' +  JSON.stringify(response.status));
+      $scope.showToast1('Error! Something went wrong... Retry registration again');
+      $rootScope.userSignedIn=null;
+    }
+  );
+}
+
+
 }]);
