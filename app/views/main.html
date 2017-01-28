@@ -1,13 +1,12 @@
 
 
-<md-content class="md-padding" layout="row"  layout-align="center center" style="padding-top: 60px; padding-bottom:10px;">
+<md-content class="md-padding" layout="row"  layout-align="center center" style="padding-top: 60px;">
   <div  layout="row" layout-align="center center" style="padding-left:10px;" class="label label-primary" >{{count}}  tunes available!</div>
 
   <div flex="80" >
-
-
-
-    <md-autocomplete style="padding-left:10px;padding-right:10px;"
+    <md-autocomplete style="padding-left:30px;padding-right:10px;"
+    md-escape-options ="none"
+    md-floating-label="Search your tune here..."
     md-no-cache="true"
     md-autoselect="true"
     md-selected-item="selectedItem"
@@ -15,9 +14,9 @@
     md-selected-item-change="selectedItemChange(item)"
     md-items="item in querySearch(searchText)"
     md-item-text="item.tuneTitle"
+    md-require-match ="true"
     md-min-length="0"
     md-menu-class="autocomplete-custom-template"
-    placeholder="Find your tune here...">
     <md-item-template>
       <span class="item-title">
         <md-icon md-svg-icon={{item.avatarSvg}} style="color:red"></md-icon>
@@ -26,9 +25,6 @@
       <span class="item-metadata">
         <span class="item-metastat">
           by <strong>{{item.grilleAuthorName}}</strong>
-        </span>
-        <span class="item-metastat">
-          score <strong>{{item.votes}}</strong>
         </span>
       </span>
     </md-item-template>
@@ -40,12 +36,9 @@
 </div>
 <div flex="20" layout="row" layout-align="center center">
   <md-button class="md-fab  md-raised md-inform" ng-disabled ="isPrintButtonDisabled()" ng-click="voteThisTune(selectedTune,1)"><md-tooltip>Vote up this tune</md-tooltip><md-icon  class="md-icon" md-svg-src="images/svg/thumbs-up.svg"/></md-button>
-
-  <div  class="label label-primary"  >score: {{formData.votes}}  </div>
+  <div  class="label label-primary">score: {{formData.votes}}  </div>
   <md-button class="md-fab   md-raised md-inform" ng-disabled ="isPrintButtonDisabled()" ng-click="voteThisTune(selectedTune,-1)"><md-tooltip>Vote down this tune</md-tooltip><md-icon  class="md-icon" md-svg-src="images/svg/thumb-down.svg"/></md-button>
 </div>
-
-
 </md-content>
 
 

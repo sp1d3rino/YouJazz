@@ -281,11 +281,6 @@ angular.module('yeomanApp')
     console.log('resetGrid ');
 
     $scope.selectedTune=null;
-    /*    $scope.formData.tuneTitle=null;
-    $scope.formData.tuneAuthorName=null;
-    $scope.formData.comments=null;
-    $scope.formData.numRow=null;
-    $scope.formData.numCol=null;*/
     $scope.formData._id=undefined;
     $scope.formData.grilleAuthorName=null;
     $scope.formData.grille=[];
@@ -441,356 +436,347 @@ angular.module('yeomanApp')
         return results;
 
       }
-/*
+      /*
       $scope.searchTextChange= function(text) {
-        console.log('Text changed to ' + text);
-        $scope.searchText=text;
-        return text;
-      }
-*/
-      $scope.selectedItemChange = function(item) {
+      console.log('Text changed to ' + text);
+      $scope.searchText=text;
+      return text;
+    }
+    */
+    $scope.selectedItemChange = function(item) {
+      console.log("selected item change");
+      if (typeof item !== "undefined") {
         console.log("selected item change");
-        if (typeof item !== "undefined") {
-          console.log("selected item change");
-          $scope.loadTune(item._id);
-          $scope.searchText = item.tuneTitle;
-          //    $scope.selectedItem= undefined;
-          //          document.getElementById("tuneTitleId").focus();
-          //$scope.formData.tuneTitle.focus();
-          return item.tuneTitle;
-        }
-
-      }
-      /**
-      * Create filter function for a query string
-      */
-      $scope.createFilterFor = function(query) {
-        var lowercaseQuery = angular.lowercase(query);
-        //  console.log('lowercaseQuery '+lowercaseQuery);
-        return function filterFn(tune) {
-          return (angular.lowercase(tune.tuneTitle).indexOf(lowercaseQuery) === 0);
-        };
-
+        $scope.loadTune(item._id);
+        $scope.searchText = item.tuneTitle;
+        //    $scope.selectedItem= undefined;
+        //          document.getElementById("tuneTitleId").focus();
+        //$scope.formData.tuneTitle.focus();
+        return item.tuneTitle;
       }
 
+    }
+    /**
+    * Create filter function for a query string
+    */
+    $scope.createFilterFor = function(query) {
+      var lowercaseQuery = angular.lowercase(query);
+      //  console.log('lowercaseQuery '+lowercaseQuery);
+      return function filterFn(tune) {
+        return (angular.lowercase(tune.tuneTitle).indexOf(lowercaseQuery) === 0);
+      };
 
+    }
+
+
+  }
+
+});
+
+
+$http.get('/api/tunes/'+ 'latest')
+.then(function(response) {
+  if (response.status!='200'){
+    alert("get Error!");
+    throw new Error("Error during call to GET api");
+  }else{
+    if(response.data !=null){
+      $scope.formData= response.data;
+      $scope.selectedTune =response.data._id;
+      $scope.newTuneFlag=false;
+    }else $scope.newTuneFlag=true;
+    //      console.log("latest tune "+JSON.stringify(response.data, null, 4));
+  }
+
+});
+
+
+$scope.addOrUpdateTune = function(){
+  if ($scope.newTuneFlag) $scope.createTune();
+  else $scope.updateTune();
+}
+
+// when submitting the add form, send the text to the node API
+$scope.createTune = function() {
+  $scope.formData.votes = 0;
+  $scope.formData.avatarSvg = $rootScope.avatarSvg;
+  //post new tune and put tune list in the search box
+  $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
+  $http.post('/api/tunes', $scope.formData)
+  .then(function(response) {
+    if (response.status!='200'){
+      alert("get Error!");
+      throw new Error("Error during call to POST api");
+    }else{
+      $scope.tunes = response.data;
+      self.tunes=$scope.tunes;
+      $scope.count = $scope.tunes.length;
+      $scope.announceClick('Your tune "'+$scope.formData.tuneTitle+'" has been added!');
+      //console.log("tune list "+ JSON.stringify(response.data, null, 4));
+      $scope.showToast1($scope.formData.tuneTitle + " has been added!");
     }
 
   });
 
-
-  $http.get('/api/tunes/'+ 'latest')
+  //now get lastest tune of this user
+  $http.get('/api/tunes/'+ 'mylatest')
   .then(function(response) {
     if (response.status!='200'){
       alert("get Error!");
       throw new Error("Error during call to GET api");
     }else{
-      if(response.data !=null){
-        $scope.formData= response.data;
-        $scope.selectedTune =response.data._id;
-        $scope.newTuneFlag=false;
-      }else $scope.newTuneFlag=true;
-      //      console.log("latest tune "+JSON.stringify(response.data, null, 4));
+      $scope.formData= response.data;
+      $scope.selectedTune =response.data._id;
+      $scope.newTuneFlag=false;
+      //console.log("latest tune "+JSON.stringify(response.data, null, 4));
     }
 
   });
 
 
-  $scope.addOrUpdateTune = function(){
-    if ($scope.newTuneFlag) $scope.createTune();
-    else $scope.updateTune();
-  }
-
-  // when submitting the add form, send the text to the node API
-  $scope.createTune = function() {
-    $scope.formData.votes = 0;
-    $scope.formData.avatarSvg = $rootScope.avatarSvg;
-    //post new tune and put tune list in the search box
-    $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
-    $http.post('/api/tunes', $scope.formData)
-    .then(function(response) {
-      if (response.status!='200'){
-        alert("get Error!");
-        throw new Error("Error during call to POST api");
-      }else{
-        $scope.tunes = response.data;
-        self.tunes=$scope.tunes;
-        $scope.count = $scope.tunes.length;
-        $scope.announceClick('Your tune "'+$scope.formData.tuneTitle+'" has been added!');
-        //console.log("tune list "+ JSON.stringify(response.data, null, 4));
-        $scope.showToast1($scope.formData.tuneTitle + " has been added!");
-      }
-
-    });
-
-    //now get lastest tune of this user
-    $http.get('/api/tunes/'+ 'mylatest')
-    .then(function(response) {
-      if (response.status!='200'){
-        alert("get Error!");
-        throw new Error("Error during call to GET api");
-      }else{
-        $scope.formData= response.data;
-        $scope.selectedTune =response.data._id;
-        $scope.newTuneFlag=false;
-        //console.log("latest tune "+JSON.stringify(response.data, null, 4));
-      }
-
-    });
+};
 
 
-  };
-
-
-  $scope.updateTune = function(){
-    console.log("update Tune "+$scope.selectedTune);
-    $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
-    $http.put('/api/tunes/'+ $scope.selectedTune,$scope.formData)
-    .then(function(response) {
-      if (response.status!='200'){
-        alert("get Error!");
-        throw new Error("Error during call to POST api");
-      }
-      else{
-        $scope.showToast1($scope.formData.tuneTitle + " updated!");
-      }
-    });
-
-  }
-
-
-  //load a specific loadTune
-  $scope.loadTune = function(tuneId) {
-    console.log('selected tune id is:' + tuneId);
-    $http.get('/api/tunes/'+ tuneId)
-    .then(function(response) {
-      if (response.status!='200'){
-        alert("get Error!");
-        throw new Error("Error during call to GET api");
-      }else{
-        $scope.formData= response.data[0];
-        $scope.selectedTune = tuneId; //for delete and update;
-        //console.log(JSON.stringify(response.data, null, 4));
-        $scope.newTuneFlag=false;
-      }
-    });
-  };
-
-  // delete a tune
-
-  $scope.deleteTune = function($event) {
-    console.log('selected tune id is:' + $scope.selectedTune);
-    $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
-    $http.delete('/api/tunes/'+ $scope.selectedTune)
-    .then(function(response) {
-      if (response.status!='200'){
-        alert("get Error!");
-        throw new Error("Error during call to DELETE api");
-      }else{
-
-
-        self.tunes.forEach(function(result, index) {
-          if(result['_id'] ===  $scope.selectedTune) {
-            //Remove from array
-            self.tunes.splice(index, 1);
-          }
-        });
-        $scope.showToast1($scope.formData.tuneTitle +" has been removed!");
-        $scope.count = self.tunes.length;
-        $scope.resetGrid();
-        $scope.formData.tuneTitle=null;
-        $scope.formData.tuneAuthorName=null;
-
-      }
-    });
-  };
-
-
-  $scope.printIt = function(){
-    var printableGrid = document.getElementById('printableGrid');
-    /*printableGrid.setAttribute("style","table tr td{border: solid 1px;}");
-    var myWindow = $window.open('', '', 'width=800, height=600');
-
-    myWindow.document.write('<html><head><title>YouJazz</title><link rel="stylesheet" type="text/css" href="styles/main.css"></head><body>');
-    myWindow.document.write(printableGrid.innerHTML);
-    myWindow.document.write('</body>');
-    myWindow.document.write('</html>');
-
-    myWindow.print();
-*/
-var cssMainPage='<link rel="stylesheet" type="text/css" href="styles/main.css">';
-var htmlToPrint = '' +
-    '<style type="text/css">' +
-    ' table{width:100%;height:10%;}'+
-    ' table, th, td {border: 3px solid black;padding: 15px; text-align: center;}'+
-    ' tr{      min-height: 20px;      max-height: 20px;    }'+
-    ' td{      min-width: 40px;      max-width: 40px;        }'+
-    ' .tuneTitle{      font-family:"Comic Sans MS";  font-size:150%;} '+
-    '</style>';
-
-    htmlToPrint+=cssMainPage+printableGrid.outerHTML;
-    var newWin = $window.open('', '', 'width=800, height=600');
-   newWin.document.write(htmlToPrint);
-   newWin.print();
-
-  };
-
-
-  $scope.announceClick = function(msg) {
-    $mdDialog.show(
-      $mdDialog.alert()
-      .title('YouJazz')
-      .textContent(msg)
-      .ok('Ok!')
-      .targetEvent(originatorEv)
-    );
-    originatorEv = null;
-  };
-
-
-  $scope.showDeleteConfirm = function(ev,msg) {
-    // Appending dialog to document.body to cover sidenav in docs app
-    var confirm = $mdDialog.confirm()
-    .title(msg)
-    .textContent('This tune will be removed!')
-    .ariaLabel('Lucky day')
-    .targetEvent(ev)
-    .ok('Delete it!')
-    .cancel('Nevermind');
-
-    $mdDialog.show(confirm).then(function() {
-      $scope.deleteTune();
-    }, function() {
-      return false;
-    });
-  };
-
-
-
-  $scope.createPrompt1 = function(ev,tuneTitle) {
-    // Appending dialog to document.body to cover sidenav in docs app
-    if ($scope.userSignedIn==undefined || $scope.userSignedIn==null){
-      $scope.showToast1("You must login to create a new tune!");
-      $location.url('login');
-      return;
+$scope.updateTune = function(){
+  console.log("update Tune "+$scope.selectedTune);
+  $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
+  $http.put('/api/tunes/'+ $scope.selectedTune,$scope.formData)
+  .then(function(response) {
+    if (response.status!='200'){
+      alert("get Error!");
+      throw new Error("Error during call to POST api");
     }
-    var confirm = $mdDialog.prompt()
-    .title('Tune name')
-    .textContent('What is the name of the new tune?')
-    .placeholder('Tune name')
-    .ariaLabel('Tune name')
-    .initialValue(tuneTitle)
-    .targetEvent(ev)
-    .ok('Next')
-    .cancel('Nevermind');
+    else{
+      $scope.showToast1($scope.formData.tuneTitle + " updated!");
+    }
+  });
 
-    $mdDialog.show(confirm).then(function(result) {
-      $scope.formData.tuneTitle=result;
-      $scope.createPrompt2(ev,tuneTitle);
-    }, function() {
+}
+
+
+//load a specific loadTune
+$scope.loadTune = function(tuneId) {
+  console.log('selected tune id is:' + tuneId);
+  $http.get('/api/tunes/'+ tuneId)
+  .then(function(response) {
+    if (response.status!='200'){
+      alert("get Error!");
+      throw new Error("Error during call to GET api");
+    }else{
+      $scope.formData= response.data[0];
+      $scope.selectedTune = tuneId; //for delete and update;
+      //console.log(JSON.stringify(response.data, null, 4));
       $scope.newTuneFlag=false;
-      $scope.formData.tuneTitle='';
-    });
+    }
+  });
+};
 
-  };
+// delete a tune
 
-  $scope.createPrompt2 = function(ev,tuneTitle) {
-    // Appending dialog to document.body to cover sidenav in docs app
-    var confirm = $mdDialog.prompt()
-    .title('Author name')
-    .textContent('What is the name of the composer?')
-    .placeholder('Author name')
-    .ariaLabel('Author name')
-    .initialValue('')
-    .targetEvent(ev)
-    .ok('Next')
-    .cancel('Nevermind');
-
-    $mdDialog.show(confirm).then(function(result) {
-      $scope.formData.tuneAuthorName=result;
-      $scope.newTune(tuneTitle);
-    }, function() {
-      $scope.newTuneFlag=false;
-      $scope.formData.tuneTitle='';
-      $scope.formData.tuneAuthorName='';
-    });
-  };
+$scope.deleteTune = function($event) {
+  console.log('selected tune id is:' + $scope.selectedTune);
+  $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
+  $http.delete('/api/tunes/'+ $scope.selectedTune)
+  .then(function(response) {
+    if (response.status!='200'){
+      alert("get Error!");
+      throw new Error("Error during call to DELETE api");
+    }else{
 
 
-
-  $scope.showBuildGridDialog = function($event) {
-    var parentEl = angular.element(document.body);
-    $mdDialog.show({
-      parent: parentEl,
-      scope: $scope.$new(),
-      targetEvent: $event,
-      template:
-      '<md-dialog aria-label="List dialog">' +
-      '  <md-dialog-content>'+
-      '  <h5 class="md-inform" style="padding:10px 10px;">Choose the grid type and size</h5>'+
-      '   <div layout="row" style="justify-content: center; padding-top:10px; padding-left:20px;padding-right:20px" layout-sm="column">'+
-      '      <md-radio-group layout="row"  ng-model="currentGridType" ng-init="currentGridType=\'Chorus\'">'+
-      '          <md-radio-button value="Intro" class="md-primary">Intro</md-radio-button>'+
-      '          <md-radio-button value="Chorus" class="md-primary"> Chorus </md-radio-button>'+
-      '          <md-radio-button value="Outro" class="md-primary" >Outro</md-radio-button>'+
-      '      </md-radio-group>'+
-      '   </div>'+
-      '  <div layout="row">'+
-      '   <md-slider-container layout="row" flex>'+
-      '    <input type="number" ng-init="formData.numRow=0"  placeholder="row" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numRow" aria-label="volume" aria-controls="volume-slider">'+
-      '    <md-slider ng-model="formData.numRow" min="0" max="10" aria-label="volume" id="volume-slider" class="md-accent" style="padding-right:20px;" md-horizontal md-range></md-slider>'+
-      '   </md-slider-container>'+
-      '  </div>'+
-      '  <div layout="row">'+
-      '   <md-slider-container layout="row" flex>'+
-      '    <input type="number"  ng-init="formData.numCol=0" placeholder="col" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numCol" aria-label="volume" aria-controls="volume-slider">'+
-      '    <md-slider ng-model="formData.numCol" min="0" max="10" aria-label="volume" id="volume-slider" class="md-accent" style="padding-right:20px;" md-horizontal md-range></md-slider>'+
-      '   </md-slider-container>'+
-      '  </div>'+
-      '  </md-dialog-content>' +
-      '  <md-dialog-actions>' +
-      '    <md-button ng-click="closeDialog()" class="md-primary">' +
-      '      Nervermind' +
-      '    </md-button>' +
-      '    <md-button ng-click="buildGrid()" class="md-primary">' +
-      '      Create!' +
-      '    </md-button>' +
-      '  </md-dialog-actions>' +
-      '</md-dialog>',
-      locals: {
-        items: $scope.items
-      },
-      controller: DialogController
-    });
-    function DialogController($scope, $mdDialog, items) {
-      $scope.items = items;
-      $scope.closeDialog = function() {
-        $mdDialog.hide();
-      }
-      $scope.buildGrid = function() {
-
-        switch($scope.currentGridType){
-          case "Intro":
-          $scope.createIntroGrid();
-          break;
-          case "Outro":
-          $scope.createOutroGrid();
-          break;
-          case "Chorus":
-          $scope.createGrid();
-          break;
-          default:
-          $scope.createGrid();
-
+      self.tunes.forEach(function(result, index) {
+        if(result['_id'] ===  $scope.selectedTune) {
+          //Remove from array
+          self.tunes.splice(index, 1);
         }
+      });
+      $scope.showToast1($scope.formData.tuneTitle +" has been removed!");
+      $scope.count = self.tunes.length;
+      $scope.resetGrid();
+      $scope.formData.tuneTitle=null;
+      $scope.formData.tuneAuthorName=null;
 
-        $mdDialog.hide();
+    }
+  });
+};
+
+
+$scope.printIt = function(){
+  var printableGrid = document.getElementById('printableGrid');
+
+  var cssMainPage='<link rel="stylesheet" type="text/css" href="styles/main.css">';
+  var htmlToPrint = '' +
+  '<style type="text/css">' +
+  ' table{width:100%;height:10%;}'+
+  ' table, th, td {border: 3px solid black;padding: 15px; text-align: center;}'+
+  ' tr{      min-height: 20px;      max-height: 20px;    }'+
+  ' td{      min-width: 40px;      max-width: 40px;        }'+
+  ' .tuneTitle{      font-family:"Comic Sans MS";  font-size:150%;} '+
+  '</style>';
+
+  htmlToPrint+=cssMainPage+printableGrid.outerHTML;
+  var newWin = $window.open('', '', 'width=800, height=600');
+  newWin.document.write(htmlToPrint);
+  newWin.print();
+
+};
+
+
+$scope.announceClick = function(msg) {
+  $mdDialog.show(
+    $mdDialog.alert()
+    .title('YouJazz')
+    .textContent(msg)
+    .ok('Ok!')
+    .targetEvent(originatorEv)
+  );
+  originatorEv = null;
+};
+
+
+$scope.showDeleteConfirm = function(ev,msg) {
+  // Appending dialog to document.body to cover sidenav in docs app
+  var confirm = $mdDialog.confirm()
+  .title(msg)
+  .textContent('This tune will be removed!')
+  .ariaLabel('Lucky day')
+  .targetEvent(ev)
+  .ok('Delete it!')
+  .cancel('Nevermind');
+
+  $mdDialog.show(confirm).then(function() {
+    $scope.deleteTune();
+  }, function() {
+    return false;
+  });
+};
+
+
+
+$scope.createPrompt1 = function(ev,tuneTitle) {
+  // Appending dialog to document.body to cover sidenav in docs app
+  if ($scope.userSignedIn==undefined || $scope.userSignedIn==null){
+    $scope.showToast1("You must login to create a new tune!");
+    $location.url('login');
+    return;
+  }
+  var confirm = $mdDialog.prompt()
+  .title('Tune name')
+  .textContent('What is the name of the new tune?')
+  .placeholder('Tune name')
+  .ariaLabel('Tune name')
+  .initialValue(tuneTitle)
+  .targetEvent(ev)
+  .ok('Next')
+  .cancel('Nevermind');
+
+  $mdDialog.show(confirm).then(function(result) {
+    $scope.formData.tuneTitle=result;
+    $scope.createPrompt2(ev,tuneTitle);
+  }, function() {
+    $scope.newTuneFlag=false;
+    $scope.formData.tuneTitle='';
+  });
+
+};
+
+$scope.createPrompt2 = function(ev,tuneTitle) {
+  // Appending dialog to document.body to cover sidenav in docs app
+  var confirm = $mdDialog.prompt()
+  .title('Author name')
+  .textContent('What is the name of the composer?')
+  .placeholder('Author name')
+  .ariaLabel('Author name')
+  .initialValue('')
+  .targetEvent(ev)
+  .ok('Next')
+  .cancel('Nevermind');
+
+  $mdDialog.show(confirm).then(function(result) {
+    $scope.formData.tuneAuthorName=result;
+    $scope.newTune(tuneTitle);
+  }, function() {
+    $scope.newTuneFlag=false;
+    $scope.formData.tuneTitle='';
+    $scope.formData.tuneAuthorName='';
+  });
+};
+
+
+
+$scope.showBuildGridDialog = function($event) {
+  var parentEl = angular.element(document.body);
+  $mdDialog.show({
+    parent: parentEl,
+    scope: $scope.$new(),
+    targetEvent: $event,
+    template:
+    '<md-dialog aria-label="List dialog">' +
+    '  <md-dialog-content>'+
+    '  <h5 class="md-inform" style="padding:10px 10px;">Choose the grid type and size</h5>'+
+    '   <div layout="row" style="justify-content: center; padding-top:10px; padding-left:20px;padding-right:20px" layout-sm="column">'+
+    '      <md-radio-group layout="row"  ng-model="currentGridType" ng-init="currentGridType=\'Chorus\'">'+
+    '          <md-radio-button value="Intro" class="md-primary">Intro</md-radio-button>'+
+    '          <md-radio-button value="Chorus" class="md-primary"> Chorus </md-radio-button>'+
+    '          <md-radio-button value="Outro" class="md-primary" >Outro</md-radio-button>'+
+    '      </md-radio-group>'+
+    '   </div>'+
+    '  <div layout="row">'+
+    '   <md-slider-container layout="row" flex>'+
+    '    <input type="number" ng-init="formData.numRow=0"  placeholder="row" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numRow" aria-label="volume" aria-controls="volume-slider">'+
+    '    <md-slider ng-model="formData.numRow" min="0" max="10" aria-label="volume" id="volume-slider" class="md-accent" style="padding-right:20px;" md-horizontal md-range></md-slider>'+
+    '   </md-slider-container>'+
+    '  </div>'+
+    '  <div layout="row">'+
+    '   <md-slider-container layout="row" flex>'+
+    '    <input type="number"  ng-init="formData.numCol=0" placeholder="col" min="0" max="10" style="width:60px; border:none; padding-right:10px;" ng-model="formData.numCol" aria-label="volume" aria-controls="volume-slider">'+
+    '    <md-slider ng-model="formData.numCol" min="0" max="10" aria-label="volume" id="volume-slider" class="md-accent" style="padding-right:20px;" md-horizontal md-range></md-slider>'+
+    '   </md-slider-container>'+
+    '  </div>'+
+    '  </md-dialog-content>' +
+    '  <md-dialog-actions>' +
+    '    <md-button ng-click="closeDialog()" class="md-primary">' +
+    '      Nervermind' +
+    '    </md-button>' +
+    '    <md-button ng-click="buildGrid()" class="md-primary">' +
+    '      Create!' +
+    '    </md-button>' +
+    '  </md-dialog-actions>' +
+    '</md-dialog>',
+    locals: {
+      items: $scope.items
+    },
+    controller: DialogController
+  });
+  function DialogController($scope, $mdDialog, items) {
+    $scope.items = items;
+    $scope.closeDialog = function() {
+      $mdDialog.hide();
+    }
+    $scope.buildGrid = function() {
+
+      switch($scope.currentGridType){
+        case "Intro":
+        $scope.createIntroGrid();
+        break;
+        case "Outro":
+        $scope.createOutroGrid();
+        break;
+        case "Chorus":
+        $scope.createGrid();
+        break;
+        default:
+        $scope.createGrid();
 
       }
+
+      $mdDialog.hide();
 
     }
 
   }
+
+}
 
 
 }]);
