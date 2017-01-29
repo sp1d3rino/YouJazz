@@ -624,10 +624,9 @@ $scope.printIt = function(){
 $scope.showHelp = function(ev) {
     $mdDialog.show({
       templateUrl: '../../views/helpvideo.html',
-      parent: angular.element(document.window),
+      parent: angular.element(document.body),
       targetEvent: ev,
-      clickOutsideToClose:true,
-      fullscreen: $scope.customFullscreen // Only for -xs, -sm breakpoints.
+      clickOutsideToClose:true
     })
 
   };
