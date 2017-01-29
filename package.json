@@ -24,6 +24,7 @@
     "morgan": "~1.6.1",
     "passport": "^0.3.2",
     "passport-http": "^0.3.0",
+    "please-wait": "0.0.5",
     "sendmail": "^1.1.1"
   },
   "devDependencies": {

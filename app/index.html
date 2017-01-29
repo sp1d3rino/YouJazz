@@ -3,58 +3,117 @@
 <head>
   <meta charset="utf-8">
   <title></title>
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width">
-  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-  <!-- build:css(.) styles/vendor.css -->
+  <style TYPE="text/css">
+  .spinner {
+    width: 40px;
+    height: 40px;
+
+    position: relative;
+    margin: 100px auto;
+  }
+
+  .double-bounce1, .double-bounce2 {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: #FFF;
+    opacity: 0.6;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+    animation: sk-bounce 2.0s infinite ease-in-out;
+  }
+
+  .double-bounce2 {
+    -webkit-animation-delay: -1.0s;
+    animation-delay: -1.0s;
+  }
+
+  @-webkit-keyframes sk-bounce {
+    0%, 100% { -webkit-transform: scale(0.0) }
+    50% { -webkit-transform: scale(1.0) }
+  }
+
+  @keyframes sk-bounce {
+    0%, 100% {
+      transform: scale(0.0);
+      -webkit-transform: scale(0.0);
+      } 50% {
+        transform: scale(1.0);
+        -webkit-transform: scale(1.0);
+      }
+    }
+
+    </style>
 
 
-  <!-- bower:css -->
-  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
-  <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <!-- build:css(.) styles/vendor.css -->
 
-  <!-- SPELLS -->
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><!-- load jquery -->
+    <link rel="stylesheet" type="text/css" href="bower_components/please-wait/build/please-wait.css">
 
 
-  <!-- endbower -->
-  <!-- endbuild -->
-  <!-- build:css(.tmp) styles/main.css -->
-<!--  <link rel="stylesheet" type="text/css"  href="styles/main.css">-->
-<link rel="stylesheet" type="text/css"  href="dist/css/main.min.css">
-  <!-- endbuild -->
-</head>
-<body ng-app="yeomanApp" >
-  <!--[if lte IE 8]>
-  <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-  <![endif]-->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+    <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+    <!-- SPELLS -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><!-- load jquery -->
 
-  <!-- Add your site or application content here -->
-  <nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container-fluid" >
-      <div class="navbar-header">
-        <a class="navbar-brand" href="#!/">YouJazz</a>
+
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css(.tmp) styles/main.css -->
+    <!--  <link rel="stylesheet" type="text/css"  href="styles/main.css">-->
+    <link rel="stylesheet" type="text/css"  href="dist/css/main.min.css">
+    <!-- endbuild -->
+  </head>
+  <body ng-app="yeomanApp" >
+    <script type="text/javascript" src="bower_components/please-wait/build/please-wait.min.js"></script>
+    <script type="text/javascript">
+    window.loading_screen = window.pleaseWait({
+      logo: "images/logo.png",
+      backgroundColor: '#2c3e50',
+      loadingHtml:
+      '<div class="spinner">'+
+      '<div class="double-bounce1"></div>'+
+      '<div class="double-bounce2"></div>'+
+      '</div>'
+    });
+    </script>
+    <!--[if lte IE 8]>
+    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    <!-- Add your site or application content here -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid" >
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#!/">YouJazz</a>
+        </div>
+
+        <ul  layout="row"  layout-align="center center"  class="nav navbar-nav navbar-right ng-cloak">
+          <li ng-show='avatar' class ="ng-cloak"><md-icon  md-svg-icon="{{avatarSvg}}" style="color:gray;padding-right:10px;"></md-icon> </li>
+          <li ng-show='userSignedIn' class ="ng-cloak"><span class="navbar-brand ng-cloak" ng-bind="userSignedIn"></span> </li>
+          <li><a href="#!/login" ng-show='!userSignedIn' class ="ng-cloak"> <span class="glyphicon glyphicon-log-in ng-cloak"></span> Log in</a></li>
+          <li><a href="#!/signup" ng-show='!userSignedIn' class ="ng-cloak"><span class="glyphicon glyphicon-user ng-cloak"></span> Sign Up</a></li>
+          <li><a ng-show='userSignedIn' ng-controller='IndexController' ng-click="logout()"><span class="glyphicon glyphicon-log-out ng-cloak"></span> Log out</a></li>
+        </ul>
       </div>
+    </nav>
+    <!--<div class="container">-->
+    <div ng-view=""></div>
+    <!--</div>-->
 
-      <ul  layout="row"  layout-align="center center"  class="nav navbar-nav navbar-right ng-cloak">
-        <li ng-show='avatar' class ="ng-cloak"><md-icon  md-svg-icon="{{avatarSvg}}" style="color:gray;padding-right:10px;"></md-icon> </li>
-        <li ng-show='userSignedIn' class ="ng-cloak"><span class="navbar-brand ng-cloak" ng-bind="userSignedIn"></span> </li>
-        <li><a href="#!/login" ng-show='!userSignedIn' class ="ng-cloak"> <span class="glyphicon glyphicon-log-in ng-cloak"></span> Log in</a></li>
-        <li><a href="#!/signup" ng-show='!userSignedIn' class ="ng-cloak"><span class="glyphicon glyphicon-user ng-cloak"></span> Sign Up</a></li>
-        <li><a ng-show='userSignedIn' ng-controller='IndexController' ng-click="logout()"><span class="glyphicon glyphicon-log-out ng-cloak"></span> Log out</a></li>
-      </ul>
+    <div class="footer">
+      <div class="container">
+        <p><span class="glyphicon"></span>© Fabrizio Rastiello 2017</p>
+      </div>
     </div>
-  </nav>
-  <!--<div class="container">-->
-  <div ng-view=""></div>
-  <!--</div>-->
-
-  <div class="footer">
-    <div class="container">
-      <p><span class="glyphicon"></span>© Fabrizio Rastiello 2017</p>
-    </div>
-  </div>
 
 
 
@@ -62,35 +121,38 @@
 
 
 
-  <!-- build:js(.) scripts/vendor.js -->
-  <!-- bower:js -->
-  <script src="bower_components/jquery/dist/jquery.min.js"></script>
-  <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-  <script src="bower_components/angular/angular.min.js"></script>
-  <script src="bower_components/angular-base64/angular-base64.min.js"></script>
+    <!-- build:js(.) scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/angular-base64/angular-base64.min.js"></script>
 
-  <script src="bower_components/angular-material/angular-material.min.js"></script>
-  <script src="bower_components/angular-aria/angular-aria.min.js"></script>
-  <script src="bower_components/angular-animate/angular-animate.min.js"></script>
-  <script src="bower_components/angular-cookies/angular-cookies.min.js"></script>
-  <script src="bower_components/angular-resource/angular-resource.min.js"></script>
-  <script src="bower_components/angular-route/angular-route.min.js"></script>
-  <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
-  <script src="bower_components/angular-touch/angular-touch.min.js"></script>
-  <!-- endbower -->
-  <!-- endbuild -->
+    <script src="bower_components/angular-material/angular-material.min.js"></script>
+    <script src="bower_components/angular-aria/angular-aria.min.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.min.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.min.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.min.js"></script>
+    <script src="bower_components/angular-route/angular-route.min.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="bower_components/angular-touch/angular-touch.min.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
 
-  <!-- build:js({.tmp,app}) scripts/scripts.js -->
-  <script src="dist/js/app.min.js"></script>
-  <!--
-  <script src="scripts/app.js"></script>
-  <script src="scripts/controllers/main.js"></script>
-  <script src="scripts/controllers/about.js"></script>
-  <script src="scripts/controllers/login.js"></script>
-  <script src="scripts/controllers/signup.js"></script>
-  <script src="scripts/controllers/utils.js"></script>
--->
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="dist/js/app.min.js"></script>
+    <!--
+    <script src="scripts/app.js"></script>
+    <script src="scripts/controllers/main.js"></script>
+    <script src="scripts/controllers/about.js"></script>
+    <script src="scripts/controllers/login.js"></script>
+    <script src="scripts/controllers/signup.js"></script>
+    <script src="scripts/controllers/utils.js"></script>
+  -->
 
   <!-- endbuild -->
+  <script type="text/javascript">
+  window.loading_screen.finish();
+  </script>
 </body>
 </html>
