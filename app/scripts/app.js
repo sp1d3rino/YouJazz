@@ -18,7 +18,8 @@ angular
     'ngSanitize',
     'ngMaterial',
     'ngCookies',
-    'angular-cookie-law'
+    'angular-cookie-law',
+    'ngYoutubeEmbed'
 
 
   ]).config(function ($routeProvider) {

@@ -7,7 +7,7 @@ angular.module('yeomanApp')
 
   var originatorEv;
   $scope.formData = {};
-
+  $scope.youtubelink = 'https://www.youtube.com/watch?v=S3PvxnHNdoM';
   $scope.formData.numCol=0;
   $scope.formData.numRow=0;
   $scope.formData.tuneTitle='';
@@ -620,6 +620,17 @@ $scope.printIt = function(){
   newWin.print();
 
 };
+
+$scope.showHelp = function(ev) {
+    $mdDialog.show({
+      templateUrl: '../../views/helpvideo.html',
+      parent: angular.element(document.window),
+      targetEvent: ev,
+      clickOutsideToClose:true,
+      fullscreen: $scope.customFullscreen // Only for -xs, -sm breakpoints.
+    })
+
+  };
 
 
 $scope.announceClick = function(msg) {

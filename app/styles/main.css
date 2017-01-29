@@ -207,25 +207,20 @@ td{
 
 .autocomplete-custom-template .item-title,
 .autocomplete-custom-template .item-metadata {
-
   display:block;
   line-height: 2;
-
  }
 
  .autocomplete-custom-template .item-metadata .item-metastat{
-
    font-size: 10px;
-  }
+}
 
 .autocomplete-custom-template .item-title md-icon {
   height: 36px;
   width: 36px; }
 
 md-icon {
-  margin-left: 0;
-  margin-right:0;
-  margin-top: 0;
+
   width: 36px;
   height: 36px;
   color:#f00;
