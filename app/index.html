@@ -61,9 +61,9 @@
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
     <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+    <link rel="stylesheet" href="bower_components/angular-cookie-law/dist/angular-cookie-law.min.css">
     <!-- SPELLS -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><!-- load jquery -->
-
 
     <!-- endbower -->
     <!-- endbuild -->
@@ -75,7 +75,9 @@
   <body ng-app="yeomanApp" >
     <script type="text/javascript" src="bower_components/please-wait/build/please-wait.min.js"></script>
     <script type="text/javascript">
-    window.loading_screen = window.pleaseWait({
+    var DownFlag=false;
+
+    var splashScreenOK= {
       logo: "images/logo.png",
       backgroundColor: '#2c3e50',
       loadingHtml:
@@ -83,8 +85,20 @@
       '<div class="double-bounce1"></div>'+
       '<div class="double-bounce2"></div>'+
       '</div>'
-    });
+    };
+    var splashScreenKO= {
+      logo: "images/svg/violin.svg",
+      backgroundColor: '#ff0000',
+      loadingHtml:'<div style="color:white"><h3>YouJazz is temporarily down for maintenance!</h3></div>'
+    };
+
+    var SplashScreenMsg=null;
+    if(DownFlag)SplashScreenMsg= splashScreenKO;
+    else SplashScreenMsg= splashScreenOK;
+    window.loading_screen = window.pleaseWait(SplashScreenMsg);
     </script>
+
+    <cookie-law-banner message="We use cookies to ensure that we give you the best experience on our website. If you continue without changing your settings, we'll assume that you are happy to receive all cookies from this website. If you would like to change your preferences you may do so by following the instructions" policy-url="http://link-to-your-policy"></cookie-law-banner>
     <!--[if lte IE 8]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -115,12 +129,6 @@
       </div>
     </div>
 
-
-
-
-
-
-
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -136,6 +144,8 @@
     <script src="bower_components/angular-route/angular-route.min.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
     <script src="bower_components/angular-touch/angular-touch.min.js"></script>
+    <script src="bower_components/angular-cookie-law/dist/angular-cookie-law.min.js"></script>
+
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -152,7 +162,8 @@
 
   <!-- endbuild -->
   <script type="text/javascript">
-  window.loading_screen.finish();
+  if(!DownFlag)
+    window.loading_screen.finish();
   </script>
 </body>
 </html>

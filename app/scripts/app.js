@@ -17,7 +17,8 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngMaterial',
-    'ngCookies'
+    'ngCookies',
+    'angular-cookie-law'
 
 
   ]).config(function ($routeProvider) {
@@ -74,7 +75,7 @@ angular
 
     };
 
- 
+
 
 
 
