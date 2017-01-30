@@ -34,7 +34,6 @@ angular.module('yeomanApp')
       function successCallback(response){
         console.log('response status:' + JSON.stringify(response.status));
         var res = response.data[0];
-        $scope.showToast1('You have signed in successfully!');
         $rootScope.userSignedIn=$scope.formData.username;
         $rootScope.avatar=res.avatar;
         var login_today = new Date();

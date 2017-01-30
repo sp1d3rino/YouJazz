@@ -225,3 +225,9 @@ md-icon {
   height: 36px;
   color:#f00;
 }
+
+md-input-container
+{
+  left: auto !important;
+  float:top;
+}

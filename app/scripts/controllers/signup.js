@@ -25,18 +25,6 @@ angular.module('yeomanApp')
     );
   }
 
-  $scope.showToast2 = function() {
-    var toast = $mdToast.simple()
-    .textContent('Now login and build your tune!')
-    .action('Ok!')
-    .highlightAction(false);
-    $mdToast.show(toast).then(function(response) {
-      if ( response == 'ok' ) {
-        alert('You clicked \'OK\'.');
-      }
-    });
-  }
-
 
   $scope.username = "" ;
   $scope.password = "" ;

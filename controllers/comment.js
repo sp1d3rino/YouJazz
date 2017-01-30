@@ -17,7 +17,7 @@ exports.postComment = function(req, res) {
       res.send(err);
     }
     else {
-      res.json({ message: 'New comment posted  for this tune!' });
+      res.json(comment);
     }
 
   });
@@ -28,16 +28,13 @@ exports.postComment = function(req, res) {
 exports.getComments = function(req, res) {
   console.log('get all Comments for tuneId '+req.params.tune_id);
   //retrive all tunes
-  var query = Comment.find({tuneId: req.params.tune_id}).select('username timestamp commentText').sort({timestamp:1});
+  var query = Comment.find({tuneId: req.params.tune_id}).select('username timestamp commentText timestamp').sort({timestamp:-1});
   query.exec(function (err, comments) {
     if (err){
-      console.log("Error get Comments " + JSON.stringify(comments,4));
       res.send(err);
 
     }
-
     else {
-      console.log("get Comments " + JSON.stringify(comments,4));
       res.json(comments);
     }
   });

@@ -393,7 +393,8 @@ angular.module('yeomanApp')
         alert("get Error!");
         throw new Error("Error during call to POST api");
       }else{
-        $scope.showToast1("Your comment has benn posted!");
+        $scope.comments.unshift(response.data);
+        $scope.commentData.text='';
       }
 
     });
