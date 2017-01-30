@@ -119,3 +119,29 @@
     </fieldset>
   </div>
 </div>
+
+<div layout="row">
+
+<div id="printableGrid" flex="80">
+    <fieldset>
+      <legend>Comments</legend>
+      <md-input-container class="md-block">
+        <label>your comment</label>
+        <textarea ng-model="commentData.text" md-maxlength="500" rows="5" md-select-on-focus maxlength="500"></textarea>
+        <md-button class="md-fab md-mini  md-inform" ng-click="postComment()"><md-tooltip>post this comment</md-tooltip><md-icon md-menu-origin md-svg-icon="images/svg/question.svg"></md-icon></md-button>
+      </md-input-container>
+
+      <md-content>
+        <md-list class="md-dense" flex>
+          <md-subheader class="md-no-sticky">Other comments</md-subheader>
+          <md-list-item class="md-3-line" ng-repeat="comment in comments">
+            <div class="md-list-item-text" layout="column">
+              <h3>{{ comment.username }}</h3>
+              <h4>{{ comment.commentText }}</h4>
+            </div>
+          </md-list-item>
+        </md-list>
+
+      </md-content>
+    </fieldset>
+</div>

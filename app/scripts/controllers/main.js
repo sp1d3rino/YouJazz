@@ -7,6 +7,7 @@ angular.module('yeomanApp')
 
   var originatorEv;
   $scope.formData = {};
+  $scope.commentData={};
   $scope.youtubelink = 'https://www.youtube.com/watch?v=S3PvxnHNdoM';
   $scope.formData.numCol=0;
   $scope.formData.numRow=0;
@@ -15,6 +16,11 @@ angular.module('yeomanApp')
   $scope.formData.comments='';
   $scope.formData.avatarSvg='';
   $scope.formData.vote=0;
+
+  $scope.commentData.username='';
+  $scope.commentData.text='';
+  $scope.commentData.tuneId='';
+  $scope.comments=0;
 
   $scope.selectedTune='';
   $scope.newTuneFlag=false;
@@ -377,6 +383,38 @@ angular.module('yeomanApp')
 
   /***************** REST API calls ********************/
 
+  $scope.postComment = function(){
+    console.log("post comment "+$scope.commentData.text+"\nby "+$rootScope.userSignedIn);
+    $http.defaults.headers.common['Authorization'] = 'Basic ' + $scope.basicAuth;
+    $scope.commentData.tuneId=$scope.selectedTune;
+    $http.post('/api/comments', $scope.commentData)
+    .then(function(response) {
+      if (response.status!='200'){
+        alert("get Error!");
+        throw new Error("Error during call to POST api");
+      }else{
+        $scope.showToast1("Your comment has benn posted!");
+      }
+
+    });
+  }
+
+  //get all comment for a selected tune
+  $scope.getComments = function(tuneId){
+    console.log('Get Comments for tuneId '+tuneId);
+    $http.get('/api/comments/'+ tuneId)
+    .then(function(response) {
+      if (response.status!='200'){
+        alert("get Error!");
+        throw new Error("Error during call to GET api");
+      }else{
+        console.log('reload comments');
+        $scope.comments = response.data;
+      }
+
+    });
+  };
+
 
   $scope.voteThisTune = function (tuneId, updown){
     console.log(tuneId);
@@ -401,7 +439,7 @@ angular.module('yeomanApp')
     });
   }
 
-  /* Load all tunes when the page opens */
+  /* Load all tunes when the page opens*/
   // when landing on the page, get all todos and show them
   var self = this;
   $http.get('/api/tunes')
@@ -449,9 +487,6 @@ angular.module('yeomanApp')
         console.log("selected item change");
         $scope.loadTune(item._id);
         $scope.searchText = item.tuneTitle;
-        //    $scope.selectedItem= undefined;
-        //          document.getElementById("tuneTitleId").focus();
-        //$scope.formData.tuneTitle.focus();
         return item.tuneTitle;
       }
 
@@ -473,7 +508,7 @@ angular.module('yeomanApp')
 
 });
 
-
+// get all tunes
 $http.get('/api/tunes/'+ 'latest')
 .then(function(response) {
   if (response.status!='200'){
@@ -484,11 +519,16 @@ $http.get('/api/tunes/'+ 'latest')
       $scope.formData= response.data;
       $scope.selectedTune =response.data._id;
       $scope.newTuneFlag=false;
+      $scope.getComments($scope.selectedTune);
     }else $scope.newTuneFlag=true;
     //      console.log("latest tune "+JSON.stringify(response.data, null, 4));
   }
 
 });
+
+
+
+
 
 
 $scope.addOrUpdateTune = function(){
@@ -565,6 +605,7 @@ $scope.loadTune = function(tuneId) {
     }else{
       $scope.formData= response.data[0];
       $scope.selectedTune = tuneId; //for delete and update;
+      $scope.getComments($scope.selectedTune);
       //console.log(JSON.stringify(response.data, null, 4));
       $scope.newTuneFlag=false;
     }
@@ -622,14 +663,14 @@ $scope.printIt = function(){
 };
 
 $scope.showHelp = function(ev) {
-    $mdDialog.show({
-      templateUrl: '../../views/helpvideo.html',
-      parent: angular.element(document.body),
-      targetEvent: ev,
-      clickOutsideToClose:true
-    })
+  $mdDialog.show({
+    templateUrl: '../../views/helpvideo.html',
+    parent: angular.element(document.body),
+    targetEvent: ev,
+    clickOutsideToClose:true
+  })
 
-  };
+};
 
 
 $scope.announceClick = function(msg) {

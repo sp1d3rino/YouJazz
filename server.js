@@ -12,6 +12,7 @@
     var authController = require('./controllers/auth');
     var tuneController = require('./controllers/tune');
     var tuneVoteController = require('./controllers/tunevote');
+    var commentController = require('./controllers/comment');
 
     // configuration =================
 
@@ -58,9 +59,17 @@ router.route('/tunes/:tune_id')
 router.route('/tunevote')
   .post(authController.isAuthenticated,tuneVoteController.postVote);
 
+router.route('/comments/')
+  .post(authController.isAuthenticated,commentController.postComment);
+
+  router.route('/comments/:tune_id')
+    .get(commentController.getComments);
+
 
 // Register all our routes with /api
 app.use('/api', router);
+
+
 
 
         // application -------------------------------------------------------------
