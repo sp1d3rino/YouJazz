@@ -20,7 +20,7 @@ angular.module('yeomanApp')
   $scope.commentData.username='';
   $scope.commentData.text='';
   $scope.commentData.tuneId='';
-  $scope.comments=0;
+  $scope.comments=[];
 
   $scope.selectedTune='';
   $scope.newTuneFlag=false;
@@ -31,6 +31,8 @@ angular.module('yeomanApp')
   $rootScope.userSignedIn = $cookies.get('youjazz_user');
   $rootScope.basicAuth = $cookies.get('youjazz_basic_auth');
   $rootScope.avatar = $cookies.get('youjazz_user_avatar');
+
+
 
   angular.forEach($rootScope.avatars, function(item){
     if(item.avatarId==$rootScope.avatar){
@@ -293,6 +295,9 @@ angular.module('yeomanApp')
     $scope.formData.grille_intro=[];
     $scope.formData.grille_outro=[];
 
+    //reset also comments
+    $scope.comments=[];
+
   }
 
 
@@ -393,7 +398,10 @@ angular.module('yeomanApp')
         alert("get Error!");
         throw new Error("Error during call to POST api");
       }else{
-        $scope.comments.unshift(response.data);
+        if (Object.keys($scope.comments).length  == 0)
+          $scope.comments.push(response.data);
+        else
+          $scope.comments.unshift(response.data);
         $scope.commentData.text='';
       }
 
@@ -829,6 +837,11 @@ $scope.showBuildGridDialog = function($event) {
   }
 
 }
+
+if ($rootScope.userSignedIn ==undefined){
+  $location.url('/signup' );
+}
+
 
 
 }]);

@@ -1,5 +1,17 @@
 // Load required packages
 var Comment = require('../models/comment');
+var Tune = require('../models/tune');
+var User = require('../models/user');
+var nodemailer = require("nodemailer"),
+  transport = nodemailer.createTransport('SMTP', {
+    debug: true, //this!!!
+    service: 'Gmail',
+    auth: {
+        user: 'youjazzmail@gmail.com',
+        pass: 'accendino01'
+    }
+  });
+
 
 exports.postComment = function(req, res) {
   // Create a new instance of the Beer model
@@ -17,7 +29,39 @@ exports.postComment = function(req, res) {
       res.send(err);
     }
     else {
-      res.json(comment);
+      //      res.json(comment);
+      var query = Tune.findOne({_id:req.body.tuneId});
+
+      query.exec(function (err, tune) {
+        if (err)
+          res.send(err);
+        else {
+            console.log("il req.body.tuneId "+req.body.tuneId+" è di "+tune.grilleAuthorName);
+          var query = User.findOne({username:tune.grilleAuthorName});
+          query.exec(function (err, user) {
+            if (err)
+              res.send(err);
+            else {
+              if (req.body.text.length>50)
+               var msg = req.body.text.substr(1, 50)+"...";
+               else msg=req.body.text;
+              transport.sendMail({
+                  from: 'youjazzmail@gmail.com', // sender address
+                  to: user.mail, // list of receivers
+                  subject: 'YouJazz message', // Subject line
+                  //html: "<b>Hello world ✔</b>", // html body
+                  html: 'Hi '+user.username+',<br>Someone has dropped a message about your tune'+'<br><br>Message:<br>'+msg+'<br><br>Come back on www.youjazz.ml' // plaintext body
+              }, console.error);
+                res.json(comment);
+
+            }
+          });
+
+
+        }
+      });
+
+
     }
 
   });

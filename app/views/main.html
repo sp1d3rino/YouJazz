@@ -91,7 +91,7 @@
       <table>
         <CAPTION ng-show ='formData.grille_outro'>Outro</CAPTION>
         <tr ng-repeat="row in formData.grille_outro">
-          <td  ng-repeat="col in row"  ng-click="selectCell(col)" ng-keypress="cellKeyPressed($event)" ng-class="{'box box-selected noselect' : col===cellSelected, 'box noselect':col!==cellSelected }" class="box" >
+          <td  ng-repeat="col in row"  ng-click="selectCell(col)" ng-keypress="cellKeyPressed($event)" ng-class="{'box-selected noselect' : col===cellSelected, 'noselect':col!==cellSelected }" class="box" >
             {{col.cellValue}}
           </td>
         </tr>
@@ -127,7 +127,7 @@
       <legend class="label label-primary">Comments</legend>
 
       <md-input-container class="md-block">
-        <label>your comment</label>
+        <label>Leave your comment here</label>
         <textarea ng-model="commentData.text" ng-disabled="userSignedIn==undefined || userSignedIn==null || !selectedTune" md-maxlength="500" md-select-on-focus maxlength="500" />
 
       </md-input-container>
