@@ -128,12 +128,12 @@
 
       <md-input-container class="md-block">
         <label>your comment</label>
-        <textarea ng-model="commentData.text" ng-disabled="userSignedIn==undefined || userSignedIn==null" md-maxlength="500" md-select-on-focus maxlength="500" />
+        <textarea ng-model="commentData.text" ng-disabled="userSignedIn==undefined || userSignedIn==null || !selectedTune" md-maxlength="500" md-select-on-focus maxlength="500" />
 
       </md-input-container>
     </div>
     <div flex="20" layout="row" layout-align="start end">
-      <md-button class="md-fab md-raised md-inform" ng-disabled="!commentData.text" ng-click="postComment()"><md-tooltip>post this comment</md-tooltip><md-icon class="md-icon" md-svg-icon="images/svg/send-button.svg"/></md-button>
+      <md-button class="md-fab md-raised md-inform" ng-disabled="!commentData.text || userSignedIn==undefined || userSignedIn==null || !selectedTune" ng-click="postComment()"><md-tooltip>post this comment</md-tooltip><md-icon class="md-icon" md-svg-icon="images/svg/send-button.svg"/></md-button>
 
     </div>
   </div>
