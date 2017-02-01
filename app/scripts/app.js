@@ -50,7 +50,7 @@ angular
 
 
 
-  }).controller('IndexController',['$scope','$rootScope','$cookies',function ($scope,$rootScope, $cookies) {
+  }).controller('IndexController',['$scope','$rootScope','$cookies','$location',function ($scope,$rootScope, $cookies,$location) {
 
       $rootScope.avatars = [
         {avatarId:'guitar', svgImage:'images/svg/guitar1.svg'},
@@ -76,7 +76,14 @@ angular
 
     };
 
+  /** check if user already logged in and load its data*/
+  $rootScope.userSignedIn = $cookies.get('youjazz_user');
+  $rootScope.basicAuth = $cookies.get('youjazz_basic_auth');
+  $rootScope.avatar = $cookies.get('youjazz_user_avatar');
 
+  if ($rootScope.userSignedIn ==undefined){
+  $location.url('/signup' );
+}
 
 
 

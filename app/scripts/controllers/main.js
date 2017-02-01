@@ -27,14 +27,7 @@ angular.module('yeomanApp')
   $scope.barClipboard=null;
   $scope.currentGridType=null;
 
-  /** check if user already logged in and load its data*/
-  $rootScope.userSignedIn = $cookies.get('youjazz_user');
-  $rootScope.basicAuth = $cookies.get('youjazz_basic_auth');
-  $rootScope.avatar = $cookies.get('youjazz_user_avatar');
 
-  if ($rootScope.userSignedIn ==undefined){
-  $location.url('/signup' );
-}
 
 
 
