@@ -32,6 +32,10 @@ angular.module('yeomanApp')
   $rootScope.basicAuth = $cookies.get('youjazz_basic_auth');
   $rootScope.avatar = $cookies.get('youjazz_user_avatar');
 
+  if ($rootScope.userSignedIn ==undefined){
+  $location.url('/signup' );
+}
+
 
 
   angular.forEach($rootScope.avatars, function(item){
@@ -838,9 +842,6 @@ $scope.showBuildGridDialog = function($event) {
 
 }
 
-if ($rootScope.userSignedIn ==undefined){
-  $location.url('/signup' );
-}
 
 
 
