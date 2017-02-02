@@ -111,6 +111,7 @@ angular.module('yeomanApp')
 
 
   $scope.select= function(index) {
+    if ($rootScope.userSignedIn !== $scope.formData.grilleAuthorName) return;
 
 
     //When insert a chord or symbols delete % before
@@ -238,6 +239,7 @@ angular.module('yeomanApp')
 
 
   $scope.cellKeyPressed = function(eventKey){
+    if ($rootScope.userSignedIn !== $scope.formData.grilleAuthorName) return;
     var keyPressed = eventKey.originalEvent.key;
     if ($scope.isFunctionKey(eventKey))return;
 
@@ -256,7 +258,8 @@ angular.module('yeomanApp')
   }
 
   $scope.selectSymb = function(index) {
-    console.log(index);
+    if ($rootScope.userSignedIn !== $scope.formData.grilleAuthorName) return;
+
     //When insert a chord or symbols delete % before
     if ($scope.cellSelected.cellValue.indexOf('%') > -1){
       $scope.cellSelected.cellValue='';
@@ -380,6 +383,7 @@ angular.module('yeomanApp')
     $scope.resetGrid();
     //if (tTitle.length>0) $scope.formData.tuneTitle=tTitle;
     $scope.newTuneFlag=true;
+    $scope.formData.grilleAuthorName=$rootScope.userSignedIn;
   }
 
 
@@ -711,12 +715,7 @@ $scope.showDeleteConfirm = function(ev,msg) {
 
 
 $scope.createPrompt1 = function(ev,tuneTitle) {
-  // Appending dialog to document.body to cover sidenav in docs app
-  if ($scope.userSignedIn==undefined || $scope.userSignedIn==null){
-    $scope.showToast1("You must login to create a new tune!");
-    $location.url('login');
-    return;
-  }
+
   var confirm = $mdDialog.prompt()
   .title('Tune name')
   .textContent('What is the name of the new tune?')

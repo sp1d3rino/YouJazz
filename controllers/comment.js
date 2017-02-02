@@ -2,13 +2,19 @@
 var Comment = require('../models/comment');
 var Tune = require('../models/tune');
 var User = require('../models/user');
+var PropertiesReader = require('properties-reader');
+var properties = PropertiesReader('property.ini');
+
+
 var nodemailer = require("nodemailer"),
   transport = nodemailer.createTransport('SMTP', {
     debug: true, //this!!!
     service: 'Gmail',
     auth: {
-        user: 'youjazzmail@gmail.com',
-        pass: 'accendino01'
+
+
+        user: properties.get('mail.gmail.username'),
+        pass: properties.get('mail.gmail.password')
     }
   });
 
@@ -70,6 +76,8 @@ exports.postComment = function(req, res) {
 
 // Create endpoint /api/tunes for GET
 exports.getComments = function(req, res) {
+
+
   console.log('get all Comments for tuneId '+req.params.tune_id);
   //retrive all tunes
   var query = Comment.find({tuneId: req.params.tune_id}).select('username timestamp commentText timestamp').sort({timestamp:-1});

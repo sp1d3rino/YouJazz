@@ -1,12 +1,15 @@
 // Load required packages
 var User = require('../models/user');
+var PropertiesReader = require('properties-reader');
+var properties = PropertiesReader('property.ini');
+
 var nodemailer = require("nodemailer"),
   transport = nodemailer.createTransport('SMTP', {
     debug: true, //this!!!
     service: 'Gmail',
     auth: {
-        user: 'youjazzmail@gmail.com',
-        pass: 'accendino01'
+      user: properties.get('mail.gmail.username'),
+      pass: properties.get('mail.gmail.password')
     }
   });
 
