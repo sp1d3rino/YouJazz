@@ -565,7 +565,7 @@ $scope.createTune = function() {
   });
 
   //now get lastest tune of this user
-  $http.get('/api/tunes/'+ 'mylatest')
+  $http.get('/api/tunes/'+ 'latest')
   .then(function(response) {
     if (response.status!='200'){
       alert("get Error!");
