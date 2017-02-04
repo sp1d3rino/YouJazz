@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('yeomanApp')
-.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast','$window','$mdDialog','$location', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast,$window,$mdDialog,$location) {
+.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast','$window','$mdDialog','$location','$timeout', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast,$window,$mdDialog,$location,$timeout) {
 
 
   var originatorEv;
@@ -152,8 +152,7 @@ angular.module('yeomanApp')
     {'symbId':16,'symbName':'13','symbKey':'3'},
     {'symbId':17,'symbName':'%','symbKey':'%'},
     {'symbId':18,'symbName':',','symbKey':','},
-    {'symbId':19,'symbName':' ','symbKey':'s'},
-
+    {'symbId':19,'symbName':' ','symbKey':'s'}
 
   ];
 
@@ -173,30 +172,34 @@ angular.module('yeomanApp')
 
   $scope.isFunctionKey= function(eventKey){
     // to determine which is the current used grid
+    eventKey.preventDefault();
+
     var currentGrid=null;
-    var prova=$scope.contains($scope.formData.grille,$scope.cellSelected);
-    console.log(prova);
-    if ($scope.contains($scope.formData.grille,$scope.cellSelected))currentGrid=$scope.formData.grille;
+     if ($scope.contains($scope.formData.grille,$scope.cellSelected))currentGrid=$scope.formData.grille;
     else if ($scope.contains($scope.formData.grille_intro,$scope.cellSelected))currentGrid=$scope.formData.grille_intro;
     else if ($scope.contains($scope.formData.grille_outro,$scope.cellSelected))currentGrid=$scope.formData.grille_outro;
     var rId = $scope.cellSelected.cellId[0];
     var cId = $scope.cellSelected.cellId[1];
 
     var keyPressed = eventKey.originalEvent;
-    if (keyPressed.key =="Backspace"){
-      eventKey.preventDefault();
+
+    if (keyPressed.key =="Delete"){
+      $scope.cellSelected.cellValue ="%";
+      return true;
+    }
+    else    if (keyPressed.key =="Backspace"){
       var str=$scope.cellSelected.cellValue;
       str = str.substring(0, str.length - 1);
       $scope.cellSelected.cellValue =str;
       return true;
     }
     // ctrl-c
-    else   if (keyPressed.key =="c" && keyPressed.ctrlKey ){
+    else   if ((keyPressed.key =="c"  || keyPressed.key =="C") && keyPressed.ctrlKey ){
       $scope.barClipboard=$scope.cellSelected.cellValue;
       return true;
     }
     // ctrl-v
-    else   if (keyPressed.key =="v" && keyPressed.ctrlKey ){
+    else   if ((keyPressed.key =="v" || keyPressed.key =="V") && keyPressed.ctrlKey ){
       if($scope.barClipboard != null && $scope.barClipboard.length>0)
       $scope.cellSelected.cellValue =$scope.barClipboard;
       return true;
@@ -241,6 +244,8 @@ angular.module('yeomanApp')
   $scope.cellKeyPressed = function(eventKey){
     if ($rootScope.userSignedIn !== $scope.formData.grilleAuthorName) return;
     var keyPressed = eventKey.originalEvent.key;
+
+    //check if key pressed is a function key
     if ($scope.isFunctionKey(eventKey))return;
 
     //check if key pressed is a chord
@@ -259,6 +264,8 @@ angular.module('yeomanApp')
 
   $scope.selectSymb = function(index) {
     if ($rootScope.userSignedIn !== $scope.formData.grilleAuthorName) return;
+
+
 
     //When insert a chord or symbols delete % before
     if ($scope.cellSelected.cellValue.indexOf('%') > -1){
@@ -656,19 +663,22 @@ $scope.printIt = function(){
   var printableGrid = document.getElementById('printableGrid');
 
   var cssMainPage='<link rel="stylesheet" type="text/css" href="styles/main.css">';
-  var htmlToPrint = '' +
-  '<style type="text/css">' +
-  ' table{width:100%;height:10%;}'+
-  ' table, th, td {border: 3px solid black;padding: 15px; text-align: center;}'+
-  ' tr{      min-height: 20px;      max-height: 20px;    }'+
-  ' td{      min-width: 40px;      max-width: 40px;        }'+
-  ' .tuneTitle{      font-family:"Comic Sans MS";  font-size:150%;} '+
-  '</style>';
+  var htmlToPrint ='';
+/*'  table {   width: 100%;    height: 100%;      border-collapse:separate;      border:solid black 1px;      border-radius:6px;      -moz-border-radius:6px;  }'+
+'  td, th {      border-left:solid black 1px;      border-top:solid black 1px;  }'+
+'  th {      background-color: blue;      border-top: none;  }'+
 
+'<style>'
+'  tr{    min-height: 20px;    max-height: 20px;  }'+
+'  td{    min-width: 20px;    max-width: 20px;    text-align: center;  }'
++
+  '</style>';*/
   htmlToPrint+=cssMainPage+printableGrid.outerHTML;
   var newWin = $window.open('', '', 'width=800, height=600');
   newWin.document.write(htmlToPrint);
-  newWin.print();
+  $timeout(function() {
+      newWin.print();
+  })
 
 };
 
