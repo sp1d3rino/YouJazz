@@ -72,7 +72,7 @@
       <table>
         <CAPTION ng-show ='formData.grille_intro'>Intro</CAPTION>
         <tr ng-repeat="row in formData.grille_intro">
-          <td  ng-repeat="col in row"  ng-click="selectCell(col)" ng-keyup="cellKeyPressed($event)" ng-class="{'box box-selected noselect' : col===cellSelected, 'box noselect':col!==cellSelected }" class="box" >
+          <td  ng-repeat="col in row"  ng-click="selectCell(col)" ng-keypress="cellKeyPressed($event)" ng-keyup="cellKeyPressed($event)" ng-class="{'box box-selected noselect' : col===cellSelected, 'box noselect':col!==cellSelected }" class="box" >
             {{col.cellValue}}
           </td>
         </tr>
@@ -82,7 +82,7 @@
       <table>
         <CAPTION ng-show ='formData.grille'>Chorus</CAPTION>
         <tr ng-repeat="row in formData.grille">
-          <td  ng-repeat="col in row"  ng-click="selectCell(col)" ng-keyup="cellKeyPressed($event)" ng-class="{'box box-selected noselect' : col===cellSelected, 'box noselect':col!==cellSelected }" class="box" >
+          <td  ng-repeat="col in row"  ng-click="selectCell(col)" ng-keypress="cellKeyPressed($event)" ng-keyup="cellKeyPressed($event)" ng-class="{'box box-selected noselect' : col===cellSelected, 'box noselect':col!==cellSelected }" class="box" >
             {{col.cellValue}}
           </td>
         </tr>
@@ -91,7 +91,7 @@
       <table>
         <CAPTION ng-show ='formData.grille_outro'>Outro</CAPTION>
         <tr ng-repeat="row in formData.grille_outro">
-          <td  ng-repeat="col in row"  ng-click="selectCell(col)" ng-keyup="cellKeyPressed($event)" ng-class="{'box-selected noselect' : col===cellSelected, 'noselect':col!==cellSelected }" class="box" >
+          <td  ng-repeat="col in row"  ng-click="selectCell(col)" ng-keypress="cellKeyPressed($event)" ng-keyup="cellKeyPressed($event)" ng-class="{'box-selected noselect' : col===cellSelected, 'noselect':col!==cellSelected }" class="box" >
             {{col.cellValue}}
           </td>
         </tr>

@@ -178,6 +178,8 @@ angular.module('yeomanApp')
   $scope.isFunctionKey= function(eventKey){
     // to determine which is the current used grid
     eventKey.preventDefault();
+    //for firefox compatability
+    if (eventKey.type=="keypress")return;
 
     var currentGrid=null;
      if ($scope.contains($scope.formData.grille,$scope.cellSelected))currentGrid=$scope.formData.grille;
