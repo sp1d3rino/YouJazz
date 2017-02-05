@@ -68,7 +68,7 @@ exports.getTunes = function(req, res) {
 
 // Create endpoint /api/tunes/:tune_id for GET
 exports.getTune = function(req, res) {
-  console.log('get Tune' +req.params.tune_id);
+  console.log('get Tune ' +req.params.tune_id);
   // Use the Beer model to find a specific beer
   if (req.params.tune_id=='mylatest'){
 
@@ -77,6 +77,7 @@ exports.getTune = function(req, res) {
       if (err)
       res.send(err);
 
+      console.log('get Tune Title ' +tune.tuneTitle);
       res.json(tune);
     });
 

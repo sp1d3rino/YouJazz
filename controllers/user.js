@@ -1,7 +1,7 @@
 // Load required packages
 var User = require('../models/user');
 var PropertiesReader = require('properties-reader');
-var properties = PropertiesReader('property.ini');
+var properties = PropertiesReader('../property.ini');
 
 var nodemailer = require("nodemailer"),
   transport = nodemailer.createTransport('SMTP', {

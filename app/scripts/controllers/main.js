@@ -3,13 +3,13 @@
 
 angular.module('yeomanApp')
 .controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast','$window','$mdDialog','$location','$timeout','$document', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast,$window,$mdDialog,$location,$timeout,$document) {
-
+/*
   $document.on('keypress', function(e){
            if(e.key === "Backspace" ){ // you can add others here inside brackets.
                e.preventDefault();
            }
        });
-
+*/
   var originatorEv;
   $scope.formData = {};
   $scope.commentData={};

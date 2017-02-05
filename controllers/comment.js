@@ -3,7 +3,7 @@ var Comment = require('../models/comment');
 var Tune = require('../models/tune');
 var User = require('../models/user');
 var PropertiesReader = require('properties-reader');
-var properties = PropertiesReader('property.ini');
+var properties = PropertiesReader('../property.ini');
 
 
 var nodemailer = require("nodemailer"),
