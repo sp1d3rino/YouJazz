@@ -2,8 +2,13 @@
 'use strict';
 
 angular.module('yeomanApp')
-.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast','$window','$mdDialog','$location','$timeout', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast,$window,$mdDialog,$location,$timeout) {
+.controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast','$window','$mdDialog','$location','$timeout','$document', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast,$window,$mdDialog,$location,$timeout,$document) {
 
+  $document.on('keypress', function(e){
+           if(e.key === "Backspace" ){ // you can add others here inside brackets.
+               e.preventDefault();
+           }
+       });
 
   var originatorEv;
   $scope.formData = {};
@@ -188,6 +193,7 @@ angular.module('yeomanApp')
       return true;
     }
     else    if (keyPressed.key =="Backspace"){
+      eventKey.preventDefault();
       var str=$scope.cellSelected.cellValue;
       str = str.substring(0, str.length - 1);
       $scope.cellSelected.cellValue =str;
@@ -242,6 +248,7 @@ angular.module('yeomanApp')
 
 
   $scope.cellKeyPressed = function(eventKey){
+    eventKey.preventDefault();
     if ($rootScope.userSignedIn !== $scope.formData.grilleAuthorName) return;
     var keyPressed = eventKey.originalEvent.key;
 
@@ -725,6 +732,12 @@ $scope.showDeleteConfirm = function(ev,msg) {
 
 
 $scope.createPrompt1 = function(ev,tuneTitle) {
+  if ($scope.userSignedIn==undefined || $scope.userSignedIn==null){
+    $scope.showToast1("You must login to create a new tune!");
+    $location.url('login');
+    return;
+  }
+
 
   var confirm = $mdDialog.prompt()
   .title('Tune name')
