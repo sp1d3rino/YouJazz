@@ -149,15 +149,17 @@ angular.module('yeomanApp')
     {'symbId':8,'symbName':'m','symbKey':'m'},
     {'symbId':9,'symbName':'-','symbKey':'-'},
     {'symbId':10,'symbName':'+','symbKey':'+'},
-    {'symbId':11,'symbName':'5','symbKey':'5'},
-    {'symbId':12,'symbName':'6','symbKey':'6'},
-    {'symbId':13,'symbName':'7','symbKey':'7'},
-    {'symbId':14,'symbName':'9','symbKey':'9'},
-    {'symbId':15,'symbName':'11','symbKey':'1'},
-    {'symbId':16,'symbName':'13','symbKey':'3'},
-    {'symbId':17,'symbName':'%','symbKey':'%'},
-    {'symbId':18,'symbName':',','symbKey':','},
-    {'symbId':19,'symbName':' ','symbKey':'s'}
+    {'symbId':11,'symbName':'4','symbKey':'4'},
+    {'symbId':12,'symbName':'sus','symbKey':'u'},
+    {'symbId':13,'symbName':'5','symbKey':'5'},
+    {'symbId':14,'symbName':'6','symbKey':'6'},
+    {'symbId':15,'symbName':'7','symbKey':'7'},
+    {'symbId':16,'symbName':'9','symbKey':'9'},
+    {'symbId':17,'symbName':'11','symbKey':'1'},
+    {'symbId':18,'symbName':'13','symbKey':'3'},
+    {'symbId':19,'symbName':'%','symbKey':'%'},
+    {'symbId':20,'symbName':',','symbKey':','},
+    {'symbId':21,'symbName':' ','symbKey':'s'}
 
   ];
 
