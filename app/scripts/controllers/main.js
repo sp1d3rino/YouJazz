@@ -3,13 +3,13 @@
 
 angular.module('yeomanApp')
 .controller('MainCtrl',['$scope','$rootScope','$http','$q','$cookies','$mdToast','$window','$mdDialog','$location','$timeout','$document', function functionName($scope,$rootScope,$http,$q,$cookies,$mdToast,$window,$mdDialog,$location,$timeout,$document) {
-/*
-  $document.on('keypress', function(e){
-           if(e.key === "Backspace" ){ // you can add others here inside brackets.
-               e.preventDefault();
-           }
+
+  $document.on('keydown', function(e){
+    if(e.which === 8 && ( e.target.nodeName !== "INPUT" && e.target.nodeName !== "SELECT" && e.target.nodeName !== "TEXTAREA"  ) ){ // you can add others here inside brackets.
+       e.preventDefault();
+   }
        });
-*/
+
   var originatorEv;
   $scope.formData = {};
   $scope.commentData={};
@@ -177,9 +177,7 @@ angular.module('yeomanApp')
 
   $scope.isFunctionKey= function(eventKey){
     // to determine which is the current used grid
-    eventKey.preventDefault();
-    //for firefox compatability
-    if (eventKey.type=="keypress")return;
+//    eventKey.preventDefault();
 
     var currentGrid=null;
      if ($scope.contains($scope.formData.grille,$scope.cellSelected))currentGrid=$scope.formData.grille;
