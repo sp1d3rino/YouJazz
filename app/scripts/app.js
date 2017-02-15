@@ -82,7 +82,7 @@ angular
   $rootScope.avatar = $cookies.get('youjazz_user_avatar');
 
   if ($rootScope.userSignedIn ==undefined){
-  $location.url('/signup' );
+  $location.url('/' );
 }
 
 

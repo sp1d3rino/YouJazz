@@ -80,7 +80,7 @@ $scope.loginUser = function() {
       $rootScope.avatar=res.avatar;
       var login_today = new Date();
       var login_expired = new Date(login_today);
-      login_expired.setDate(login_today.getDate() + 1); //Set expired date to tomorrow
+      login_expired.setDate(login_today.getDate() + 10); //Set expired date in ten days
       $cookies.put('youjazz_user', $rootScope.userSignedIn, {expires : login_expired });
       $cookies.put('youjazz_basic_auth',  $rootScope.basicAuth, {expires : login_expired });
 
