@@ -90,7 +90,7 @@ exports.getTune = function(req, res) {
       res.json(tune);
     });
   }else {
-    Tune.find({_id: req.params.tune_id}, function(err, tune) {
+    Tune.findOne({_id: req.params.tune_id}, function(err, tune) {
       if (err)
       res.send(err);
 

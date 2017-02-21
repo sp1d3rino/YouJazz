@@ -56,7 +56,7 @@ exports.postComment = function(req, res) {
                   to: user.mail, // list of receivers
                   subject: 'YouJazz message', // Subject line
                   //html: "<b>Hello world ✔</b>", // html body
-                  html: 'Hi '+user.username+',<br>Someone has dropped a message about your tune'+'<br><br>Message:<br>'+msg+'<br><br>Come back on www.fabapp.eu/youjazz' // plaintext body
+                  html: 'Hi '+user.username+',<br>Someone has dropped a message about your tune'+'<br><br>Message:<br>'+msg+'<br><br>Come back on YouJazz http://www.fabapp.eu/youjazz/'+req.body.tuneId
               }, console.error);
                 res.json(comment);
 

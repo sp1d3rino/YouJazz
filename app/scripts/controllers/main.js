@@ -10,6 +10,10 @@ angular.module('yeomanApp')
    }
        });
 
+  var tuneCId= $window.location.pathname;
+  if (tuneCId.charAt(0) === '/'){ tuneCId = tuneCId.substr(1);}
+
+
   var originatorEv;
   $scope.formData = {};
   $scope.commentData={};
@@ -31,7 +35,6 @@ angular.module('yeomanApp')
   $scope.newTuneFlag=false;
   $scope.barClipboard=null;
   $scope.currentGridType=null;
-
 
 
 
@@ -535,7 +538,11 @@ angular.module('yeomanApp')
 });
 
 // get all tunes
-$http.get('/api/tunes/'+ 'latest')
+var tuneToLoad=undefined;
+if (tuneCId !== undefined && tuneCId.length>1) tuneToLoad = tuneCId;
+else tuneToLoad ='latest';
+
+$http.get('/api/tunes/' + tuneToLoad)
 .then(function(response) {
   if (response.status!='200'){
     alert("get Error!");
@@ -629,7 +636,7 @@ $scope.loadTune = function(tuneId) {
       alert("get Error!");
       throw new Error("Error during call to GET api");
     }else{
-      $scope.formData= response.data[0];
+      $scope.formData= response.data;
       $scope.selectedTune = tuneId; //for delete and update;
       $scope.getComments($scope.selectedTune);
       //console.log(JSON.stringify(response.data, null, 4));
