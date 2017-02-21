@@ -539,7 +539,7 @@ angular.module('yeomanApp')
 
 // get all tunes
 var tuneToLoad=undefined;
-if (tuneCId !== undefined && tuneCId.length>1) tuneToLoad = tuneCId;
+if (tuneCId !== undefined && tuneCId.length>1 &&tuneCId!=='youjazz') tuneToLoad = tuneCId;
 else tuneToLoad ='latest';
 
 $http.get('/api/tunes/' + tuneToLoad)
