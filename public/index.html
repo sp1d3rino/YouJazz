@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gypsy Jazz Lead Sheet Editor</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="libs/kali.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Gypsy Jazz Lead Sheet Editor</h1>
+      <input type="text" id="song-title" placeholder="Song name" value="Song name" />
+    </header>
+
+    <div class="controls">
+      <button id="new-song">New</button>
+      <button id="save-song">Save Song</button>
+      <button id="delete-song" class="danger">Delete Song</button>
+
+      <label>BPM: <span id="bpm-value">120</span></label>
+      <input type="range" id="bpm-slider" min="40" max="300" value="120" step="5">
+
+      <div class="select-wrapper">
+        <select id="song-list">
+          <option value="">– Load Song –</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="main">
+      <aside class="chord-palette">
+        <h3>Chords</h3>
+        <div class="chord-list"></div>
+      </aside>
+
+      <section id="lead-sheet"></section>
+
+      <aside class="player-controls">
+        <button id="play">Play</button>
+        <button id="stop">Stop</button>
+        <button id="clear-all">Clear Grid</button>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Modal New Lead Sheet -->
+  <div id="grid-setup-modal" class="modal">
+    <div class="modal-content">
+      <h2>New Lead Sheet</h2>
+      <p>Choose grid size:</p>
+      <div class="grid-inputs">
+        <label>Rows: 
+          <input type="number" id="grid-rows" min="1" max="20" value="4">
+        </label>
+        <label>Columns: 
+          <input type="number" id="grid-cols" min="1" max="20" value="8">
+        </label>
+      </div>
+      <button id="create-grid">Create Grid</button>
+    </div>
+  </div>
+
+  <script src="player.js"></script>
+  <script src="db.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
