@@ -15,7 +15,7 @@
     </header>
 
     <div class="controls">
-      <button id="new-song">New</button>
+      <button id="new-song">New Song</button>
       <button id="save-song">Save Song</button>
       <button id="delete-song" class="danger">Delete Song</button>
 
@@ -45,8 +45,14 @@
     </div>
   </div>
 
-  <!-- Modal New Lead Sheet -->
-  <div id="grid-setup-modal" class="modal">
+  <!-- Spinner durante caricamento audio -->
+  <div id="audio-spinner" class="audio-spinner hidden">
+    <div class="spinner"></div>
+    <p>Generating audio...</p>
+  </div>
+
+  <!-- Modal creazione griglia (nascosto all'avvio) -->
+  <div id="grid-setup-modal" class="modal hidden">
     <div class="modal-content">
       <h2>New Lead Sheet</h2>
       <p>Choose grid size:</p>

@@ -5,14 +5,15 @@ class GypsyApp {
     this.player = new GypsyPlayer();
     this.currentSong = null;
     this.isPlaying = false;
+    this.currentChordIndex = 0;
+    this.highlightInterval = null;
 
-    this.showNewGridModal(); // Modal all'avvio
     this.setupGlobalEvents();
   }
 
   showNewGridModal() {
     const modal = document.getElementById('grid-setup-modal');
-    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
 
     const createBtn = document.getElementById('create-grid');
     const handler = () => {
@@ -26,8 +27,8 @@ class GypsyApp {
         measures: Array(rows * cols).fill(null).map(() => ({ chords: [] }))
       };
 
-      modal.style.display = 'none';
-      createBtn.removeEventListener('click', handler); // evita doppi listener
+      modal.classList.add('hidden');
+      createBtn.removeEventListener('click', handler);
       this.init();
     };
 
@@ -54,7 +55,6 @@ class GypsyApp {
       this.currentSong.bpm = +e.target.value;
     };
 
-    // CORRETTO: era "clear", ora è "clear-all"
     document.getElementById('clear-all').onclick = () => {
       if (confirm('Clear all chords?')) {
         this.currentSong.measures = this.currentSong.measures.map(() => ({ chords: [] }));
@@ -63,7 +63,7 @@ class GypsyApp {
     };
 
     document.getElementById('play').onclick = () => this.play();
-    document.getElementById('stop').onclick = () => this.player.stop();
+    document.getElementById('stop').onclick = () => this.stopPlayback();
     document.getElementById('save-song').onclick = () => this.saveSong();
     document.getElementById('delete-song').onclick = () => this.deleteCurrentSong();
   }
@@ -126,7 +126,11 @@ class GypsyApp {
   }
 
   async play() {
-    if (this.isPlaying) this.player.stop();
+    if (this.isPlaying) return;
+
+    this.isPlaying = true;
+    this.clearHighlight();
+
     const seq = [], dur = [];
     for (const m of this.currentSong.measures) {
       if (m.chords.length === 0) continue;
@@ -136,9 +140,60 @@ class GypsyApp {
         dur.push((60 / this.currentSong.bpm) * beats);
       });
     }
-    if (seq.length === 0) return alert('No chords to play!');
-    await this.player.playVariableSequence(seq, dur, this.currentSong.bpm);
-    this.isPlaying = true;
+
+    if (seq.length === 0) {
+      alert('No chords to play!');
+      this.isPlaying = false;
+      return;
+    }
+
+    // Mostra spinner durante caricamento campioni
+    document.getElementById('audio-spinner').classList.remove('hidden');
+
+    // Precarica tutti i chord necessari
+    for (const chord of seq) {
+      if (!this.player.buffers.has(chord)) {
+        await this.player.load(chord);
+      }
+    }
+
+    // Nascondi spinner
+    document.getElementById('audio-spinner').classList.add('hidden');
+
+    // Avvia riproduzione
+    this.currentChordIndex = 0;
+    this.player.playVariableSequence(seq, dur, this.currentSong.bpm);
+
+    // Highlight sincronizzato al BPM (semplificato per 1 beat per chord)
+    const beatDurationMs = (60 / this.currentSong.bpm) * 1000;
+    this.highlightInterval = setInterval(() => {
+      this.clearHighlight();
+
+      if (this.currentChordIndex < seq.length) {
+        const currentChord = seq[this.currentChordIndex];
+        document.querySelectorAll('.chord-box').forEach(box => {
+          if (box.textContent.trim() === currentChord) {
+            box.classList.add('playing');
+          }
+        });
+        this.currentChordIndex++;
+      } else {
+        clearInterval(this.highlightInterval);
+        this.isPlaying = false;
+      }
+    }, beatDurationMs);
+  }
+
+  stopPlayback() {
+    this.player.stop();
+    if (this.highlightInterval) clearInterval(this.highlightInterval);
+    this.clearHighlight();
+    this.isPlaying = false;
+    this.currentChordIndex = 0;
+  }
+
+  clearHighlight() {
+    document.querySelectorAll('.chord-box').forEach(b => b.classList.remove('playing'));
   }
 
   async preloadIfNeeded(chord) {
