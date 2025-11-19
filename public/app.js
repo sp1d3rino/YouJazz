@@ -1,4 +1,4 @@
-const CHORDS = ['Gm', 'Gm6', 'Cm', 'Cm6', 'D7', 'Eb7', 'E7', 'Am6', 'Dm6', 'C#°'];
+const CHORDS = ['Gm', 'Gm6', 'Cm', 'Cm6', 'D7', 'Eb7', 'E7', 'Am6', 'Dm6', 'F7'];
 
 class GypsyApp {
   constructor() {
