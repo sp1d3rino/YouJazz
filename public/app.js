@@ -201,17 +201,50 @@ class GypsyApp {
   }
 
   async saveSong() {
-    if (!this.currentSong) return alert('No song to save');
+    if (!this.currentSong) {
+      return alert('Nessun brano da salvare');
+    }
+
     const title = document.getElementById('song-title').value.trim() || 'Untitled';
     this.currentSong.title = title;
 
     try {
+      // Chiediamo al backend chi è l'utente corrente
+      const userRes = await fetch('/auth/me', { credentials: 'include' });
+      if (!userRes.ok) throw new Error('Unauthenticated');
+
+      const currentUser = await userRes.json();
+
+      // Se il brano ha già un _id → stiamo modificando un brano esistente
+      if (this.currentSong._id) {
+        // Verifichiamo che il proprietario sia lo stesso dell'utente loggato
+        const songRes = await fetch(`/api/songs/${this.currentSong._id}`, { credentials: 'include' });
+        if (!songRes.ok) throw new Error('Unable to verify song owner');
+
+        const songFromServer = await songRes.json();
+
+        // BLOCCO DI SICUREZZA: se il proprietario non è l'utente corrente → BLOCCA
+        if (songFromServer.owner.toString() !== currentUser.id) {
+          alert('This song is not yours. You cannot modify it!');
+          await this.loadSongsList();  // ricarica la lista per sicurezza
+          return;
+        }
+      }
+
+      // Se arriviamo qui → l'utente può salvare (nuovo brano o suo)
       const saved = await Database.saveSong(this.currentSong);
-      this.currentSong._id = saved._id;
-      alert(`Saved: ${title}`);
+
+      // Aggiorniamo l'_id solo se è un nuovo brano
+      if (!this.currentSong._id) {
+        this.currentSong._id = saved._id;
+      }
+
+      alert(`Salvato: ${title}`);
       await this.loadSongsList();
+
     } catch (e) {
-      alert('Save failed');
+      console.error('Errore salvataggio:', e);
+      alert('Impossibile salvare il brano. Sei sicuro di essere loggato?');
     }
   }
 
@@ -219,11 +252,39 @@ class GypsyApp {
     if (!this.currentSong?._id) return alert('No song loaded.');
     if (!confirm(`Permanently delete "${this.currentSong.title}"?`)) return;
 
-    await Database.deleteSong(this.currentSong._id);
-    this.currentSong = null;
-    this.render();
-    alert('Song deleted');
-    await this.loadSongsList();
+    try {
+      // Chiediamo al backend chi è l'utente corrente
+      const userRes = await fetch('/auth/me', { credentials: 'include' });
+      if (!userRes.ok) throw new Error('Unauthenticated');
+
+      const currentUser = await userRes.json();
+
+      // Se il brano ha già un _id → stiamo modificando un brano esistente
+      if (this.currentSong._id) {
+        // Verifichiamo che il proprietario sia lo stesso dell'utente loggato
+        const songRes = await fetch(`/api/songs/${this.currentSong._id}`, { credentials: 'include' });
+        if (!songRes.ok) throw new Error('Unable to verify song owner');
+
+        const songFromServer = await songRes.json();
+
+        // BLOCCO DI SICUREZZA: se il proprietario non è l'utente corrente → BLOCCA
+        if (songFromServer.owner.toString() !== currentUser.id) {
+          alert('This song is not yours. You cannot delete it!');
+          await this.loadSongsList();  // ricarica la lista per sicurezza
+          return;
+        }
+      }
+
+
+        await Database.deleteSong(this.currentSong._id);
+        this.currentSong = null;
+        this.render();
+        alert('Song deleted');
+        await this.loadSongsList();
+    } catch (e) {
+      console.error('Errore salvataggio:', e);
+      alert('Impossibile salvare il brano. Sei sicuro di essere loggato?');
+    }
   }
 
   async loadSongsList() {
