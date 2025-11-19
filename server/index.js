@@ -77,12 +77,12 @@ const requireAuth = (req, res, next) => {
 };
 
 app.get('/api/songs', requireAuth, async (req, res) => {
-  const songs = await Song.find({ owner: req.user._id }).sort({ createdAt: -1 });
+  const songs = await Song.find().sort({ createdAt: -1 });
   res.json(songs);
 });
 
 app.get('/api/songs/:id', requireAuth, async (req, res) => {
-  const song = await Song.findOne({ _id: req.params.id, owner: req.user._id });
+  const song = await Song.findOne({ _id: req.params.id});
   if (!song) return res.status(404).json({ error: 'Non trovato' });
   res.json(song);
 });
