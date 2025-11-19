@@ -6,9 +6,14 @@ class GypsyApp {
     this.currentSong = null;
     this.isPlaying = false;
     this.currentChordIndex = 0;
-    this.highlightInterval = null;
+    this.highlightTimeout = null;
 
+    // AVVIO IMMEDIATO – NON SERVE PIÙ init() dopo New Song
+    this.loadChordsPalette();
+    this.render();                    // mostra griglia vuota o messaggio
+    this.loadSongsList();             // carica subito la dropdown
     this.setupGlobalEvents();
+    this.setupEvents();               // eventi sempre attivi (BPM, Play, Stop, ecc.)
   }
 
   showNewGridModal() {
@@ -29,7 +34,7 @@ class GypsyApp {
 
       modal.classList.add('hidden');
       createBtn.removeEventListener('click', handler);
-      this.init();
+      this.render();
     };
 
     createBtn.onclick = handler;
@@ -42,22 +47,17 @@ class GypsyApp {
     };
   }
 
-  async init() {
-    this.loadChordsPalette();
-    this.render();
-    this.setupEvents();
-    await this.loadSongsList();
-  }
-
   setupEvents() {
+    // Sempre attivi, anche senza canzone caricata
     document.getElementById('bpm-slider').oninput = e => {
       document.getElementById('bpm-value').textContent = e.target.value;
-      this.currentSong.bpm = +e.target.value;
+      if (this.currentSong) this.currentSong.bpm = +e.target.value;
     };
 
     document.getElementById('clear-all').onclick = () => {
+      if (!this.currentSong) return;
       if (confirm('Clear all chords?')) {
-        this.currentSong.measures = this.currentSong.measures.map(() => ({ chords: [] }));
+        this.currentSong.measures.forEach(m => m.chords = []);
         this.render();
       }
     };
@@ -83,6 +83,12 @@ class GypsyApp {
 
   render() {
     const sheet = document.getElementById('lead-sheet');
+
+    if (!this.currentSong) {
+      sheet.innerHTML = '<p style="text-align:center;color:#888;margin-top:100px;font-size:1.4em;">Create a new song or load one from the list</p>';
+      return;
+    }
+
     sheet.innerHTML = '';
     sheet.style.gridTemplateColumns = `repeat(${this.currentSong.grid.cols}, 1fr)`;
 
@@ -126,18 +132,19 @@ class GypsyApp {
   }
 
   async play() {
-    if (this.isPlaying) return;
+    if (this.isPlaying || !this.currentSong) return;
 
     this.isPlaying = true;
+    this.currentChordIndex = 0;
     this.clearHighlight();
 
-    const seq = [], dur = [];
+    const seq = [], beatCounts = [];
     for (const m of this.currentSong.measures) {
       if (m.chords.length === 0) continue;
-      const beats = 4 / m.chords.length;
+      const beatsPerChord = 4 / m.chords.length;
       m.chords.forEach(ch => {
         seq.push(ch);
-        dur.push((60 / this.currentSong.bpm) * beats);
+        beatCounts.push(beatsPerChord);
       });
     }
 
@@ -147,53 +154,46 @@ class GypsyApp {
       return;
     }
 
-    // Mostra spinner durante caricamento campioni
     document.getElementById('audio-spinner').classList.remove('hidden');
-
-    // Precarica tutti i chord necessari
-    for (const chord of seq) {
-      if (!this.player.buffers.has(chord)) {
-        await this.player.load(chord);
-      }
-    }
-
-    // Nascondi spinner
+    for (const ch of seq) if (!this.player.buffers.has(ch)) await this.player.load(ch);
     document.getElementById('audio-spinner').classList.add('hidden');
 
-    // Avvia riproduzione
-    this.currentChordIndex = 0;
-    this.player.playVariableSequence(seq, dur, this.currentSong.bpm);
+    const beatMs = 60000 / this.currentSong.bpm;
 
-    // Highlight sincronizzato al BPM (semplificato per 1 beat per chord)
-    const beatDurationMs = (60 / this.currentSong.bpm) * 1000;
-    this.highlightInterval = setInterval(() => {
+    this.player.playVariableSequence(
+      seq,
+      beatCounts.map(b => b * (60 / this.currentSong.bpm)),
+      this.currentSong.bpm
+    );
+
+    const highlightNext = () => {
       this.clearHighlight();
-
       if (this.currentChordIndex < seq.length) {
-        const currentChord = seq[this.currentChordIndex];
+        const current = seq[this.currentChordIndex];
         document.querySelectorAll('.chord-box').forEach(box => {
-          if (box.textContent.trim() === currentChord) {
+          if (box.textContent.trim() === current) {
             box.classList.add('playing');
           }
         });
         this.currentChordIndex++;
+        this.highlightTimeout = setTimeout(highlightNext, beatMs);
       } else {
-        clearInterval(this.highlightInterval);
         this.isPlaying = false;
       }
-    }, beatDurationMs);
+    };
+    highlightNext();
   }
 
   stopPlayback() {
     this.player.stop();
-    if (this.highlightInterval) clearInterval(this.highlightInterval);
+    if (this.highlightTimeout) clearTimeout(this.highlightTimeout);
     this.clearHighlight();
     this.isPlaying = false;
     this.currentChordIndex = 0;
   }
 
   clearHighlight() {
-    document.querySelectorAll('.chord-box').forEach(b => b.classList.remove('playing'));
+    document.querySelectorAll('.chord-box.playing').forEach(b => b.classList.remove('playing'));
   }
 
   async preloadIfNeeded(chord) {
@@ -201,6 +201,7 @@ class GypsyApp {
   }
 
   async saveSong() {
+    if (!this.currentSong) return alert('No song to save');
     const title = document.getElementById('song-title').value.trim() || 'Untitled';
     this.currentSong.title = title;
 
@@ -219,8 +220,9 @@ class GypsyApp {
     if (!confirm(`Permanently delete "${this.currentSong.title}"?`)) return;
 
     await Database.deleteSong(this.currentSong._id);
+    this.currentSong = null;
+    this.render();
     alert('Song deleted');
-    this.showNewGridModal();
     await this.loadSongsList();
   }
 
@@ -279,3 +281,5 @@ class GypsyApp {
 }
 
 const app = new GypsyApp();
+app.render();                    // mostra il messaggio iniziale
+app.loadSongsList();             // popola la dropdown subito

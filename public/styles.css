@@ -205,11 +205,28 @@ header h1 { font-size: 2.5em; margin-bottom: 10px; }
   to { transform: rotate(360deg); }
 }
 
-/* EVIDENZIAZIONE DEL CHORD IN RIPRODUZIONE */
+/* EVIDENZIAZIONE DEL CHORD IN RIPRODUZIONE – ORA SI VEDE DAVVERO */
 .chord-box.playing {
-  background: #90EE90 !important;
-  transform: scale(1.12);
-  box-shadow: 0 0 30px #32CD32;
-  transition: all 0.2s ease;
-  z-index: 10;
+  background: #ffff00 !important;     /* Giallo fluo */
+  color: #000 !important;
+  font-weight: 900 !important;
+  font-size: 2em !important;
+  transform: scale(1.4) !important;
+  border: 6px solid #ff0000 !important;
+  box-shadow: 
+    0 0 40px #ffff00,
+    0 0 80px #ff0000,
+    inset 0 0 30px #ffffff !important;
+  z-index: 9999 !important;
+  animation: flash 0.5s infinite alternate !important;
+  border-radius: 16px !important;
+}
+
+@keyframes flash {
+  from { 
+    box-shadow: 0 0 40px #ffff00, 0 0 80px #ff0000, inset 0 0 30px #fff; 
+  }
+  to { 
+    box-shadow: 0 0 70px #ffff00, 0 0 120px #ff0000, inset 0 0 50px #fff; 
+  }
 }
