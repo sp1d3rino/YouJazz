@@ -1,4 +1,5 @@
-const CHORDS = ['Gm', 'Gm6', 'Cm', 'Cm6', 'D7', 'Eb7', 'E7', 'Am6', 'Dm6', 'F7'];
+const CHORDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+const CHORD_EXTENSIONS = ['#', '♭', 'ø', 'o', '6', '7', '9','m', 'maj7'];
 
 class GypsyApp {
   constructor() {
@@ -23,7 +24,7 @@ class GypsyApp {
     const createBtn = document.getElementById('create-grid');
     const handler = () => {
       const rows = parseInt(document.getElementById('grid-rows').value) || 4;
-      const cols = parseInt(document.getElementById('grid-cols').value) || 8;
+      const cols = parseInt(document.getElementById('grid-cols').value) || 4;
 
       this.currentSong = {
         title: 'Song name',
@@ -68,19 +69,38 @@ class GypsyApp {
     document.getElementById('delete-song').onclick = () => this.deleteCurrentSong();
   }
 
-  loadChordsPalette() {
-    const list = document.querySelector('.chord-list');
-    list.innerHTML = '';
-    CHORDS.forEach(ch => {
-      const btn = document.createElement('div');
-      btn.className = 'chord-btn';
-      btn.textContent = ch;
-      btn.draggable = true;
-      btn.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', ch));
-      list.appendChild(btn);
-    });
-  }
+loadChordsPalette() {
+  const chordList = document.querySelector('.chord-list');
+  const extList = document.querySelector('.extension-list');
+  chordList.innerHTML = '';
+  extList.innerHTML = '';
 
+  // Regular chords
+  CHORDS.forEach(ch => {
+    const btn = document.createElement('div');
+    btn.className = 'chord-btn';
+    btn.textContent = ch;
+    btn.draggable = true;
+    btn.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', ch);
+      e.dataTransfer.setData('type', 'chord');
+    });
+    chordList.appendChild(btn);
+  });
+
+  // Extensions
+  CHORD_EXTENSIONS.forEach(ext => {
+    const btn = document.createElement('div');
+    btn.className = 'extension-btn';
+    btn.textContent = ext;
+    btn.draggable = true;
+    btn.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', ext);
+      e.dataTransfer.setData('type', 'extension');
+    });
+    extList.appendChild(btn);
+  });
+}
   render() {
     const sheet = document.getElementById('lead-sheet');
 
@@ -98,12 +118,16 @@ class GypsyApp {
 
       measure.ondrop = e => {
         e.preventDefault();
-        const chord = e.dataTransfer.getData('text/plain');
-        if (chord) {
-          m.chords.push(chord);
-          this.preloadIfNeeded(chord);
+        const droppedText = e.dataTransfer.getData('text/plain');
+        const type = e.dataTransfer.getData('type');
+
+        // Only allow full chords (from root notes A–G) to be dropped on empty space
+        if (type === 'chord' && droppedText) {
+          m.chords.push(droppedText);
+          this.preloadIfNeeded(droppedText);
           this.render();
         }
+        // Extensions are completely ignored here → cannot create chord from extension alone
       };
       measure.ondragover = e => e.preventDefault();
 
@@ -113,15 +137,75 @@ class GypsyApp {
         box.textContent = chord;
         box.draggable = true;
 
+        // Drag start – move or copy the full chord
         box.addEventListener('dragstart', e => {
           e.dataTransfer.setData('text/plain', chord);
+          e.dataTransfer.setData('type', 'chord');
+          // Remove after drag starts (so it moves)
           setTimeout(() => { m.chords.splice(i, 1); this.render(); }, 0);
         });
+
+        // Allow dropping extensions onto this chord
+        box.ondragover = e => e.preventDefault();
+
+        box.ondrop = e => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const droppedText = e.dataTransfer.getData('text/plain');
+          const type = e.dataTransfer.getData('type');
+
+          // BLOCK: Never allow a full chord (A, B, C...) to replace an existing chord
+          if (type === 'chord') {
+            return; // silently ignore
+          }
+
+          // ALLOW only extensions
+          if (type !== 'extension') return;
+
+          // === EXTENSION LOGIC (unchanged, but now safe) ===
+          let root = '';
+          const rootMatch = chord.match(/^([A-G][#♭]?)/i);
+          if (rootMatch) root = rootMatch[0];
+          const rest = chord.slice(root ? root.length : 1);
+
+          let newChord = chord;
+
+          if (['#', '♭', 'ø', 'o'].includes(droppedText)) {
+            const rootLetter = chord[0];
+            newChord = rootLetter + droppedText;
+            if (droppedText === 'ø') newChord += '7';
+            if (droppedText === 'o') newChord += '7';
+            if (rest && !['#', '♭', 'ø', 'o'].includes(rest[0])) {
+              newChord += rest;
+            }
+          }
+
+          else if (droppedText === 'm') {
+            newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'm';
+          }
+
+          else if (['maj7', 'm' ].includes(droppedText)) {
+            newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + droppedText;
+          }
+
+          else if (['6', '7', '9'].includes(droppedText)) {
+            newChord = chord.replace(/[0-9]+$/, '') + droppedText;
+          }
+
+          m.chords[i] = newChord;
+          this.preloadIfNeeded(newChord);
+          this.render();
+        };
 
         const x = document.createElement('span');
         x.className = 'remove';
         x.textContent = '×';
-        x.onclick = e => { e.stopPropagation(); m.chords.splice(i, 1); this.render(); };
+        x.onclick = e => {
+          e.stopPropagation();
+          m.chords.splice(i, 1);
+          this.render();
+        };
         box.appendChild(x);
 
         measure.appendChild(box);
@@ -244,7 +328,7 @@ class GypsyApp {
 
     } catch (e) {
       console.error('Errore salvataggio:', e);
-      alert('Impossibile salvare il brano. Sei sicuro di essere loggato?');
+      alert('Unable to save the song. Did you log in?');
     }
   }
 
@@ -309,7 +393,7 @@ class GypsyApp {
           _id: db._id,
           title: db.title,
           bpm: db.bpm || 200,
-          grid: db.grid || { rows: 4, cols: 8 },
+          grid: db.grid || { rows: 4, cols: 4 },
           measures: []
         };
 

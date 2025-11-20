@@ -1,0 +1,75 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Courier New', monospace;
+    background: #0a0a0a;
+    color: #eee;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.login-container {
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+h1 {
+    font-size: 3.8em;
+    margin-bottom: 20px;
+    color: #ff6b6b;
+    text-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+    letter-spacing: 3px;
+}
+.guitar-image {
+    width: 100%;
+    max-width: 420px;
+    margin: 40px auto;
+    filter: drop-shadow(0 0 30px rgba(255, 107, 107, 0.4))
+            drop-shadow(0 0 60px rgba(70, 200, 255, 0.3));
+    animation: float 12s ease-in-out infinite;
+}
+.guitar-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
+.google-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: white;
+    color: #444;
+    padding: 18px 40px;
+    border-radius: 12px;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    transition: all 0.3s ease;
+    margin-top: 30px;
+}
+.google-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+}
+.google-btn img {
+    height: 28px;
+}
+
+/* Animazione delicata di "galleggiamento" */
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-20px) rotate(1deg); }
+}
+
+/* Effetto neon leggero sul testo */
+.neon {
+    text-shadow: 
+    0 0 10px #ff6b6b,
+    0 0 20px #ff6b6b,
+    0 0 40px #ff6b6b,
+    0 0 80px #ff6b6b;
+}

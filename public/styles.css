@@ -231,3 +231,33 @@ header h1 { font-size: 2.5em; margin-bottom: 10px; }
     box-shadow: 0 0 70px #ffff00, 0 0 120px #ff0000, inset 0 0 50px #fff; 
   }
 }
+
+.extension-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.extension-btn {
+  padding: 14px 8px;
+  background: #2c3e50;
+  color: #ecf0f1;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1em;
+  cursor: move;
+  user-select: none;
+  transition: 0.2s;
+  border: 1px solid #444;
+}
+
+.extension-btn:hover {
+  background: #34495e;
+  transform: translateY(-3px);
+}
+
+.extension-btn:active {
+  transform: translateY(0);
+}

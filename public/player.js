@@ -1,4 +1,3 @@
-// public/player.js  ← VERSIONE DEFINITIVA, TESTATA ORA 20 VOLTE
 class GypsyPlayer {
   constructor() {
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -6,9 +5,9 @@ class GypsyPlayer {
     this.processedBuffers = new Map();
     this.isPlaying = false;
     this.scheduledSources = [];
-    this.timerId = null;               // ← come nel tuo codice originale
+    this.timerId = null;               
     this.lookahead = 0.1;
-    this.scheduleInterval = 25;        // ← identico al tuo
+    this.scheduleInterval = 25;        
     this.nextStartTime = 0;
   }
 
