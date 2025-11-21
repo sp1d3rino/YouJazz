@@ -15,6 +15,20 @@ class GypsyApp {
     this.loadSongsList();             // carica subito la dropdown
     this.setupGlobalEvents();
     this.setupEvents();               // eventi sempre attivi (BPM, Play, Stop, ecc.)
+    this.setupCopyPaste();
+
+  }
+
+  updateUIControls() {
+    const isPlaying = this.isPlaying;
+
+    // Play / Stop / Clear Grid buttons
+    document.getElementById('play').disabled = isPlaying;
+    document.getElementById('stop').disabled = !isPlaying;
+    document.getElementById('clear-all').disabled = isPlaying;
+
+    // BPM slider
+    document.getElementById('bpm-slider').disabled = isPlaying;
   }
 
   showNewGridModal() {
@@ -55,6 +69,8 @@ class GypsyApp {
       if (this.currentSong) this.currentSong.bpm = +e.target.value;
     };
 
+  
+
     document.getElementById('clear-all').onclick = () => {
       if (!this.currentSong) return;
       if (confirm('Clear all chords?')) {
@@ -68,6 +84,9 @@ class GypsyApp {
     document.getElementById('save-song').onclick = () => this.saveSong();
     document.getElementById('delete-song').onclick = () => this.deleteCurrentSong();
   }
+
+
+  
 
 loadChordsPalette() {
   const chordList = document.querySelector('.chord-list');
@@ -101,9 +120,91 @@ loadChordsPalette() {
     extList.appendChild(btn);
   });
 }
+
+setupCopyPaste() {
+  let isCtrlPressed = false;
+  let sourceChord = null;
+  let sourceBox = null;
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Control') isCtrlPressed = true;
+  });
+  document.addEventListener('keyup', e => {
+    if (e.key === 'Control') isCtrlPressed = false;
+  });
+
+  document.addEventListener('mousedown', e => {
+    if (!this.currentSong || !isCtrlPressed) return;
+
+    const box = e.target.closest('.chord-box');
+    if (!box) return;
+
+    // THE FIX: Get only the chord name, NOT the × button!
+    sourceChord = box.firstChild.textContent.trim(); // This is the chord text node
+    // OR even safer:
+    // sourceChord = box.childNodes[0].textContent.trim();
+
+    sourceBox = box;
+    e.preventDefault();
+
+    sourceBox.style.opacity = '0.6';
+    sourceBox.style.transform = 'scale(1.12)';
+    sourceBox.style.transition = 'all 0.12s';
+  });
+
+  document.addEventListener('mouseup', e => {
+    if (!sourceChord || !sourceBox) return;
+
+    const targetMeasure = e.target.closest('.measure');
+    if (!targetMeasure) {
+      sourceBox.style.opacity = '';
+      sourceBox.style.transform = '';
+      sourceChord = null;
+      sourceBox = null;
+      return;
+    }
+
+    const measureIndex = Array.from(document.querySelectorAll('.measure')).indexOf(targetMeasure);
+    const targetBox = e.target.closest('.chord-box');
+    const measure = this.currentSong.measures[measureIndex];
+
+    if (targetBox) {
+      const chordIndex = Array.from(targetMeasure.querySelectorAll('.chord-box')).indexOf(targetBox);
+      measure.chords[chordIndex] = sourceChord;
+    } else {
+      measure.chords.push(sourceChord);
+    }
+
+    this.preloadIfNeeded(sourceChord);
+    this.render();
+
+    // Reset
+    sourceBox.style.opacity = '';
+    sourceBox.style.transform = '';
+    sourceChord = null;
+    sourceBox = null;
+  });
+}
+
+  showCopyFeedback() {
+    // Optional: show a little toast
+    const toast = document.createElement('div');
+    toast.textContent = `Copied: ${this.clipboard}`;
+    toast.style.cssText = `
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+      background: #27ae60; color: white; padding: 12px 24px; border-radius: 8px;
+      font-weight: bold; z-index: 10000; font-size: 1.1em; pointer-events: none;
+      animation: fadeup, 0.4s forwards, fadeOut 0.6s 2s forwards;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+
+
   render() {
     const sheet = document.getElementById('lead-sheet');
-
+    this.updateUIControls();  
     if (!this.currentSong) {
       sheet.innerHTML = '<p style="text-align:center;color:#888;margin-top:100px;font-size:1.4em;">Create a new song or load one from the list</p>';
       return;
@@ -219,6 +320,7 @@ loadChordsPalette() {
     if (this.isPlaying || !this.currentSong) return;
 
     this.isPlaying = true;
+    this.updateUIControls(); 
     this.currentChordIndex = 0;
     this.clearHighlight();
 
@@ -273,6 +375,7 @@ loadChordsPalette() {
     if (this.highlightTimeout) clearTimeout(this.highlightTimeout);
     this.clearHighlight();
     this.isPlaying = false;
+    this.updateUIControls();
     this.currentChordIndex = 0;
   }
 

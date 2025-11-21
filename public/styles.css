@@ -261,3 +261,24 @@ header h1 { font-size: 2.5em; margin-bottom: 10px; }
 .extension-btn:active {
   transform: translateY(0);
 }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes fadeOut { to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+
+* {
+  cursor: default !important;
+}
+body[data-copy-mode] {
+  cursor: copy !important;
+}
+
+button:disabled,
+input[type="range"]:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+#bpm-slider:disabled {
+  background: #444;
+}

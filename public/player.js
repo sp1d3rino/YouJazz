@@ -13,11 +13,18 @@ class GypsyPlayer {
 
   async load(chord) {
     if (this.buffers.has(chord)) return this.buffers.get(chord);
-    const res = await fetch(`audio/chords/${chord}_120.mp3`);
-    if (!res.ok) throw new Error(`File non trovato: ${chord}_120.mp3`);
+
+    // THE FIX: encodeURIComponent() escapes #, ♭, ø, etc.
+    const safeChord = encodeURIComponent(chord);
+    const res = await fetch(`audio/chords/${safeChord}_120.mp3`);
+
+    if (!res.ok) {
+      throw new Error(`File not found: ${chord}_120.mp3 (tried: ${safeChord}_120.mp3)`);
+    }
+
     const arrayBuffer = await res.arrayBuffer();
     const buffer = await this.audioContext.decodeAudioData(arrayBuffer);
-    this.buffers.set(chord, buffer);
+    this.buffers.set(chord, buffer);  // keep original chord name as key
     return buffer;
   }
 
