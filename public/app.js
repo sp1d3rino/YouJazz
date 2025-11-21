@@ -19,6 +19,10 @@ class GypsyApp {
 
   }
 
+  isGuest() {
+    return document.body.classList.contains('guest-mode');
+  }
+
   updateUIControls() {
     const isPlaying = this.isPlaying;
 
@@ -32,6 +36,10 @@ class GypsyApp {
   }
 
   showNewGridModal() {
+    if (this.isGuest()) {
+      alert('Guest mode: You cannot create new songs. Login to create lead sheets.');
+      return;
+    }
     const modal = document.getElementById('grid-setup-modal');
     modal.classList.remove('hidden');
 
@@ -69,7 +77,12 @@ class GypsyApp {
       if (this.currentSong) this.currentSong.bpm = +e.target.value;
     };
 
-  
+    document.getElementById('clear-all').onclick = () => {
+    if (this.isGuest()) {
+      alert('Guest mode: You cannot clear songs.');
+      return;
+    }
+  };
 
     document.getElementById('clear-all').onclick = () => {
       if (!this.currentSong) return;
@@ -81,8 +94,21 @@ class GypsyApp {
 
     document.getElementById('play').onclick = () => this.play();
     document.getElementById('stop').onclick = () => this.stopPlayback();
-    document.getElementById('save-song').onclick = () => this.saveSong();
-    document.getElementById('delete-song').onclick = () => this.deleteCurrentSong();
+    document.getElementById('save-song').onclick = () => {
+      if (this.isGuest()) {
+        alert('Guest mode: You cannot save songs. Login to save.');
+        return;
+      }
+      this.saveSong();
+    };
+
+    document.getElementById('delete-song').onclick = () => {
+      if (this.isGuest()) {
+        alert('Guest mode: You cannot delete songs.');
+        return;
+      }
+      this.deleteCurrentSong();
+    };
   }
 
 
@@ -314,6 +340,47 @@ setupCopyPaste() {
 
       sheet.appendChild(measure);
     });
+
+    
+    // NEW: Disable editing for guests
+    if (this.isGuest()) {
+      document.querySelectorAll('.measure').forEach(m => {
+        m.ondragover = null;
+        m.ondrop = null;
+      });
+      document.querySelectorAll('.chord-box').forEach(b => {
+        b.draggable = false;
+        b.onclick = null;
+      });
+      document.querySelectorAll('.remove').forEach(r => r.style.display = 'none');
+      document.getElementById('new-song').style.display = 'none';
+      document.getElementById('save-song').style.display = 'none';
+      document.getElementById('delete-song').style.display = 'none';
+      document.getElementById('clear-all').style.display = 'none';
+      // Add notice
+      const notice = document.createElement('div');
+      notice.id = 'guest-notice';
+      notice.style.cssText = 'position:fixed;top:10px;right:10px;background:#ff6b6b;color:white;padding:10px;border-radius:8px;font-size:0.9em;z-index:1000;';
+      notice.textContent = 'Guest mode (read-only) — Login to edit';
+      document.body.appendChild(notice);
+    } else {
+      // Re-enable for logged-in
+      document.querySelectorAll('.measure').forEach(m => {
+        // Re-attach drop handlers if needed (your existing logic)
+      });
+      document.querySelectorAll('.chord-box').forEach(b => b.draggable = true);
+      document.querySelectorAll('.remove').forEach(r => r.style.display = '');
+      document.getElementById('new-song').style.display = '';
+      document.getElementById('save-song').style.display = '';
+      document.getElementById('delete-song').style.display = '';
+      document.getElementById('clear-all').style.display = '';
+      const notice = document.getElementById('guest-notice');
+      if (notice) notice.remove();
+    }
+
+
+
+
   }
 
   async play() {

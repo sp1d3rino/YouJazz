@@ -73,3 +73,28 @@ h1 {
     0 0 40px #ff6b6b,
     0 0 80px #ff6b6b;
 }
+
+.guest-btn {
+  display: inline-block;
+  background: #333;
+  color: #ddd;
+  padding: 18px 40px;
+  border-radius: 12px;
+  font-size: 1.4em;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  border: 2px solid #555;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.guest-btn:hover {
+  background: #444;
+  border-color: #ff6b6b;
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(255,107,107,0.3);
+}

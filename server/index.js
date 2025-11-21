@@ -76,15 +76,24 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
-app.get('/api/songs', requireAuth, async (req, res) => {
-  const songs = await Song.find().sort({ createdAt: -1 });
-  res.json(songs);
+app.get('/api/songs', async (req, res) => {
+  try {
+    const songs = await Song.find().sort({ createdAt: -1 });
+    res.json(songs);
+  } catch (err) {
+    res.status(500).json({ error: 'Errore caricamento brani' });
+  }
 });
 
-app.get('/api/songs/:id', requireAuth, async (req, res) => {
-  const song = await Song.findOne({ _id: req.params.id});
-  if (!song) return res.status(404).json({ error: 'Non trovato' });
-  res.json(song);
+// GUEST PUÒ CARICARE UN SINGOLO BRANO
+app.get('/api/songs/:id', async (req, res) => {
+  try {
+    const song = await Song.findById(req.params.id);
+    if (!song) return res.status(404).json({ error: 'Brano non trovato' });
+    res.json(song);
+  } catch (err) {
+    res.status(500).json({ error: 'Errore caricamento brano' });
+  }
 });
 
 app.post('/api/songs', requireAuth, async (req, res) => {
