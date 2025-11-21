@@ -76,23 +76,29 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
+// GET /api/songs — Lista con owner popolato
 app.get('/api/songs', async (req, res) => {
   try {
-    const songs = await Song.find().sort({ createdAt: -1 });
+    const songs = await Song.find()
+      .populate('owner', 'displayName')  // ← Aggiungi questo: fetcha solo displayName
+      .sort({ createdAt: -1 });
     res.json(songs);
   } catch (err) {
-    res.status(500).json({ error: 'Errore caricamento brani' });
+    console.error('Errore caricamento brani:', err);
+    res.status(500).json({ error: 'Errore del server' });
   }
 });
 
-// GUEST PUÒ CARICARE UN SINGOLO BRANO
+// GET /api/songs/:id — Singolo con owner popolato
 app.get('/api/songs/:id', async (req, res) => {
   try {
-    const song = await Song.findById(req.params.id);
+    const song = await Song.findById(req.params.id)
+      .populate('owner', 'displayName');  // ← Aggiungi questo
     if (!song) return res.status(404).json({ error: 'Brano non trovato' });
     res.json(song);
   } catch (err) {
-    res.status(500).json({ error: 'Errore caricamento brano' });
+    console.error('Errore caricamento brano:', err);
+    res.status(500).json({ error: 'Errore del server' });
   }
 });
 

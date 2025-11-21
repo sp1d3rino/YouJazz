@@ -1,5 +1,5 @@
 const CHORDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-const CHORD_EXTENSIONS = ['#', '♭', 'ø', 'o', '6', '7', '9','m', 'maj7'];
+const CHORD_EXTENSIONS = ['#', '♭', 'ø', 'o', '6', '7', '9', 'm', 'maj7'];
 
 class GypsyApp {
   constructor() {
@@ -19,6 +19,21 @@ class GypsyApp {
 
   }
 
+  showCreatedBy(song) {
+    const titleBox = document.getElementById('song-title');
+    let createdByEl = titleBox.nextElementSibling;
+
+    if (!createdByEl || !createdByEl.classList.contains('created-by')) {
+      createdByEl = document.createElement('div');
+      createdByEl.className = 'created-by';
+      createdByEl.style.cssText = 'font-size: 0.9em; color: #888; margin-top: 5px; text-align: center; font-style: italic;';
+      titleBox.parentNode.insertBefore(createdByEl, titleBox.nextSibling);
+    }
+
+    const ownerName = this.getOwnerName(song);
+    createdByEl.textContent = `Created by: ${ownerName}`;
+  }
+
   isGuest() {
     return document.body.classList.contains('guest-mode');
   }
@@ -34,7 +49,9 @@ class GypsyApp {
     // BPM slider
     document.getElementById('bpm-slider').disabled = isPlaying;
   }
-
+  getOwnerName(song) {
+    return song.owner ? song.owner.displayName || 'Unknown' : 'Public';
+  }
   showNewGridModal() {
     if (this.isGuest()) {
       alert('Guest mode: You cannot create new songs. Login to create lead sheets.');
@@ -57,6 +74,7 @@ class GypsyApp {
 
       modal.classList.add('hidden');
       createBtn.removeEventListener('click', handler);
+       
       this.render();
     };
 
@@ -78,11 +96,11 @@ class GypsyApp {
     };
 
     document.getElementById('clear-all').onclick = () => {
-    if (this.isGuest()) {
-      alert('Guest mode: You cannot clear songs.');
-      return;
-    }
-  };
+      if (this.isGuest()) {
+        alert('Guest mode: You cannot clear songs.');
+        return;
+      }
+    };
 
     document.getElementById('clear-all').onclick = () => {
       if (!this.currentSong) return;
@@ -112,105 +130,105 @@ class GypsyApp {
   }
 
 
-  
 
-loadChordsPalette() {
-  const chordList = document.querySelector('.chord-list');
-  const extList = document.querySelector('.extension-list');
-  chordList.innerHTML = '';
-  extList.innerHTML = '';
 
-  // Regular chords
-  CHORDS.forEach(ch => {
-    const btn = document.createElement('div');
-    btn.className = 'chord-btn';
-    btn.textContent = ch;
-    btn.draggable = true;
-    btn.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/plain', ch);
-      e.dataTransfer.setData('type', 'chord');
+  loadChordsPalette() {
+    const chordList = document.querySelector('.chord-list');
+    const extList = document.querySelector('.extension-list');
+    chordList.innerHTML = '';
+    extList.innerHTML = '';
+
+    // Regular chords
+    CHORDS.forEach(ch => {
+      const btn = document.createElement('div');
+      btn.className = 'chord-btn';
+      btn.textContent = ch;
+      btn.draggable = true;
+      btn.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', ch);
+        e.dataTransfer.setData('type', 'chord');
+      });
+      chordList.appendChild(btn);
     });
-    chordList.appendChild(btn);
-  });
 
-  // Extensions
-  CHORD_EXTENSIONS.forEach(ext => {
-    const btn = document.createElement('div');
-    btn.className = 'extension-btn';
-    btn.textContent = ext;
-    btn.draggable = true;
-    btn.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/plain', ext);
-      e.dataTransfer.setData('type', 'extension');
+    // Extensions
+    CHORD_EXTENSIONS.forEach(ext => {
+      const btn = document.createElement('div');
+      btn.className = 'extension-btn';
+      btn.textContent = ext;
+      btn.draggable = true;
+      btn.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', ext);
+        e.dataTransfer.setData('type', 'extension');
+      });
+      extList.appendChild(btn);
     });
-    extList.appendChild(btn);
-  });
-}
+  }
 
-setupCopyPaste() {
-  let isCtrlPressed = false;
-  let sourceChord = null;
-  let sourceBox = null;
+  setupCopyPaste() {
+    let isCtrlPressed = false;
+    let sourceChord = null;
+    let sourceBox = null;
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Control') isCtrlPressed = true;
-  });
-  document.addEventListener('keyup', e => {
-    if (e.key === 'Control') isCtrlPressed = false;
-  });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Control') isCtrlPressed = true;
+    });
+    document.addEventListener('keyup', e => {
+      if (e.key === 'Control') isCtrlPressed = false;
+    });
 
-  document.addEventListener('mousedown', e => {
-    if (!this.currentSong || !isCtrlPressed) return;
+    document.addEventListener('mousedown', e => {
+      if (!this.currentSong || !isCtrlPressed) return;
 
-    const box = e.target.closest('.chord-box');
-    if (!box) return;
+      const box = e.target.closest('.chord-box');
+      if (!box) return;
 
-    // THE FIX: Get only the chord name, NOT the × button!
-    sourceChord = box.firstChild.textContent.trim(); // This is the chord text node
-    // OR even safer:
-    // sourceChord = box.childNodes[0].textContent.trim();
+      // THE FIX: Get only the chord name, NOT the × button!
+      sourceChord = box.firstChild.textContent.trim(); // This is the chord text node
+      // OR even safer:
+      // sourceChord = box.childNodes[0].textContent.trim();
 
-    sourceBox = box;
-    e.preventDefault();
+      sourceBox = box;
+      e.preventDefault();
 
-    sourceBox.style.opacity = '0.6';
-    sourceBox.style.transform = 'scale(1.12)';
-    sourceBox.style.transition = 'all 0.12s';
-  });
+      sourceBox.style.opacity = '0.6';
+      sourceBox.style.transform = 'scale(1.12)';
+      sourceBox.style.transition = 'all 0.12s';
+    });
 
-  document.addEventListener('mouseup', e => {
-    if (!sourceChord || !sourceBox) return;
+    document.addEventListener('mouseup', e => {
+      if (!sourceChord || !sourceBox) return;
 
-    const targetMeasure = e.target.closest('.measure');
-    if (!targetMeasure) {
+      const targetMeasure = e.target.closest('.measure');
+      if (!targetMeasure) {
+        sourceBox.style.opacity = '';
+        sourceBox.style.transform = '';
+        sourceChord = null;
+        sourceBox = null;
+        return;
+      }
+
+      const measureIndex = Array.from(document.querySelectorAll('.measure')).indexOf(targetMeasure);
+      const targetBox = e.target.closest('.chord-box');
+      const measure = this.currentSong.measures[measureIndex];
+
+      if (targetBox) {
+        const chordIndex = Array.from(targetMeasure.querySelectorAll('.chord-box')).indexOf(targetBox);
+        measure.chords[chordIndex] = sourceChord;
+      } else {
+        measure.chords.push(sourceChord);
+      }
+
+      this.preloadIfNeeded(sourceChord);
+      this.render();
+
+      // Reset
       sourceBox.style.opacity = '';
       sourceBox.style.transform = '';
       sourceChord = null;
       sourceBox = null;
-      return;
-    }
-
-    const measureIndex = Array.from(document.querySelectorAll('.measure')).indexOf(targetMeasure);
-    const targetBox = e.target.closest('.chord-box');
-    const measure = this.currentSong.measures[measureIndex];
-
-    if (targetBox) {
-      const chordIndex = Array.from(targetMeasure.querySelectorAll('.chord-box')).indexOf(targetBox);
-      measure.chords[chordIndex] = sourceChord;
-    } else {
-      measure.chords.push(sourceChord);
-    }
-
-    this.preloadIfNeeded(sourceChord);
-    this.render();
-
-    // Reset
-    sourceBox.style.opacity = '';
-    sourceBox.style.transform = '';
-    sourceChord = null;
-    sourceBox = null;
-  });
-}
+    });
+  }
 
   showCopyFeedback() {
     // Optional: show a little toast
@@ -230,7 +248,7 @@ setupCopyPaste() {
 
   render() {
     const sheet = document.getElementById('lead-sheet');
-    this.updateUIControls();  
+    this.updateUIControls();
     if (!this.currentSong) {
       sheet.innerHTML = '<p style="text-align:center;color:#888;margin-top:100px;font-size:1.4em;">Create a new song or load one from the list</p>';
       return;
@@ -312,7 +330,7 @@ setupCopyPaste() {
             newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'm';
           }
 
-          else if (['maj7', 'm' ].includes(droppedText)) {
+          else if (['maj7', 'm'].includes(droppedText)) {
             newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + droppedText;
           }
 
@@ -341,7 +359,7 @@ setupCopyPaste() {
       sheet.appendChild(measure);
     });
 
-    
+
     // NEW: Disable editing for guests
     if (this.isGuest()) {
       document.querySelectorAll('.measure').forEach(m => {
@@ -387,7 +405,7 @@ setupCopyPaste() {
     if (this.isPlaying || !this.currentSong) return;
 
     this.isPlaying = true;
-    this.updateUIControls(); 
+    this.updateUIControls();
     this.currentChordIndex = 0;
     this.clearHighlight();
 
@@ -476,9 +494,8 @@ setupCopyPaste() {
         if (!songRes.ok) throw new Error('Unable to verify song owner');
 
         const songFromServer = await songRes.json();
-
         // BLOCCO DI SICUREZZA: se il proprietario non è l'utente corrente → BLOCCA
-        if (songFromServer.owner.toString() !== currentUser.id) {
+        if (songFromServer.owner._id.toString() !== currentUser.id) {
           alert('This song is not yours. You cannot modify it!');
           await this.loadSongsList();  // ricarica la lista per sicurezza
           return;
@@ -493,11 +510,11 @@ setupCopyPaste() {
         this.currentSong._id = saved._id;
       }
 
-      alert(`Salvato: ${title}`);
+      alert(`${title}, Saved!`);
       await this.loadSongsList();
 
     } catch (e) {
-      console.error('Errore salvataggio:', e);
+      console.error('Saving error:', e);
       alert('Unable to save the song. Did you log in?');
     }
   }
@@ -522,7 +539,7 @@ setupCopyPaste() {
         const songFromServer = await songRes.json();
 
         // BLOCCO DI SICUREZZA: se il proprietario non è l'utente corrente → BLOCCA
-        if (songFromServer.owner.toString() !== currentUser.id) {
+        if (songFromServer.owner._id.toString() !== currentUser.id) {
           alert('This song is not yours. You cannot delete it!');
           await this.loadSongsList();  // ricarica la lista per sicurezza
           return;
@@ -530,11 +547,11 @@ setupCopyPaste() {
       }
 
 
-        await Database.deleteSong(this.currentSong._id);
-        this.currentSong = null;
-        this.render();
-        alert('Song deleted');
-        await this.loadSongsList();
+      await Database.deleteSong(this.currentSong._id);
+      this.currentSong = null;
+      this.render();
+      alert('Song deleted');
+      await this.loadSongsList();
     } catch (e) {
       console.error('Errore salvataggio:', e);
       alert('Impossibile salvare il brano. Sei sicuro di essere loggato?');
@@ -549,7 +566,8 @@ setupCopyPaste() {
       songs.forEach(s => {
         const opt = document.createElement('option');
         opt.value = s._id;
-        opt.textContent = s.title;
+        const ownerName = this.getOwnerName(s);  // ← Aggiungi questo
+        opt.textContent = `${s.title} (${ownerName})`;  // ← Modifica: titolo + (owner)
         sel.appendChild(opt);
       });
 
@@ -587,6 +605,10 @@ setupCopyPaste() {
         document.getElementById('song-title').value = db.title;
         document.getElementById('bpm-slider').value = db.bpm;
         document.getElementById('bpm-value').textContent = db.bpm;
+
+        // ← Aggiungi: mostra "Created by"
+        this.showCreatedBy(db);
+
         this.render();
       };
     } catch (e) {

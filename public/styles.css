@@ -282,3 +282,11 @@ input[type="range"]:disabled {
 #bpm-slider:disabled {
   background: #444;
 }
+
+.created-by {
+  font-size: 0.9em;
+  color: #888;
+  margin-top: 5px;
+  text-align: center;
+  font-style: italic;
+}
