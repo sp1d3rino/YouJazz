@@ -1,4 +1,4 @@
-const CHORDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+const CHORDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G','P'];
 const CHORD_EXTENSIONS = ['#', '♭', 'ø', 'o', '6', '7', '9', 'm', 'maj7'];
 
 class GypsyApp {
@@ -74,7 +74,7 @@ class GypsyApp {
 
       modal.classList.add('hidden');
       createBtn.removeEventListener('click', handler);
-       
+
       this.render();
     };
 
@@ -300,40 +300,46 @@ class GypsyApp {
           const droppedText = e.dataTransfer.getData('text/plain');
           const type = e.dataTransfer.getData('type');
 
-          // BLOCK: Never allow a full chord (A, B, C...) to replace an existing chord
-          if (type === 'chord') {
-            return; // silently ignore
-          }
+          // Blocca se è un accordo completo (A, B, C...)
+          if (type === 'chord') return;
 
-          // ALLOW only extensions
+          // Accetta solo estensioni
           if (type !== 'extension') return;
-
-          // === EXTENSION LOGIC (unchanged, but now safe) ===
-          let root = '';
-          const rootMatch = chord.match(/^([A-G][#♭]?)/i);
-          if (rootMatch) root = rootMatch[0];
-          const rest = chord.slice(root ? root.length : 1);
 
           let newChord = chord;
 
+          // === GESTIONE ACCIDENTI (# o ♭) + SIMBOLI DIMINUITI ===
           if (['#', '♭', 'ø', 'o'].includes(droppedText)) {
-            const rootLetter = chord[0];
-            newChord = rootLetter + droppedText;
-            if (droppedText === 'ø') newChord += '7';
-            if (droppedText === 'o') newChord += '7';
+            // Trova la radice completa (es: "D#", "Db", "B")
+            const rootMatch = chord.match(/^([A-G][#♭]?)/i);
+            const root = rootMatch ? rootMatch[0] : chord[0];
+
+            // Se stiamo aggiungendo # o ♭ → costruiamo da zero la radice
+            if (droppedText === '#' || droppedText === '♭') {
+              newChord = root[0] + droppedText; // es: "D#", "Db"
+            }
+            // Se stiamo aggiungendo ø o o → manteniamo #/♭ esistente e aggiungiamo il simbolo
+            else if (droppedText === 'ø' || droppedText === 'o') {
+              // Se c'è già # o ♭, lo teniamo
+              newChord = root + droppedText;
+              if (droppedText === 'ø') newChord;
+              if (droppedText === 'o') newChord;
+            }
+
+            // Rimuoviamo eventuali estensioni precedenti (maj7, m, 7, ecc.) e aggiungiamo il resto
+            const rest = chord.slice(root.length);
             if (rest && !['#', '♭', 'ø', 'o'].includes(rest[0])) {
-              newChord += rest;
+              newChord += rest.replace(/^(maj|m)?[0-9]*/g, '');
             }
           }
 
+          // === ALTRE ESTENSIONI (m, maj7, 7, 6, 9) ===
           else if (droppedText === 'm') {
             newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'm';
           }
-
-          else if (['maj7', 'm'].includes(droppedText)) {
-            newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + droppedText;
+          else if (droppedText === 'maj7') {
+            newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'maj7';
           }
-
           else if (['6', '7', '9'].includes(droppedText)) {
             newChord = chord.replace(/[0-9]+$/, '') + droppedText;
           }
@@ -342,6 +348,7 @@ class GypsyApp {
           this.preloadIfNeeded(newChord);
           this.render();
         };
+
 
         const x = document.createElement('span');
         x.className = 'remove';

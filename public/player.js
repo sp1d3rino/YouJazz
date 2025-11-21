@@ -5,28 +5,69 @@ class GypsyPlayer {
     this.processedBuffers = new Map();
     this.isPlaying = false;
     this.scheduledSources = [];
-    this.timerId = null;               
+    this.timerId = null;
     this.lookahead = 0.1;
-    this.scheduleInterval = 25;        
+    this.scheduleInterval = 25;
     this.nextStartTime = 0;
   }
 
-  async load(chord) {
-    if (this.buffers.has(chord)) return this.buffers.get(chord);
+async load(chord) {
+  if (this.buffers.has(chord)) return this.buffers.get(chord);
 
-    // THE FIX: encodeURIComponent() escapes #, ♭, ø, etc.
-    const safeChord = encodeURIComponent(chord);
-    const res = await fetch(`audio/chords/${safeChord}_120.mp3`);
+  const flatToSharp = {
+    'C♭': 'B',
+    'D♭': 'C#',
+    'E♭': 'D#',
+    'F♭': 'E',
+    'G♭': 'F#',
+    'A♭': 'G#',
+    'B♭': 'A#'
+  };
 
-    if (!res.ok) {
-      throw new Error(`File not found: ${chord}_120.mp3 (tried: ${safeChord}_120.mp3)`);
+  let filenameChord = chord;
+
+  // 1. Converti ♭ → # enharmonico
+  let rootFlat = null;
+  let rest = chord;
+  for (const flat of Object.keys(flatToSharp)) {
+    if (chord.startsWith(flat)) {
+      rootFlat = flat;
+      rest = chord.slice(flat.length);
+      break;
     }
-
-    const arrayBuffer = await res.arrayBuffer();
-    const buffer = await this.audioContext.decodeAudioData(arrayBuffer);
-    this.buffers.set(chord, buffer);  // keep original chord name as key
-    return buffer;
   }
+  if (rootFlat) {
+    filenameChord = flatToSharp[rootFlat] + rest;
+  }
+
+  // 2. Gestisci ø e o (dopo la conversione ♭→#)
+  filenameChord = filenameChord
+    .replace(/ø7/g, 'half7')
+    .replace(/ø/g, 'half')
+    .replace(/o7/g, 'dim7')
+    .replace(/o/g, 'dim');
+
+  // 3. Pulizia finale
+  filenameChord = filenameChord.replace(/\s+/g, '');
+
+  // 4. USA SOLO encodeURIComponent() — NIENTE replace manuale del #
+  const safeChord = encodeURIComponent(filenameChord);
+
+  // Debug (puoi rimuoverlo dopo)
+  console.log(`Loading chord: "${chord}" → "${safeChord}.mp3"`);
+
+  const res = await fetch(`audio/chords/${safeChord}.mp3`);
+
+  if (!res.ok) {
+    throw new Error(`Audio not found: ${chord} → tried ${safeChord}.mp3`);
+  }
+
+  const arrayBuffer = await res.arrayBuffer();
+  const buffer = await this.audioContext.decodeAudioData(arrayBuffer);
+
+  this.buffers.set(chord, buffer);
+  return buffer;
+}
 
   async getStretchedBuffer(chord, bpm) {
     const cacheKey = `${chord}_${bpm}`;
@@ -152,7 +193,7 @@ class GypsyPlayer {
     }
 
     this.scheduledSources.forEach(source => {
-      try { source.stop(); } catch (e) {}
+      try { source.stop(); } catch (e) { }
     });
     this.scheduledSources = [];
   }
