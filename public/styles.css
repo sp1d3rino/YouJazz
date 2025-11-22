@@ -48,10 +48,11 @@ header h1 { font-size: 2.5em; margin-bottom: 10px; }
   background: transparent;
 }
 
+/* Adatta box accordo alla cella — riempie senza padding extra */
 .chord-box {
   background: #3498db;
   color: white;
-  padding: 12px 8px;
+  padding: 4px 6px; /* Ridotto da 12px 8px — più compatto */
   border-radius: 8px;
   text-align: center;
   font-weight: bold;
@@ -62,9 +63,18 @@ header h1 { font-size: 2.5em; margin-bottom: 10px; }
   flex: 1;
   min-width: 0;
   position: relative;
+  height: 100%; /* Riempie la cella verticalmente */
+  display: flex; /* Centra testo */
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.chord-box:hover { background: #5ab3f0; }
+
+.chord-box:hover { 
+  background: #5ab3f0; 
+  transform: translateY(-1px); /* Leggero hover per feedback */
+}
 
 .chord-box .remove {
   position: absolute;
@@ -418,8 +428,15 @@ body.ctrl-active * {
 
 /* Assicura che tutte le celle abbiano la stessa altezza */
 .measure {
-  aspect-ratio: 1 / 1; /* mantiene forma quadrata */
+  background: #1e1e1e;
+  border: 2px solid #444;
+  border-radius: 10px;
+  min-height: 80px; /* Ridotto da 100px — celle più compatte */
+  padding: 6px; /* Ridotto da 10px per più spazio interno */
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  gap: 4px; /* Ridotto da 6px per fit tighter */
+  overflow: hidden;
 }
