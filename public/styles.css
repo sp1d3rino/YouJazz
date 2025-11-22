@@ -304,6 +304,7 @@ input[type="range"]:disabled {
 }
 
 .chord-box, .sub-chord-box .chord-box {
+  
   overflow: hidden;
   white-space: nowrap;
   text-align: center;
@@ -363,12 +364,14 @@ body.ctrl-active * {
   height: 100%;
   min-height: 44px;           /* stessa altezza minima dei box normali */
   display: flex;
+  background: #1a1a1a;
   align-items: center;
   justify-content: center;
-  background: #1e1e1e;
   border: 1px solid #444;
   border-radius: 5px;
   font-weight: bold;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-size: xx-large;
   color: #fff;
   position: relative;
   box-shadow: 0 1px 3px rgba(0,0,0,0.4);
