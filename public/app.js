@@ -18,6 +18,34 @@ class GypsyApp {
     this.setupCopyPaste();
 
 
+    if (window.innerWidth <= 768) {
+      const palette = document.querySelector('.chord-palette');
+      let lastScrollY = window.scrollY;
+
+      const handleScroll = () => {
+        const currentScrollY = window.scrollY;
+        const delta = currentScrollY - lastScrollY;
+
+        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          // Scroll down → nascondi palette
+          palette.classList.remove('mobile-visible');
+        } else {
+          // Scroll up o in cima → mostra palette
+          palette.classList.add('mobile-visible');
+        }
+
+        lastScrollY = currentScrollY;
+      };
+
+      window.addEventListener('scroll', handleScroll);
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+          palette.classList.remove('mobile-visible');
+          window.removeEventListener('scroll', handleScroll);
+        }
+      });
+    }
+
     // Visual feedback drag & drop
     document.addEventListener('dragover', e => {
       const target = e.target.closest('.measure, .chord-box');
@@ -594,33 +622,33 @@ class GypsyApp {
     document.querySelectorAll('.chord-box.playing').forEach(b => b.classList.remove('playing'));
   }
 
-async preloadIfNeeded(chord) {
-  if (this.player.buffers.has(chord)) return;
+  async preloadIfNeeded(chord) {
+    if (this.player.buffers.has(chord)) return;
 
-  try {
-    await this.player.load(chord);
-  } catch (err) {
-    if (err.message === 'REMOVE_CHORD') {
-      // Rimuove TUTTI gli accordi con quel nome dalla griglia
-      let removed = false;
-      this.currentSong.measures.forEach(measure => {
-        for (let i = measure.chords.length - 1; i >= 0; i--) {
-          if (measure.chords[i] === err.chordToRemove) {
-            measure.chords.splice(i, 1);
-            removed = true;
+    try {
+      await this.player.load(chord);
+    } catch (err) {
+      if (err.message === 'REMOVE_CHORD') {
+        // Rimuove TUTTI gli accordi con quel nome dalla griglia
+        let removed = false;
+        this.currentSong.measures.forEach(measure => {
+          for (let i = measure.chords.length - 1; i >= 0; i--) {
+            if (measure.chords[i] === err.chordToRemove) {
+              measure.chords.splice(i, 1);
+              removed = true;
+            }
           }
+        });
+        if (removed) {
+          this.render();
+          // Toast opzionale (puoi rimuoverlo se non vuoi)
+          this.showToast?.(`Accordo non valido rimosso: ${err.chordToRemove}`, 'warning');
         }
-      });
-      if (removed) {
-        this.render();
-        // Toast opzionale (puoi rimuoverlo se non vuoi)
-        this.showToast?.(`Accordo non valido rimosso: ${err.chordToRemove}`, 'warning');
+      } else {
+        console.error('Errore audio:', err);
       }
-    } else {
-      console.error('Errore audio:', err);
     }
   }
-}
 
   async saveSong() {
     if (!this.currentSong) {

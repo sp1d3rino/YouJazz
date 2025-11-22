@@ -440,3 +440,78 @@ body.ctrl-active * {
   gap: 4px; /* Ridotto da 6px per fit tighter */
   overflow: hidden;
 }
+
+
+/* Palette Sticky per Desktop */
+.chord-palette {
+  background: #222;
+  padding: 20px;
+  border-radius: 12px;
+  position: sticky; /* Fissa in alto durante scroll verticale */
+  top: 20px; /* Distanza dal top del viewport */
+  height: fit-content;
+  overflow-y: auto; /* Scroll interno se palette troppo alta */
+  max-height: 80vh; /* Limita altezza per evitare overflow */
+}
+
+/* Mobile: Palette orizzontale in basso, si sposta su/giù con scroll */
+@media (max-width: 768px) {
+  .main {
+    grid-template-columns: 1fr; /* Stack verticale su mobile */
+    gap: 12px;
+  }
+
+  .chord-palette {
+    position: fixed !important; /* Forza fixed su mobile */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    top: auto;
+    border-radius: 12px 12px 0 0; /* Arrotonda solo in alto */
+    padding: 15px;
+    z-index: 100; /* Sopra tutto */
+    transform: translateY(100%); /* Inizialmente nascosto sotto */
+    transition: transform 0.3s ease; /* Animazione smooth */
+    display: flex; /* Layout orizzontale */
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .chord-palette.mobile-visible {
+    transform: translateY(0); /* Visibile quando scroll */
+  }
+
+  .chord-list, .extension-list {
+    display: flex !important; /* Forza orizzontale su mobile */
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .chord-btn, .extension-btn {
+    padding: 10px 8px; /* Più piccolo su mobile */
+    font-size: 1em;
+    min-width: 35px;
+  }
+
+  #lead-sheet {
+    margin-bottom: 120px; /* Spazio per palette in basso su mobile */
+  }
+
+  .player-controls {
+    margin-top: 120px; /* Spazio per palette */
+  }
+}
+
+/* Scrollbar personalizzata per palette su desktop */
+.chord-palette::-webkit-scrollbar {
+  width: 6px;
+}
+.chord-palette::-webkit-scrollbar-track {
+  background: #333;
+}
+.chord-palette::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
