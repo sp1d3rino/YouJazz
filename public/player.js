@@ -11,65 +11,60 @@ class GypsyPlayer {
     this.nextStartTime = 0;
   }
 
-async load(chord) {
-  if (this.buffers.has(chord)) return this.buffers.get(chord);
+  async load(chord) {
+    if (this.buffers.has(chord)) return this.buffers.get(chord);
 
-  const flatToSharp = {
-    'C♭': 'B',
-    'D♭': 'C#',
-    'E♭': 'D#',
-    'F♭': 'E',
-    'G♭': 'F#',
-    'A♭': 'G#',
-    'B♭': 'A#'
-  };
+    // === FIX AUTOMATICO per accordi "impossibili" (B#, E#, Cb, Fb) ===
+    const fixMap = {
+      'B#': 'C', 'B#maj7': 'Cmaj7', 'B#7': 'C7', 'B#m7': 'Cm7',
+      'E#': 'F', 'E#maj7': 'Fmaj7', 'E#7': 'F7', 'E#m7': 'Fm7',
+      'C♭': 'B', 'C♭maj7': 'Bmaj7',
+      'F♭': 'E', 'F♭maj7': 'Emaj7'
+    };
 
-  let filenameChord = chord;
+    let finalChord = fixMap[chord] || chord;  // se esiste, corregge automaticamente
 
-  // 1. Converti ♭ → # enharmonico
-  let rootFlat = null;
-  let rest = chord;
-  for (const flat of Object.keys(flatToSharp)) {
-    if (chord.startsWith(flat)) {
-      rootFlat = flat;
-      rest = chord.slice(flat.length);
-      break;
+    // === TUA LOGICA ESISTENTE per ♭ → #, ø, o, ecc. (la lasciamo intatta) ===
+    let filenameChord = finalChord;
+
+    const flatToSharp = { 'C♭': 'B', 'D♭': 'C#', 'E♭': 'D#', 'F♭': 'E', 'G♭': 'F#', 'A♭': 'G#', 'B♭': 'A#' };
+    let rootFlat = null;
+    let rest = finalChord;
+    for (const flat of Object.keys(flatToSharp)) {
+      if (finalChord.startsWith(flat)) {
+        rootFlat = flat;
+        rest = finalChord.slice(flat.length);
+        break;
+      }
+    }
+    if (rootFlat) filenameChord = flatToSharp[rootFlat] + rest;
+
+    filenameChord = filenameChord
+      .replace(/ø7/g, 'half').replace(/ø/g, 'half')
+      .replace(/o7/g, 'dim').replace(/o/g, 'dim')
+      .replace(/\s+/g, '');
+
+    const safeChord = encodeURIComponent(filenameChord);
+
+    try {
+      const res = await fetch(`audio/chords/${safeChord}.mp3`);
+      if (!res.ok) throw new Error();
+
+      const arrayBuffer = await res.arrayBuffer();
+      const buffer = await this.audioContext.decodeAudioData(arrayBuffer);
+      this.buffers.set(chord, buffer);  // salva con nome originale per il display
+      return buffer;
+
+    } catch (err) {
+      // ACCORDO NON ESISTE → lo rimuoviamo automaticamente
+      console.warn(`Audio non trovato: "${chord}" → rimosso dalla griglia`);
+
+      // Lanciamo un errore speciale che app.js capirà
+      const removeErr = new Error('REMOVE_CHORD');
+      removeErr.chordToRemove = chord;
+      throw removeErr;
     }
   }
-  if (rootFlat) {
-    filenameChord = flatToSharp[rootFlat] + rest;
-  }
-
-  // 2. Gestisci ø e o (dopo la conversione ♭→#)
-  filenameChord = filenameChord
-    .replace(/ø7/g, 'half7')
-    .replace(/ø/g, 'half')
-    .replace(/o7/g, 'dim7')
-    .replace(/o/g, 'dim')
-    .replace(/9/g, '7');
-
-  // 3. Pulizia finale
-  filenameChord = filenameChord.replace(/\s+/g, '');
-
-  // 4. USA SOLO encodeURIComponent() — NIENTE replace manuale del #
-  const safeChord = encodeURIComponent(filenameChord);
-
-  // Debug (puoi rimuoverlo dopo)
-  console.log(`Loading chord: "${chord}" → "${safeChord}.mp3"`);
-
-  const res = await fetch(`audio/chords/${safeChord}.mp3`);
-
-  if (!res.ok) {
-    throw new Error(`Audio not found: ${chord} → tried ${safeChord}.mp3`);
-  }
-
-  const arrayBuffer = await res.arrayBuffer();
-  const buffer = await this.audioContext.decodeAudioData(arrayBuffer);
-
-  this.buffers.set(chord, buffer);
-  return buffer;
-}
-
   async getStretchedBuffer(chord, bpm) {
     const cacheKey = `${chord}_${bpm}`;
     if (this.processedBuffers.has(cacheKey)) {

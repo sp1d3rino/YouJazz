@@ -594,9 +594,33 @@ class GypsyApp {
     document.querySelectorAll('.chord-box.playing').forEach(b => b.classList.remove('playing'));
   }
 
-  async preloadIfNeeded(chord) {
-    if (!this.player.buffers.has(chord)) await this.player.load(chord);
+async preloadIfNeeded(chord) {
+  if (this.player.buffers.has(chord)) return;
+
+  try {
+    await this.player.load(chord);
+  } catch (err) {
+    if (err.message === 'REMOVE_CHORD') {
+      // Rimuove TUTTI gli accordi con quel nome dalla griglia
+      let removed = false;
+      this.currentSong.measures.forEach(measure => {
+        for (let i = measure.chords.length - 1; i >= 0; i--) {
+          if (measure.chords[i] === err.chordToRemove) {
+            measure.chords.splice(i, 1);
+            removed = true;
+          }
+        }
+      });
+      if (removed) {
+        this.render();
+        // Toast opzionale (puoi rimuoverlo se non vuoi)
+        this.showToast?.(`Accordo non valido rimosso: ${err.chordToRemove}`, 'warning');
+      }
+    } else {
+      console.error('Errore audio:', err);
+    }
   }
+}
 
   async saveSong() {
     if (!this.currentSong) {
