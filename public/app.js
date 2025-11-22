@@ -1,4 +1,4 @@
-const CHORDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G','P'];
+const CHORDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'P'];
 const CHORD_EXTENSIONS = ['#', '♭', 'ø', 'o', '6', '7', '9', 'm', 'maj7'];
 
 class GypsyApp {
@@ -16,6 +16,39 @@ class GypsyApp {
     this.setupGlobalEvents();
     this.setupEvents();               // eventi sempre attivi (BPM, Play, Stop, ecc.)
     this.setupCopyPaste();
+
+
+    // Visual feedback drag & drop
+    document.addEventListener('dragover', e => {
+      const target = e.target.closest('.measure, .chord-box');
+      if (target) {
+        target.classList.add('drag-over');
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      }
+    });
+
+    document.addEventListener('dragleave', e => {
+      const target = e.target.closest('.measure, .chord-box');
+      if (target) target.classList.remove('drag-over');
+    });
+
+    document.addEventListener('drop', e => {
+      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+
+    // Icona manina con Ctrl (per copy)
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey || e.metaKey) {
+        document.body.classList.add('ctrl-drag');
+      }
+    });
+
+    document.addEventListener('keyup', e => {
+      if (e.key === 'Control' || e.key === 'Meta') {
+        document.body.classList.remove('ctrl-drag');
+      }
+    });
 
   }
 
@@ -230,6 +263,8 @@ class GypsyApp {
     });
   }
 
+
+
   showCopyFeedback() {
     // Optional: show a little toast
     const toast = document.createElement('div');
@@ -276,95 +311,86 @@ class GypsyApp {
       };
       measure.ondragover = e => e.preventDefault();
 
-      m.chords.forEach((chord, i) => {
-        const box = document.createElement('div');
-        box.className = 'chord-box';
-        box.textContent = chord;
-        box.draggable = true;
+      const chordsInMeasure = m.chords.length;
 
-        // Drag start – move or copy the full chord
-        box.addEventListener('dragstart', e => {
-          e.dataTransfer.setData('text/plain', chord);
-          e.dataTransfer.setData('type', 'chord');
-          // Remove after drag starts (so it moves)
-          setTimeout(() => { m.chords.splice(i, 1); this.render(); }, 0);
-        });
+      // Ripristiniamo sempre lo stato originale della misura
+      measure.style.display = '';
+      measure.style.gridTemplateColumns = '';
+      measure.style.gridTemplateRows = '';
+      measure.style.gap = '';
+      measure.style.padding = '';
+      measure.innerHTML = ''; // importante: svuotiamo per ricostruire
 
-        // Allow dropping extensions onto this chord
-        box.ondragover = e => e.preventDefault();
+      if (chordsInMeasure === 0) {
+        measure.classList.add('empty');
+      } else {
+        measure.classList.remove('empty');
 
-        box.ondrop = e => {
-          e.preventDefault();
-          e.stopPropagation();
+        if (chordsInMeasure <= 2) {
+          // 1 o 2 accordi → disposizione orizzontale classica
+          measure.style.display = 'flex';
+          measure.style.justifyContent = 'space-around';
+          measure.style.alignItems = 'center';
 
-          const droppedText = e.dataTransfer.getData('text/plain');
-          const type = e.dataTransfer.getData('type');
+          m.chords.forEach((chord, i) => {
+            const box = this.createChordBox(chord, i, m); // funzione separata sotto
+            measure.appendChild(box);
+          });
 
-          // Blocca se è un accordo completo (A, B, C...)
-          if (type === 'chord') return;
+        } else {
+          // 3 o 4 accordi → SUB-GRID 2×2 solo per questa misura
+          measure.style.display = 'grid';
+          measure.style.gridTemplateColumns = '1fr 1fr';
+          measure.style.gridTemplateRows = '1fr 1fr';
+          measure.style.gap = '4px';
+          measure.style.padding = '4px';
+          measure.style.background = 'rgba(40,40,40,0.9)';
+          measure.style.borderRadius = '6px';
 
-          // Accetta solo estensioni
-          if (type !== 'extension') return;
+          // Crea 4 posizioni (anche se usiamo solo 3)
+          // ORDINE ORARIO: 0=(0,0), 1=(0,1), 2=(1,1), 3=(1,0)
+          const clockwiseOrder = [0, 1, 3, 2]; // ← questa è la magia!
 
-          let newChord = chord;
+          const displayOrder = [
+            { gridRow: 1, gridColumn: 1, logicalIndex: 0 }, // 1° accordo → alto-sinistra
+            { gridRow: 1, gridColumn: 2, logicalIndex: 1 }, // 2° → alto-destra
+            { gridRow: 2, gridColumn: 2, logicalIndex: 2 }, // 3° → basso-destra
+            { gridRow: 2, gridColumn: 1, logicalIndex: 3 }  // 4° → basso-sinistra
+          ];
 
-          // === GESTIONE ACCIDENTI (# o ♭) + SIMBOLI DIMINUITI ===
-          if (['#', '♭', 'ø', 'o'].includes(droppedText)) {
-            // Trova la radice completa (es: "D#", "Db", "B")
-            const rootMatch = chord.match(/^([A-G][#♭]?)/i);
-            const root = rootMatch ? rootMatch[0] : chord[0];
+          displayOrder.forEach((posInfo, visualIndex) => {
+            const cell = document.createElement('div');
+            cell.style.display = 'flex';
+            cell.style.alignItems = 'center';
+            cell.style.justifyContent = 'center';
+            cell.style.background = 'rgba(30,30,30,0.8)';
+            cell.style.borderRadius = '4px';
+            cell.style.minHeight = '36px';
+            cell.style.gridRow = posInfo.gridRow;
+            cell.style.gridColumn = posInfo.gridColumn;
 
-            // Se stiamo aggiungendo # o ♭ → costruiamo da zero la radice
-            if (droppedText === '#' || droppedText === '♭') {
-              newChord = root[0] + droppedText; // es: "D#", "Db"
+            // Se abbiamo abbastanza accordi, inseriamo quello corrispondente
+            if (visualIndex < chordsInMeasure) {
+              const logicalIndex = posInfo.logicalIndex;
+              const chord = m.chords[logicalIndex];
+
+              const box = this.createChordBox(chord, logicalIndex, m); // logicalIndex = indice reale nell'array
+              box.style.fontSize = '1.05em';
+              box.style.lineHeight = '1.1';
+              box.classList.add('sub-chord-box');
+
+              cell.appendChild(box);
             }
-            // Se stiamo aggiungendo ø o o → manteniamo #/♭ esistente e aggiungiamo il simbolo
-            else if (droppedText === 'ø' || droppedText === 'o') {
-              // Se c'è già # o ♭, lo teniamo
-              newChord = root + droppedText;
-              if (droppedText === 'ø') newChord;
-              if (droppedText === 'o') newChord;
-            }
 
-            // Rimuoviamo eventuali estensioni precedenti (maj7, m, 7, ecc.) e aggiungiamo il resto
-            const rest = chord.slice(root.length);
-            if (rest && !['#', '♭', 'ø', 'o'].includes(rest[0])) {
-              newChord += rest.replace(/^(maj|m)?[0-9]*/g, '');
-            }
-          }
-
-          // === ALTRE ESTENSIONI (m, maj7, 7, 6, 9) ===
-          else if (droppedText === 'm') {
-            newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'm';
-          }
-          else if (droppedText === 'maj7') {
-            newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'maj7';
-          }
-          else if (['6', '7', '9'].includes(droppedText)) {
-            newChord = chord.replace(/[0-9]+$/, '') + droppedText;
-          }
-
-          m.chords[i] = newChord;
-          this.preloadIfNeeded(newChord);
-          this.render();
-        };
-
-
-        const x = document.createElement('span');
-        x.className = 'remove';
-        x.textContent = '×';
-        x.onclick = e => {
-          e.stopPropagation();
-          m.chords.splice(i, 1);
-          this.render();
-        };
-        box.appendChild(x);
-
-        measure.appendChild(box);
-      });
+            measure.appendChild(cell);
+          });
+        }
+      }
 
       sheet.appendChild(measure);
     });
+
+
 
 
     // NEW: Disable editing for guests
@@ -406,6 +432,99 @@ class GypsyApp {
 
 
 
+  }
+
+  createChordBox(chord, index, measure) {
+    const box = document.createElement('div');
+    box.className = 'chord-box';
+    box.textContent = chord;
+    box.draggable = true;
+
+    // AUTO-FIT FONT (solo per 1-2 accordi)
+    if (measure.chords.length <= 2) {
+      const test = document.createElement('span');
+      test.textContent = chord;
+      test.style.visibility = 'hidden';
+      test.style.position = 'absolute';
+      test.style.whiteSpace = 'nowrap';
+      test.style.fontWeight = 'bold';
+      test.style.fontSize = '1.4em';
+      document.body.appendChild(test);
+      const w = test.getBoundingClientRect().width;
+      document.body.removeChild(test);
+
+      if (w > 135) {
+        const size = Math.max(0.8, (135 / w) * 1.4);
+        box.style.fontSize = size.toFixed(2) + 'em';
+      }
+    }
+
+    // Drag start
+    box.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', chord);
+      e.dataTransfer.setData('type', 'chord');
+      setTimeout(() => {
+        measure.chords.splice(index, 1);
+        this.render();
+      }, 0);
+    });
+
+    // Drop estensioni — LA TUA LOGICA ESATTA, INTATTA
+    box.ondragover = e => e.preventDefault();
+    box.ondrop = e => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const droppedText = e.dataTransfer.getData('text/plain');
+      const type = e.dataTransfer.getData('type');
+      if (type !== 'extension') return;
+
+      let newChord = chord;
+
+      if (['#', '♭', 'ø', 'o'].includes(droppedText)) {
+        const rootMatch = chord.match(/^([A-G][#♭]?)/i);
+        const root = rootMatch ? rootMatch[0] : chord[0];
+
+        if (droppedText === '#' || droppedText === '♭') {
+          newChord = root[0] + droppedText;
+        } else {
+          newChord = root + droppedText;
+          if (droppedText === 'ø') newChord += '7';
+          if (droppedText === 'o') newChord += '7';
+        }
+
+        const rest = chord.slice(root.length);
+        if (rest && !['#', '♭', 'ø', 'o'].includes(rest[0])) {
+          newChord += rest.replace(/^(maj|m)?[0-9]*/g, '');
+        }
+      }
+      else if (droppedText === 'm') {
+        newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'm';
+      }
+      else if (droppedText === 'maj7') {
+        newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'maj7';
+      }
+      else if (['6', '7', '9'].includes(droppedText)) {
+        newChord = chord.replace(/[0-9]+$/, '') + droppedText;
+      }
+
+      measure.chords[index] = newChord;
+      this.preloadIfNeeded(newChord);
+      this.render();
+    };
+
+    // Tasto ×
+    const x = document.createElement('span');
+    x.className = 'remove';
+    x.textContent = '×';
+    x.onclick = e => {
+      e.stopPropagation();
+      measure.chords.splice(index, 1);
+      this.render();
+    };
+    box.appendChild(x);
+
+    return box;
   }
 
   async play() {

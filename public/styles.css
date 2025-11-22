@@ -290,3 +290,58 @@ input[type="range"]:disabled {
   text-align: center;
   font-style: italic;
 }
+
+/* Sub-grid per 3-4 accordi */
+.sub-chord-box {
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 2px;
+}
+
+.chord-box, .sub-chord-box .chord-box {
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: center;
+  transition: font-size 0.2s ease;
+  padding: 2px 4px;
+  font-weight: bold;
+}
+
+/* Visual feedback durante drag & drop */
+.measure.drag-over {
+  border-color: #27ae60 !important;
+  background: rgba(39, 174, 96, 0.1) !important;
+  transform: scale(1.02);
+}
+
+.chord-box.drag-over {
+  border: 2px dashed #27ae60 !important;
+  background: rgba(39, 174, 96, 0.2) !important;
+}
+
+/* Icona manina con Ctrl premuto */
+body.ctrl-drag {
+  cursor: copy !important; /* manina per copy */
+}
+
+.sub-chord-box {
+  font-size: 1.05em !important;
+  padding: 2px 4px;
+}
+
+/* Feedback drag feedback */
+.measure.drag-over,
+.chord-box.drag-over {
+  outline: 3px solid #27ae60;
+  background: rgba(39,174,96,0.2) !important;
+}
+
+/* Ctrl = manina */
+body.ctrl-active * {
+  cursor: copy !important;
+}

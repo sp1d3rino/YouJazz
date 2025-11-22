@@ -45,7 +45,8 @@ async load(chord) {
     .replace(/ø7/g, 'half7')
     .replace(/ø/g, 'half')
     .replace(/o7/g, 'dim7')
-    .replace(/o/g, 'dim');
+    .replace(/o/g, 'dim')
+    .replace(/9/g, '7');
 
   // 3. Pulizia finale
   filenameChord = filenameChord.replace(/\s+/g, '');
