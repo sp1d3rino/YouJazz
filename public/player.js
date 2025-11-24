@@ -11,8 +11,14 @@ class GypsyPlayer {
     this.nextStartTime = 0;
   }
 
-  async load(chord) {
+  async load(chord, domElement = null) {
     if (this.buffers.has(chord)) return this.buffers.get(chord);
+    let style = 'lapompe';                                      // default
+    if (domElement?.dataset?.style) {                           // PRIORITÀ 1: box
+      style = domElement.dataset.style;
+    } else if (window.gypsyApp?.currentStyle) {                 // PRIORITÀ 2: brano corrente
+      style = window.gypsyApp.currentStyle;
+    }
 
     // === FIX AUTOMATICO per accordi "impossibili" (B#, E#, Cb, Fb) ===
     const fixMap = {
@@ -47,7 +53,7 @@ class GypsyPlayer {
     const safeChord = encodeURIComponent(filenameChord);
 
     try {
-      const res = await fetch(`audio/chords/lapompe/${safeChord}.mp3`);
+        const res = await fetch(`audio/chords/${style}/${safeChord}.mp3`);
       if (!res.ok) throw new Error();
 
       const arrayBuffer = await res.arrayBuffer();
