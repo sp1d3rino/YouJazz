@@ -256,7 +256,7 @@ class GypsyApp {
 
         this.player.buffers.clear(); // uncomment se vuoi forzare ricaricamento audio
 
-     
+
       });
     });
     // Imposta tab iniziale attivo (La Pompe di default)
@@ -613,7 +613,10 @@ class GypsyApp {
     this.currentChordIndex = 0;
     this.clearHighlight();
 
-    const seq = [], beatCounts = [];
+    // Costruisci la sequenza di accordi e durate
+    const seq = [];
+    const beatCounts = [];
+
     for (const m of this.currentSong.measures) {
       if (m.chords.length === 0) continue;
       const beatsPerChord = 4 / m.chords.length;
@@ -626,21 +629,39 @@ class GypsyApp {
     if (seq.length === 0) {
       alert('No chords to play!');
       this.isPlaying = false;
+      this.updateUIControls();
       return;
     }
 
+    // Mostra spinner
     document.getElementById('audio-spinner').classList.remove('hidden');
-    for (const ch of seq) if (!this.player.buffers.has(ch)) await this.player.load(ch);
+
+    // CRITICO: Recupera tutti i chord-box dal DOM (nell'ordine corretto)
+    const allBoxes = document.querySelectorAll('.chord-box');
+    let boxIndex = 0;
+
+    // Pre-carica tutti gli accordi passando il box (per leggere data-style!)
+    for (const chord of seq) {
+      if (!this.player.buffers.has(chord)) {
+        const box = allBoxes[boxIndex];
+        await this.player.load(chord, box);  // ← PASSA IL BOX! Legge data-style="bossa"
+      }
+      boxIndex++;
+    }
+
     document.getElementById('audio-spinner').classList.add('hidden');
 
+    // Calcola durata beat
     const beatMs = 60000 / this.currentSong.bpm;
 
+    // Riproduci la sequenza
     this.player.playVariableSequence(
       seq,
       beatCounts.map(b => b * (60 / this.currentSong.bpm)),
       this.currentSong.bpm
     );
 
+    // Highlight progressivo
     const highlightNext = () => {
       this.clearHighlight();
       if (this.currentChordIndex < seq.length) {
@@ -654,11 +675,12 @@ class GypsyApp {
         this.highlightTimeout = setTimeout(highlightNext, beatMs);
       } else {
         this.isPlaying = false;
+        this.updateUIControls();
       }
     };
+
     highlightNext();
   }
-
   stopPlayback() {
     this.player.stop();
     if (this.highlightTimeout) clearTimeout(this.highlightTimeout);
