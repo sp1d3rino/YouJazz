@@ -16,7 +16,7 @@ class GypsyApp {
     this.setupGlobalEvents();
     this.setupEvents();               // eventi sempre attivi (BPM, Play, Stop, ecc.)
     this.setupCopyPaste();
-
+    this.currentStyle = localStorage.getItem('lastStyle') || 'lapompe';
 
     if (window.innerWidth <= 768) {
       const palette = document.querySelector('.chord-palette');
@@ -199,20 +199,25 @@ class GypsyApp {
     chordList.innerHTML = '';
     extList.innerHTML = '';
 
-    // Regular chords
+    // Accordi base
     CHORDS.forEach(ch => {
       const btn = document.createElement('div');
       btn.className = 'chord-btn';
       btn.textContent = ch;
       btn.draggable = true;
       btn.addEventListener('dragstart', e => {
+        // Recupera lo stile dal tab attivo
+        const activeTab = document.querySelector('.style-tab.active');
+        const style = activeTab ? activeTab.dataset.style : 'lapompe';
+
         e.dataTransfer.setData('text/plain', ch);
         e.dataTransfer.setData('type', 'chord');
+        e.dataTransfer.setData('style', style); // ← PASSA LO STILE NASCOSTO
       });
       chordList.appendChild(btn);
     });
 
-    // Extensions
+    // Estensioni
     CHORD_EXTENSIONS.forEach(ext => {
       const btn = document.createElement('div');
       btn.className = 'extension-btn';
@@ -224,6 +229,34 @@ class GypsyApp {
       });
       extList.appendChild(btn);
     });
+
+    // === NUOVO: Gestione click sui tab La Pompe / Bossa ===
+    document.querySelectorAll('.style-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        if (!this.currentSong) {
+          alert('Crea o carica un brano prima di cambiare stile');
+          return;
+        }
+
+        // Rimuovi active da tutti
+        document.querySelectorAll('.style-tab').forEach(t => t.classList.remove('active'));
+        // Aggiungi active al cliccato
+        tab.classList.add('active');
+
+        // AGGIORNA LO STILE CORRENTE
+        this.currentStyle = tab.dataset.style;
+        this.currentSong.style = this.currentStyle; // importante per salvataggio
+
+        // Ricorda scelta utente anche senza salvare
+        localStorage.setItem('lastStyle', this.currentStyle);
+
+        console.log('Stile cambiato in:', this.currentStyle);
+      });
+    });
+
+    // Imposta tab iniziale attivo (La Pompe di default)
+    const defaultTab = document.querySelector('[data-style="lapompe"]');
+    if (defaultTab) defaultTab.classList.add('active');
   }
 
   setupCopyPaste() {
@@ -328,14 +361,25 @@ class GypsyApp {
         e.preventDefault();
         const droppedText = e.dataTransfer.getData('text/plain');
         const type = e.dataTransfer.getData('type');
+        const style = e.dataTransfer.getData('style') || 'lapompe'; // ← recupera stile
 
-        // Only allow full chords (from root notes A–G) to be dropped on empty space
         if (type === 'chord' && droppedText) {
           m.chords.push(droppedText);
-          this.preloadIfNeeded(droppedText);
+
+          // Forza render per aggiornare DOM
           this.render();
+
+          // Dopo render, aggiungi data-style al box appena creato
+          setTimeout(() => {
+            const boxes = measure.querySelectorAll('.chord-box');
+            const lastBox = boxes[boxes.length - 1];
+            if (lastBox) {
+              lastBox.dataset.style = style;
+            }
+          }, 0);
+
+          this.preloadIfNeeded(droppedText);
         }
-        // Extensions are completely ignored here → cannot create chord from extension alone
       };
       measure.ondragover = e => e.preventDefault();
 
@@ -467,11 +511,12 @@ class GypsyApp {
     box.className = 'chord-box';
     box.textContent = chord;
     box.draggable = true;
-
+    box.dataset.style = this.currentStyle;
     // AUTO-FIT FONT (solo per 1-2 accordi)
     if (measure.chords.length <= 2) {
       const test = document.createElement('span');
       test.textContent = chord;
+
       test.style.visibility = 'hidden';
       test.style.position = 'absolute';
       test.style.whiteSpace = 'nowrap';
@@ -738,6 +783,8 @@ class GypsyApp {
 
   async loadSongsList() {
     try {
+
+
       const songs = await Database.getSongs();
       const sel = document.getElementById('song-list');
       sel.innerHTML = '<option value="">– Load Song –</option>';
@@ -754,6 +801,14 @@ class GypsyApp {
         if (!id) return;
         const res = await fetch(`/api/songs/${id}`);
         const db = await res.json();
+
+        this.currentStyle = db.style || 'lapompe';
+        this.currentSong.style = this.currentStyle;
+
+        // Aggiorna visualmente il tab attivo
+        document.querySelectorAll('.style-tab').forEach(t => t.classList.remove('active'));
+        const tabToActivate = document.querySelector(`.style-tab[data-style="${this.currentStyle}"]`);
+        if (tabToActivate) tabToActivate.classList.add('active');
 
         this.currentSong = {
           _id: db._id,
