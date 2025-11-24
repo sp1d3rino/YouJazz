@@ -47,7 +47,7 @@ class GypsyPlayer {
     const safeChord = encodeURIComponent(filenameChord);
 
     try {
-      const res = await fetch(`audio/chords/${safeChord}.mp3`);
+      const res = await fetch(`audio/chords/lapompe/${safeChord}.mp3`);
       if (!res.ok) throw new Error();
 
       const arrayBuffer = await res.arrayBuffer();
