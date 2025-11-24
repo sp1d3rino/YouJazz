@@ -231,6 +231,7 @@ class GypsyApp {
     });
 
     // === NUOVO: Gestione click sui tab La Pompe / Bossa ===
+    // GESTIONE CLICK TAB – CAMBIO STILE GLOBALE
     document.querySelectorAll('.style-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         if (!this.currentSong) {
@@ -238,22 +239,26 @@ class GypsyApp {
           return;
         }
 
-        // Rimuovi active da tutti
+        // 1. Rimuovi active da tutti
         document.querySelectorAll('.style-tab').forEach(t => t.classList.remove('active'));
-        // Aggiungi active al cliccato
         tab.classList.add('active');
 
-        // AGGIORNA LO STILE CORRENTE
-        this.currentStyle = tab.dataset.style;
-        this.currentSong.style = this.currentStyle; // importante per salvataggio
+        // 2. Aggiorna stile corrente
+        const newStyle = tab.dataset.style;
+        this.currentStyle = newStyle;
+        this.currentSong.style = newStyle;
+        localStorage.setItem('lastStyle', newStyle);
 
-        // Ricorda scelta utente anche senza salvare
-        localStorage.setItem('lastStyle', this.currentStyle);
+        // 3. CAMBIO STILE A TUTTI GLI ACCORDI ESISTENTI NELLA GRIGLIA
+        document.querySelectorAll('.chord-box').forEach(box => {
+          box.dataset.style = newStyle;
+        });
 
-        console.log('Stile cambiato in:', this.currentStyle);
+        this.player.buffers.clear(); // uncomment se vuoi forzare ricaricamento audio
+
+     
       });
     });
-
     // Imposta tab iniziale attivo (La Pompe di default)
     const defaultTab = document.querySelector('[data-style="lapompe"]');
     if (defaultTab) defaultTab.classList.add('active');
