@@ -9,7 +9,7 @@ class GypsyApp {
     this.isPlaying = false;
     this.currentChordIndex = 0;
     this.highlightTimeout = null;
-    this.currentStyle = 'swing'; // 'swing' | 'bossa'
+ 
 
     // AVVIO IMMEDIATO – NON SERVE PIÙ init() dopo New Song
     this.loadChordsPalette();
@@ -18,7 +18,7 @@ class GypsyApp {
     this.setupGlobalEvents();
     this.setupEvents();               // eventi sempre attivi (BPM, Play, Stop, ecc.)
     this.setupCopyPaste();
-    this.currentStyle = localStorage.getItem('lastStyle') || 'lapompe';
+    this.currentStyle = localStorage.getItem('lastStyle') || 'swing';
 
     if (window.innerWidth <= 768) {
       const palette = document.querySelector('.chord-palette');
@@ -241,7 +241,7 @@ class GypsyApp {
       btn.addEventListener('dragstart', e => {
         // Recupera lo stile dal tab attivo
         const activeTab = document.querySelector('.style-tab.active');
-        const style = activeTab ? activeTab.dataset.style : 'lapompe';
+        const style = activeTab ? activeTab.dataset.style : 'swing';
 
         e.dataTransfer.setData('text/plain', ch);
         e.dataTransfer.setData('type', 'chord');
@@ -293,7 +293,7 @@ class GypsyApp {
       });
     });
     // Imposta tab iniziale attivo (La Pompe di default)
-    const defaultTab = document.querySelector('[data-style="lapompe"]');
+    const defaultTab = document.querySelector('[data-style="swing"]');
     if (defaultTab) defaultTab.classList.add('active');
   }
 
@@ -399,7 +399,7 @@ class GypsyApp {
         e.preventDefault();
         const droppedText = e.dataTransfer.getData('text/plain');
         const type = e.dataTransfer.getData('type');
-        const style = e.dataTransfer.getData('style') || 'lapompe'; // ← recupera stile
+        const style = e.dataTransfer.getData('style') || 'swing'; // ← recupera stile
 
         if (type === 'chord' && droppedText) {
           m.chords.push(droppedText);
