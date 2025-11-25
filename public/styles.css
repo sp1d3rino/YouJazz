@@ -516,42 +516,25 @@ body.ctrl-active * {
   border-radius: 3px;
 }
 
-/* Tab Stile La Pompe / Bossa */
-.style-tabs {
+.style-selector {
   display: flex;
-  margin-bottom: 16px;
-  background: #333;
-  border-radius: 8px;
-  overflow: hidden;
-  padding: 4px;
+  gap: 8px;
+  margin-top: 5px;
 }
 
-.style-tab {
-  flex: 1;
-  padding: 10px 12px;
-  background: transparent;
-  border: none;
+.style-btn {
+  padding: 8px 12px;
+  border: 2px solid #444;
+  background: #222;
   color: #ccc;
-  font-weight: bold;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.95em;
+  font-size: 13px;
 }
 
-.style-tab.active {
-  background: #3498db;
-  color: white;
-}
-
-.style-tab:hover:not(.active) {
-  background: #444;
-  color: white;
-}
-
-/* Responsive: tab più compatti su mobile */
-@media (max-width: 768px) {
-  .style-tab {
-    padding: 8px 6px;
-    font-size: 0.9em;
-  }
+.style-btn.active {
+  background: #d4af37;
+  color: black;
+  border-color: #d4af37;
+  font-weight: bold;
 }
