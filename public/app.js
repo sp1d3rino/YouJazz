@@ -714,7 +714,8 @@ class GypsyApp {
 
     // Ricarica tutti gli accordi visibili con il nuovo stile
     document.querySelectorAll('.chord-box').forEach(box => {
-      const chord = box.textContent.trim();
+
+      const chord = box.childNodes[0].textContent.trim();
       const style = box.dataset.style || this.currentStyle;
       this.player.load(chord, style).catch(() => { });
     });
@@ -870,13 +871,8 @@ class GypsyApp {
       sel.onchange = async () => {
 
 
-        // Applica stile a tutti i chord-box
-        document.querySelectorAll('.chord-box').forEach(box => {
-          box.dataset.style = this.currentStyle;
-        });
 
-        // Ricarica i sample con il nuovo stile
-        this.reloadAllSamples();
+
         const id = sel.value;
         if (!id) return;
         const res = await fetch(`/api/songs/${id}`);
@@ -890,6 +886,14 @@ class GypsyApp {
           measures: []
         };
         this.currentStyle = db.style || 'swing';
+        
+        // Applica stile a tutti i chord-box
+        document.querySelectorAll('.chord-box').forEach(box => {
+          box.dataset.style = this.currentStyle;
+        });
+                // Ricarica i sample con il nuovo stile
+        this.reloadAllSamples();
+        
         // Aggiorna UI pulsanti
         document.querySelectorAll('.style-btn').forEach(b => {
           b.classList.toggle('active', b.dataset.style === this.currentStyle);
