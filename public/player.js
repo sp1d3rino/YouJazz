@@ -11,9 +11,8 @@ class GypsyPlayer {
     this.nextStartTime = 0;
   }
 
-  async load(chord) {
+  async load(chord,style) {
     if (this.buffers.has(chord)) return this.buffers.get(chord);
-
     // === FIX AUTOMATICO per accordi "impossibili" (B#, E#, Cb, Fb) ===
     const fixMap = {
       'B#': 'C', 'B#maj7': 'Cmaj7', 'B#7': 'C7', 'B#m7': 'Cm7',
@@ -47,7 +46,7 @@ class GypsyPlayer {
     const safeChord = encodeURIComponent(filenameChord);
 
     try {
-      const res = await fetch(`audio/chords/lapompe/${safeChord}.mp3`);
+      const res = await fetch(`audio/chords/${style}/${safeChord}.mp3`);
       if (!res.ok) throw new Error();
 
       const arrayBuffer = await res.arrayBuffer();

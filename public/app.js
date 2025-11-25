@@ -1,5 +1,6 @@
 const CHORDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'P'];
 const CHORD_EXTENSIONS = ['#', '♭', 'ø', 'o', '6', '7', '9', 'm', 'maj7'];
+const SONG_STYLES = ['swing', 'bossa'];
 
 class GypsyApp {
   constructor() {
@@ -8,6 +9,7 @@ class GypsyApp {
     this.isPlaying = false;
     this.currentChordIndex = 0;
     this.highlightTimeout = null;
+    this.currentStyle = 'swing'; // 'swing' | 'bossa'
 
     // AVVIO IMMEDIATO – NON SERVE PIÙ init() dopo New Song
     this.loadChordsPalette();
@@ -196,8 +198,39 @@ class GypsyApp {
   loadChordsPalette() {
     const chordList = document.querySelector('.chord-list');
     const extList = document.querySelector('.extension-list');
+    const styleList = document.querySelector('.style-selector');
+
     chordList.innerHTML = '';
     extList.innerHTML = '';
+    styleList.innerHTML = '';
+
+    // Style buttons
+    SONG_STYLES.forEach(style => {
+      const btn = document.createElement('button');
+      btn.className = 'style-btn';
+      btn.textContent = style.charAt(0).toUpperCase() + style.slice(1);
+      btn.dataset.style = style;
+      btn.addEventListener('click', () => {
+        // Imposta stile globale
+        this.currentStyle = style;
+
+        // Aggiorna UI
+        document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Applica stile a tutti gli accordi esistenti
+        document.querySelectorAll('.chord-box').forEach(box => {
+          box.dataset.style = style;
+        });
+
+        // Ricarica i sample audio per tutti gli accordi
+        this.reloadAllSamples();
+      });
+
+      if (style === this.currentStyle) btn.classList.add('active');
+      styleList.appendChild(btn);
+    });
+
 
     // Regular chords
     CHORDS.forEach(ch => {
@@ -467,6 +500,7 @@ class GypsyApp {
     box.className = 'chord-box';
     box.textContent = chord;
     box.draggable = true;
+    box.dataset.style = this.currentStyle;
 
     // AUTO-FIT FONT (solo per 1-2 accordi)
     if (measure.chords.length <= 2) {
@@ -580,7 +614,13 @@ class GypsyApp {
     }
 
     document.getElementById('audio-spinner').classList.remove('hidden');
-    for (const ch of seq) if (!this.player.buffers.has(ch)) await this.player.load(ch);
+    for (const ch of seq) {
+      const box = document.querySelector(`.chord-box[textContent="${ch}"]`);
+      const style = box?.dataset.style || this.currentStyle;
+      if (!this.player.buffers.has(ch + '|' + style)) {
+        await this.player.load(ch, style);
+      }
+    }
     document.getElementById('audio-spinner').classList.add('hidden');
 
     const beatMs = 60000 / this.currentSong.bpm;
@@ -609,6 +649,18 @@ class GypsyApp {
     highlightNext();
   }
 
+  reloadAllSamples() {
+    // Svuota la cache del player
+    this.player.buffers.clear();
+
+    // Ricarica tutti gli accordi visibili con il nuovo stile
+    document.querySelectorAll('.chord-box').forEach(box => {
+      const chord = box.textContent.trim();
+      const style = box.dataset.style || this.currentStyle;
+      this.player.load(chord, style).catch(() => { });
+    });
+  }
+
   stopPlayback() {
     this.player.stop();
     if (this.highlightTimeout) clearTimeout(this.highlightTimeout);
@@ -623,6 +675,9 @@ class GypsyApp {
   }
 
   async preloadIfNeeded(chord) {
+    const style = (document.querySelector(`.chord-box[textContent="${chord}"]`)?.dataset.style) || this.currentStyle || 'swing';
+    if (this.player.buffers.has(chord + '|' + style)) return;
+    await this.player.load(chord, style); // passa stile
     if (this.player.buffers.has(chord)) return;
 
     try {
@@ -655,9 +710,11 @@ class GypsyApp {
       return alert('Nessun brano da salvare');
     }
 
+
+
     const title = document.getElementById('song-title').value.trim() || 'Untitled';
     this.currentSong.title = title;
-
+    this.currentSong.style = this.currentStyle;
     try {
       // Chiediamo al backend chi è l'utente corrente
       const userRes = await fetch('/auth/me', { credentials: 'include' });
@@ -750,18 +807,33 @@ class GypsyApp {
       });
 
       sel.onchange = async () => {
+
+
+        // Applica stile a tutti i chord-box
+        document.querySelectorAll('.chord-box').forEach(box => {
+          box.dataset.style = this.currentStyle;
+        });
+
+        // Ricarica i sample con il nuovo stile
+        this.reloadAllSamples();
         const id = sel.value;
         if (!id) return;
         const res = await fetch(`/api/songs/${id}`);
         const db = await res.json();
-
         this.currentSong = {
           _id: db._id,
           title: db.title,
+          style: db.style || 'swing',
           bpm: db.bpm || 200,
           grid: db.grid || { rows: 4, cols: 4 },
           measures: []
         };
+        this.currentStyle = db.style || 'swing';
+        // Aggiorna UI pulsanti
+        document.querySelectorAll('.style-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.style === this.currentStyle);
+        });
+
 
         let cur = { chords: [] };
         let beats = 0;

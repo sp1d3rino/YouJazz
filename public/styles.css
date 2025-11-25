@@ -515,3 +515,26 @@ body.ctrl-active * {
   background: #555;
   border-radius: 3px;
 }
+
+.style-selector {
+  display: flex;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.style-btn {
+  padding: 8px 12px;
+  border: 2px solid #444;
+  background: #222;
+  color: #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.style-btn.active {
+  background: #d4af37;
+  color: black;
+  border-color: #d4af37;
+  font-weight: bold;
+}
