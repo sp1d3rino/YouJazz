@@ -21,6 +21,8 @@ class GypsyPlayer {
       'F♭': 'E', 'F♭maj7': 'Emaj7'
     };
 
+
+
     let finalChord = fixMap[chord] || chord;  // se esiste, corregge automaticamente
 
     // === TUA LOGICA ESISTENTE per ♭ → #, ø, o, ecc. (la lasciamo intatta) ===
