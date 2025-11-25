@@ -550,10 +550,6 @@ class GypsyApp {
     box.textContent = chord;
     box.draggable = true;
     box.dataset.style = this.currentStyle;
-<<<<<<< HEAD
-
-=======
->>>>>>> main
     // AUTO-FIT FONT (solo per 1-2 accordi)
     if (measure.chords.length <= 2) {
       const test = document.createElement('span');
@@ -672,7 +668,6 @@ class GypsyApp {
 
     // Mostra spinner
     document.getElementById('audio-spinner').classList.remove('hidden');
-<<<<<<< HEAD
     for (const ch of seq) {
       const box = document.querySelector(`.chord-box[textContent="${ch}"]`);
       const style = box?.dataset.style || this.currentStyle;
@@ -680,22 +675,6 @@ class GypsyApp {
         await this.player.load(ch, style);
       }
     }
-=======
-
-    // CRITICO: Recupera tutti i chord-box dal DOM (nell'ordine corretto)
-    const allBoxes = document.querySelectorAll('.chord-box');
-    let boxIndex = 0;
-
-    // Pre-carica tutti gli accordi passando il box (per leggere data-style!)
-    for (const chord of seq) {
-      if (!this.player.buffers.has(chord)) {
-        const box = allBoxes[boxIndex];
-        await this.player.load(chord, box);  // ← PASSA IL BOX! Legge data-style="bossa"
-      }
-      boxIndex++;
-    }
-
->>>>>>> main
     document.getElementById('audio-spinner').classList.add('hidden');
 
     // Calcola durata beat
@@ -728,7 +707,6 @@ class GypsyApp {
 
     highlightNext();
   }
-<<<<<<< HEAD
 
   reloadAllSamples() {
     // Svuota la cache del player
@@ -742,8 +720,6 @@ class GypsyApp {
     });
   }
 
-=======
->>>>>>> main
   stopPlayback() {
     this.player.stop();
     if (this.highlightTimeout) clearTimeout(this.highlightTimeout);
@@ -905,18 +881,6 @@ class GypsyApp {
         if (!id) return;
         const res = await fetch(`/api/songs/${id}`);
         const db = await res.json();
-<<<<<<< HEAD
-=======
-
-        this.currentStyle = db.style || 'lapompe';
-        this.currentSong.style = this.currentStyle;
-
-        // Aggiorna visualmente il tab attivo
-        document.querySelectorAll('.style-tab').forEach(t => t.classList.remove('active'));
-        const tabToActivate = document.querySelector(`.style-tab[data-style="${this.currentStyle}"]`);
-        if (tabToActivate) tabToActivate.classList.add('active');
-
->>>>>>> main
         this.currentSong = {
           _id: db._id,
           title: db.title,
