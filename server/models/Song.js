@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const SongSchema = new mongoose.Schema({
   title: { type: String, required: true },
   bpm: { type: Number, default: 120 },
+  style: { type: String, default: 'swing' },
   grid: {
     rows: { type: Number, default: 4 },
     cols: { type: Number, default: 4 }

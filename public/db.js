@@ -9,6 +9,7 @@ class Database {
     // Convertiamo il nostro formato interno in quello del DB
     const dbSong = {
       title: song.title,
+      style: song.style,
       bpm: song.bpm,
       measures: []
     };

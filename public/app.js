@@ -130,6 +130,7 @@ class GypsyApp {
 
       this.currentSong = {
         title: 'Song name',
+        style: this.currentStyle,
         bpm: 120,
         grid: { rows, cols },
         measures: Array(rows * cols).fill(null).map(() => ({ chords: [] }))
