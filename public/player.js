@@ -137,32 +137,62 @@ class GypsyPlayer {
   }
 
   // ←←← UNICO METODO USATO DALL'APP ←←←
-  async playVariableSequence(chords, beatDurations, bpm) {
+  // ←←← METODO AGGIORNATO CON COUNT-IN INTEGRATO ←←←
+  async playVariableSequence(chords, beatDurations, bpm, onChordCallback = null, onEndCallback = null, enableCountIn = true) {
     if (this.isPlaying) this.stop();
 
     this.isPlaying = true;
     this.bpm = bpm;
 
-    // Pre-carica tutto (come facevi tu)
     await Promise.all(chords.map(ch => this.getStretchedBuffer(ch, bpm)));
 
     if (this.audioContext.state === "suspended") {
       await this.audioContext.resume();
     }
 
-    this.nextStartTime = this.audioContext.currentTime + 0.1;
-    let currentIndex = 0;
+    this.nextStartTime = this.audioContext.currentTime + 0.05;
 
-    const scheduleNotes = () => {
+    let seqIndex = 0;           // ← indice solo per la sequenza (loopa da 0)
+    let countInCount = 0;       // ← contatore separato per i 4 tick
+    let hasLooped = false;
+
+    const quarter = 60 / bpm;
+
+    const schedule = () => {
       if (!this.isPlaying) return;
 
       while (this.nextStartTime < this.audioContext.currentTime + this.lookahead) {
-        if (currentIndex >= chords.length) {
-          currentIndex = 0;  // loop
+
+        // 1. COUNT-IN (solo primi 4 beat)
+        if (enableCountIn && countInCount < 4) {
+          const osc = this.audioContext.createOscillator();
+          const gain = this.audioContext.createGain();
+          osc.connect(gain);
+          gain.connect(this.audioContext.destination);
+
+          osc.frequency.setValueAtTime(900, this.nextStartTime);
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0, this.nextStartTime);
+          gain.gain.linearRampToValueAtTime(0.4, this.nextStartTime + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.nextStartTime + 0.1);
+
+          osc.start(this.nextStartTime);
+          osc.stop(this.nextStartTime + 0.1);
+
+          countInCount++;
+          this.nextStartTime += quarter;
+          continue; // salta il resto del ciclo
         }
 
-        const chord = chords[currentIndex];
-        const duration = beatDurations[currentIndex];
+        // 2. LOOP NORMALE DEGLI ACCORDI
+        if (seqIndex >= chords.length) {
+          seqIndex = 0;
+          hasLooped = true;
+          if (onEndCallback) onEndCallback();
+        }
+
+        const chord = chords[seqIndex];
+        const duration = beatDurations[seqIndex] ?? quarter;
 
         const buffer = this.processedBuffers.get(`${chord}_${bpm}`);
         if (buffer) {
@@ -171,18 +201,26 @@ class GypsyPlayer {
           source.connect(this.audioContext.destination);
           source.start(this.nextStartTime);
           source.stop(this.nextStartTime + duration);
-
           this.scheduledSources.push(source);
+
+          if (onChordCallback) {
+            onChordCallback(seqIndex, chord);
+          }
         }
 
         this.nextStartTime += duration;
-        currentIndex++;
+        seqIndex++; // ← solo questo avanza!
+      }
+
+      // Chiamata fine giro (opzionale)
+      if (hasLooped && seqIndex === 0 && onEndCallback) {
+        onEndCallback();
+        hasLooped = false;
       }
     };
 
-    // Usa esattamente il tuo sistema di scheduling (che non ha mai fallito)
-    scheduleNotes();
-    this.timerId = setInterval(scheduleNotes, this.scheduleInterval);
+    schedule();
+    this.timerId = setInterval(schedule, this.scheduleInterval);
   }
 
   stop() {

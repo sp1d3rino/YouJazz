@@ -8,7 +8,7 @@ class GypsyApp {
     this.currentSong = null;
     this.isPlaying = false;
     this.currentChordIndex = 0;
- 
+
 
     // AVVIO IMMEDIATO – NON SERVE PIÙ init() dopo New Song
     this.loadChordsPalette();
@@ -642,10 +642,13 @@ class GypsyApp {
     if (this.isPlaying || !this.currentSong) return;
 
     this.isPlaying = true;
-    this.updateUIControls();
     this.currentChordIndex = 0;
+    this.updateUIControls();
 
-    // Costruisci la sequenza di accordi e durate
+    // Pulizia highlight residuo
+    document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => el.classList.remove('playing'));
+
+    // Costruisci sequenza
     const seq = [];
     const beatCounts = [];
 
@@ -665,28 +668,38 @@ class GypsyApp {
       return;
     }
 
-    // Mostra spinner
+    // Preload TUTTI i buffer (già qui → zero delay)
     document.getElementById('audio-spinner').classList.remove('hidden');
-    for (const ch of seq) {
+    await Promise.all(seq.map(ch => {
       const box = document.querySelector(`.chord-box[textContent="${ch}"]`);
       const style = box?.dataset.style || this.currentStyle;
-      if (!this.player.buffers.has(ch + '|' + style)) {
-        await this.player.load(ch, style);
-      }
-    }
+      return this.player.load(ch, style).catch(() => { });
+    }));
     document.getElementById('audio-spinner').classList.add('hidden');
 
-    // Calcola durata beat
-    const beatMs = 60000 / this.currentSong.bpm;
+    // CALLBACK HIGHLIGHT (invariato)
+    const onChordPlay = (index, chordName) => {
+      document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => el.classList.remove('playing'));
+      document.querySelectorAll('.chord-box, .sub-chord-box').forEach(box => {
+        if (box.textContent.trim() === chordName.trim()) {
+          box.classList.add('playing');
+        }
+      });
+    };
 
-    // Riproduci la sequenza
+    const onEnd = () => {
+      document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => el.classList.remove('playing'));
+    };
+
+    // Avvia con count-in integrato (passa opzionale enableCountIn: true)
     this.player.playVariableSequence(
       seq,
       beatCounts.map(b => b * (60 / this.currentSong.bpm)),
-      this.currentSong.bpm
+      this.currentSong.bpm,
+      onChordPlay,
+      onEnd,
+      true  // enableCountIn
     );
-
-
   }
 
   reloadAllSamples() {
@@ -861,14 +874,14 @@ class GypsyApp {
           measures: []
         };
         this.currentStyle = db.style || 'swing';
-        
+
         // Applica stile a tutti i chord-box
         document.querySelectorAll('.chord-box').forEach(box => {
           box.dataset.style = this.currentStyle;
         });
-                // Ricarica i sample con il nuovo stile
+        // Ricarica i sample con il nuovo stile
         this.reloadAllSamples();
-        
+
         // Aggiorna UI pulsanti
         document.querySelectorAll('.style-btn').forEach(b => {
           b.classList.toggle('active', b.dataset.style === this.currentStyle);
