@@ -68,9 +68,9 @@ class GypsyPlayer {
   }
   async getStretchedBuffer(chord, bpm) {
     const cacheKey = `${chord}_${bpm}`;
-    if (this.processedBuffers.has(cacheKey)) {
+    /*if (this.processedBuffers.has(cacheKey)) {
       return this.processedBuffers.get(cacheKey);
-    }
+    }*/
 
     const originalBuffer = await this.load(chord);
     const tempoRatio = bpm / 120;
