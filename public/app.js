@@ -116,7 +116,7 @@ class GypsyApp {
   }
   showNewGridModal() {
     if (this.isGuest()) {
-      alert('Guest mode: You cannot create new songs. Login to create lead sheets.');
+      YouJazz.showMessage("Permission denied", "Guest mode: You cannot create new songs. Login to create lead sheets.");
       return;
     }
     const modal = document.getElementById('grid-setup-modal');
@@ -145,8 +145,17 @@ class GypsyApp {
   }
 
   setupGlobalEvents() {
-    document.getElementById('new-song').onclick = () => {
-      if (this.currentSong && !confirm('Start a new lead sheet? Current changes will be lost.')) return;
+    document.getElementById('new-song').onclick = async () => {
+      if (this.currentSong) {
+        const confirmed = await YouJazz.showConfirm(
+          "New Song",
+          "Do you want to create a new song? Unsaved changes will be lost.",
+          "Create New",
+          "Cancel"
+        );
+        if (!confirmed) return;
+      }
+
       this.showNewGridModal();
     };
   }
@@ -160,24 +169,33 @@ class GypsyApp {
 
     document.getElementById('clear-all').onclick = () => {
       if (this.isGuest()) {
-        alert('Guest mode: You cannot clear songs.');
+        YouJazz.showMessage("Permission denied", "Guest mode: You cannot clear songs.");
         return;
       }
     };
 
-    document.getElementById('clear-all').onclick = () => {
+    document.getElementById('clear-all').onclick = async () => {
       if (!this.currentSong) return;
-      if (confirm('Clear all chords?')) {
-        this.currentSong.measures.forEach(m => m.chords = []);
-        this.render();
-      }
+
+      const confirmed = await YouJazz.showConfirm(
+        "Clear All",
+        "Are you sure you want to clear all chords? This action cannot be undone.",
+        "Clear All",
+        "Cancel"
+      );
+
+      if (!confirmed) return;
+
+      this.currentSong.measures.forEach(m => m.chords = []);
+      this.render();
     };
 
     document.getElementById('play').onclick = () => this.play();
     document.getElementById('stop').onclick = () => this.stopPlayback();
     document.getElementById('save-song').onclick = () => {
       if (this.isGuest()) {
-        alert('Guest mode: You cannot save songs. Login to save.');
+
+        YouJazz.showMessage("Permission denied", "Guest mode: You cannot save songs. Login to save.");
         return;
       }
       this.saveSong();
@@ -185,7 +203,8 @@ class GypsyApp {
 
     document.getElementById('delete-song').onclick = () => {
       if (this.isGuest()) {
-        alert('Guest mode: You cannot delete songs.');
+
+        YouJazz.showMessage("Permission denied", "Guest mode: You cannot delete songs.");
         return;
       }
       this.deleteCurrentSong();
@@ -268,7 +287,8 @@ class GypsyApp {
     document.querySelectorAll('.style-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         if (!this.currentSong) {
-          alert('Crea o carica un brano prima di cambiare stile');
+
+          YouJazz.showMessage("No song loaded", "Create or load a song before changing style.");
           return;
         }
 
@@ -662,7 +682,7 @@ class GypsyApp {
     }
 
     if (seq.length === 0) {
-      alert('No chords to play!');
+      YouJazz.showMessage("Playback Error", "No chords to play!");
       this.isPlaying = false;
       this.updateUIControls();
       return;
@@ -755,7 +775,7 @@ class GypsyApp {
 
   async saveSong() {
     if (!this.currentSong) {
-      return alert('Nessun brano da salvare');
+      return YouJazz.showMessage("Save Error", "No song to save.");
     }
 
 
@@ -779,7 +799,7 @@ class GypsyApp {
         const songFromServer = await songRes.json();
         // BLOCCO DI SICUREZZA: se il proprietario non è l'utente corrente → BLOCCA
         if (songFromServer.owner._id.toString() !== currentUser.id) {
-          alert('This song is not yours. You cannot modify it!');
+          YouJazz.showMessage("YouJazz", "This song is not yours. You cannot modify it!");
           await this.loadSongsList();  // ricarica la lista per sicurezza
           return;
         }
@@ -793,18 +813,24 @@ class GypsyApp {
         this.currentSong._id = saved._id;
       }
 
-      alert(`${title}, Saved!`);
+      YouJazz.showMessage("YouJazz", `Song ${title} saved successfully!`);
       await this.loadSongsList();
 
     } catch (e) {
       console.error('Saving error:', e);
-      alert('Unable to save the song. Did you log in?');
+
+      YouJazz.showMessage("Save Error", "Unable to save the song. Are you logged in?");
     }
   }
 
   async deleteCurrentSong() {
-    if (!this.currentSong?._id) return alert('No song loaded.');
-    if (!confirm(`Permanently delete "${this.currentSong.title}"?`)) return;
+    if (!this.currentSong?._id) return YouJazz.showMessage("Delete Error", "No song loaded.");
+    if (!(await YouJazz.showConfirm(
+      "Delete Song",
+      `Do you want eliminate "${this.currentSong.title}"?`,
+      "Yes, delete it",
+      "Cancel"
+    ))) return;
 
     try {
       // Chiediamo al backend chi è l'utente corrente
@@ -823,7 +849,7 @@ class GypsyApp {
 
         // BLOCCO DI SICUREZZA: se il proprietario non è l'utente corrente → BLOCCA
         if (songFromServer.owner._id.toString() !== currentUser.id) {
-          alert('This song is not yours. You cannot delete it!');
+          YouJazz.showMessage("Unable to delete", 'This song is not yours. You cannot delete it!');
           await this.loadSongsList();  // ricarica la lista per sicurezza
           return;
         }
@@ -833,11 +859,11 @@ class GypsyApp {
       await Database.deleteSong(this.currentSong._id);
       this.currentSong = null;
       this.render();
-      alert('Song deleted');
+      YouJazz.showMessage("Song deleted", 'Song successfully deleted');
       await this.loadSongsList();
     } catch (e) {
-      console.error('Errore salvataggio:', e);
-      alert('Impossibile salvare il brano. Sei sicuro di essere loggato?');
+      console.error('Saving error:', e);
+      YouJazz.showMessage("Save Error", "Unable to save the song. Are you logged in?");
     }
   }
 
