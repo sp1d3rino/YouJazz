@@ -11,7 +11,7 @@ class GypsyPlayer {
     this.nextStartTime = 0;
   }
 
-  async load(chord,style) {
+  async load(chord, style) {
     if (this.buffers.has(chord)) return this.buffers.get(chord);
     // === FIX AUTOMATICO per accordi "impossibili" (B#, E#, Cb, Fb) ===
     const fixMap = {
@@ -77,6 +77,10 @@ class GypsyPlayer {
 
     const kali = new Kali(originalBuffer.numberOfChannels);
     kali.setup(originalBuffer.sampleRate, tempoRatio, false);
+
+    // Forza parametri ottimali per qualità
+    kali.fftSize = 4096;
+    kali.hopSize = kali.fftSize / 8;  // overlap 8x invece di 4x
 
     let inputData;
     if (originalBuffer.numberOfChannels === 2) {
