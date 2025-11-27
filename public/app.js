@@ -8,7 +8,6 @@ class GypsyApp {
     this.currentSong = null;
     this.isPlaying = false;
     this.currentChordIndex = 0;
-    this.highlightTimeout = null;
  
 
     // AVVIO IMMEDIATO – NON SERVE PIÙ init() dopo New Song
@@ -645,7 +644,6 @@ class GypsyApp {
     this.isPlaying = true;
     this.updateUIControls();
     this.currentChordIndex = 0;
-    this.clearHighlight();
 
     // Costruisci la sequenza di accordi e durate
     const seq = [];
@@ -688,25 +686,7 @@ class GypsyApp {
       this.currentSong.bpm
     );
 
-    // Highlight progressivo
-    const highlightNext = () => {
-      this.clearHighlight();
-      if (this.currentChordIndex < seq.length) {
-        const current = seq[this.currentChordIndex];
-        document.querySelectorAll('.chord-box').forEach(box => {
-          if (box.textContent.trim() === current) {
-            box.classList.add('playing');
-          }
-        });
-        this.currentChordIndex++;
-        this.highlightTimeout = setTimeout(highlightNext, beatMs);
-      } else {
-        this.isPlaying = false;
-        this.updateUIControls();
-      }
-    };
 
-    highlightNext();
   }
 
   reloadAllSamples() {
@@ -724,15 +704,9 @@ class GypsyApp {
 
   stopPlayback() {
     this.player.stop();
-    if (this.highlightTimeout) clearTimeout(this.highlightTimeout);
-    this.clearHighlight();
     this.isPlaying = false;
     this.updateUIControls();
     this.currentChordIndex = 0;
-  }
-
-  clearHighlight() {
-    document.querySelectorAll('.chord-box.playing').forEach(b => b.classList.remove('playing'));
   }
 
   async preloadIfNeeded(chord) {
