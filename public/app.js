@@ -463,9 +463,11 @@ class GypsyApp {
           measure.style.display = 'flex';
           measure.style.justifyContent = 'space-around';
           measure.style.alignItems = 'center';
+ 
 
           m.chords.forEach((chord, i) => {
             const box = this.createChordBox(chord, i, m); // funzione separata sotto
+            box.style.fontSize = '1.4em';
             measure.appendChild(box);
           });
 
