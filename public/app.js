@@ -17,8 +17,8 @@ class GypsyApp {
     this.setupGlobalEvents();
     this.setupEvents();               // eventi sempre attivi (BPM, Play, Stop, ecc.)
     this.setupCopyPaste();
-    this.currentStyle = localStorage.getItem('lastStyle') || 'swing';
-
+    //this.currentStyle = localStorage.getItem('lastStyle') || 'swing';
+    this.currentStyle = 'swing'; // default iniziale
     if (window.innerWidth <= 768) {
       const palette = document.querySelector('.chord-palette');
       let lastScrollY = window.scrollY;
@@ -258,13 +258,15 @@ class GypsyApp {
       btn.textContent = ch;
       btn.draggable = true;
       btn.addEventListener('dragstart', e => {
-        // Recupera lo stile dal tab attivo
-        const activeTab = document.querySelector('.style-tab.active');
-        const style = activeTab ? activeTab.dataset.style : 'swing';
+        // CORREZIONE: Usa SEMPRE this.currentStyle (garantito 'swing' al primo load)
+        // Ignora i tab se non attivi (fix per primo caricamento)
+        const style = this.currentStyle;  // ← CAMBIO QUI: diretto dal default app
 
         e.dataTransfer.setData('text/plain', ch);
         e.dataTransfer.setData('type', 'chord');
-        e.dataTransfer.setData('style', style); // ← PASSA LO STILE NASCOSTO
+        e.dataTransfer.setData('style', style);  // ← Ora passa sempre 'swing' corretto
+
+    
       });
       chordList.appendChild(btn);
     });
