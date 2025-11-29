@@ -406,7 +406,41 @@ class GypsyApp {
     const sheet = document.getElementById('lead-sheet');
     this.updateUIControls();
     if (!this.currentSong) {
-      sheet.innerHTML = '<p style="text-align:center;color:#888;margin-top:100px;font-size:1.4em;">Create a new song or load one from the list</p>';
+ sheet.innerHTML = `
+      <p style="
+        color: #999;
+        font-size: 1.3em;
+        text-align: center;
+        margin: 0 20px;
+        font-style: italic;
+        pointer-events: none;
+      ">
+        Create a new song or load one from the list<br>
+        <span style="font-size:0.9em;color:#666;">(Click the image to fade it)</span>
+      </p>
+      <div style="
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      pointer-events: none;
+    ">
+      <img src="images/hints.png" alt="How to use YouJazz" style="
+        max-width: 90%;
+        max-height: 70vh;
+        opacity: 0.28;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        pointer-events: auto;
+        cursor: pointer;
+      " onclick="this.style.opacity = this.style.opacity === '0.3' ? '0.88' : '0.3'">
+      
+    </div>
+  `;
       return;
     }
 
