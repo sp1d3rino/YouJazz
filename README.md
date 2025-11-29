@@ -109,9 +109,9 @@ YouJazz is built for **Gypsy Jazz lovers** – inspired by Django Reinhardt and 
 
 ## Screenshots
 
-| Grid Editor | Playback in Action |
+| How to use it | ReadOnly mode |
 |-------------|--------------------|
-| ![Grid Editor](images/grid-editor.png) | ![Playback](images/playback.png) |
+| <img width="697" height="609" alt="image" src="https://github.com/user-attachments/assets/ccb2b6e9-afef-4a98-b295-5f64d43742ce" /> |<img width="1677" height="796" alt="image" src="https://github.com/user-attachments/assets/bd84b738-ce3c-41ed-beab-578f20cc3cba" />|
 
 ## Contributing
 
