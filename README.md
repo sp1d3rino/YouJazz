@@ -12,11 +12,9 @@ YouJazz is an innovative web-based **Gypsy Jazz lead sheet composer and player**
 - **Grid-Based Composition**: Build chord charts on a customizable grid (e.g., 4x4 or 8x8 measures). Drag-and-drop chords and extensions from a palette.
 - **Dual Styles**: Switch between **Swing** (La Pompe rhythm) and **Bossa Nova** with one click. Audio samples adapt automatically.
 - **Real-Time Playback**: High-quality MP3 samples stretched with pitch preservation (using Kali.js). Includes count-in (4 beats) and seamless looping.
-- **Auto-Fit Chords**: Long chord names (e.g., "C#maj7#11") automatically resize to fit boxes perfectly.
 - **User Accounts**: Login with Google for saving, sharing, and liking songs. Guest mode for read-only access.
 - **Likes System**: Thumbs-up voting on songs – visible to all, editable only by logged-in users.
-- **Responsive Design**: Works on desktop, tablet, and mobile. Palette hides/scrolls intelligently.
-- **Import/Export**: Load from dropdown or create new; save to backend (MongoDB).
+- **Persistent Data**: Load from dropdown or create new; save to backend (MongoDB).
 
 YouJazz is built for **Gypsy Jazz lovers** – inspired by Django Reinhardt and Stéphane Grappelli – but adaptable to any jazz standard.
 
@@ -40,7 +38,6 @@ YouJazz is built for **Gypsy Jazz lovers** – inspired by Django Reinhardt and 
 - **No External Dependencies**: All audio processing client-side for low latency.
 
 ### Deployment
-- **Ubuntu Server**: Runs on lightweight hardware (e.g., Intel i7-6700T, 16GB RAM).
 - **Static Hosting**: Frontend served via Express static files.
 
 ## Installation
@@ -89,8 +86,7 @@ YouJazz is built for **Gypsy Jazz lovers** – inspired by Django Reinhardt and 
    ```
 
 ### Audio Samples
-- Download pre-recorded MP3s for chords (A-G, extensions) in swing/bossa at 80/120/160 BPM.
-- Place in `public/audio/chords/swing/` and `public/audio/chords/bossa/` subfolders (e.g., `80/C.mp3`).
+- Download pre-recorded MP3s for chords (A-G, extensions) in swing/bossa at different BPM.
 
 ## Usage
 
@@ -102,10 +98,6 @@ YouJazz is built for **Gypsy Jazz lovers** – inspired by Django Reinhardt and 
 6. **Likes**: Browse songs in dropdown (shows thumbs-up count). Logged-in users click thumbs-up below "Clear All" to vote.
 7. **Save/Load**: "Save Song" for your creations. Load from shared list.
 
-### Tips
-- **Mobile**: Palette scrolls intelligently; drag gestures work touch-friendly.
-- **Guest Mode**: Read-only – view public songs and playback, no editing/saving.
-- **Debug**: Open DevTools for console logs (e.g., audio loading).
 
 ## Screenshots
 
@@ -121,7 +113,7 @@ YouJazz is built for **Gypsy Jazz lovers** – inspired by Django Reinhardt and 
 4. Push to branch (`git push origin feature/amazing-chord`).
 5. Open Pull Request.
 
-We welcome PRs for new chord samples, styles, or UI improvements. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+I welcome PRs for new chord samples, styles, or UI improvements. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
