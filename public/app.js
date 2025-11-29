@@ -81,6 +81,21 @@ class GypsyApp {
 
   }
 
+  async updateCreatedByForCurrentUser() {
+    try {
+      const res = await fetch('/auth/me', { credentials: 'include' });
+      if (res.ok) {
+        const user = await res.json();
+        // Simula un oggetto song con owner = utente corrente
+        this.showCreatedBy({ owner: { displayName: user.displayName || 'You' } });
+      } else {
+        this.showCreatedBy({ owner: null }); // guest o errore
+      }
+    } catch (e) {
+      this.showCreatedBy({ owner: null });
+    }
+  }
+
   showCreatedBy(song) {
     const titleBox = document.getElementById('song-title');
     let createdByEl = titleBox.nextElementSibling;
@@ -126,7 +141,7 @@ class GypsyApp {
     const handler = () => {
       const rows = parseInt(document.getElementById('grid-rows').value) || 4;
       const cols = parseInt(document.getElementById('grid-cols').value) || 4;
-
+      // Crea il nuovo brano
       this.currentSong = {
         title: 'Song name',
         style: this.currentStyle,
@@ -135,10 +150,27 @@ class GypsyApp {
         measures: Array(rows * cols).fill(null).map(() => ({ chords: [] }))
       };
 
+      // Resetta il titolo nel campo input
+      document.getElementById('song-title').value = 'Song name';
+
+      // Aggiorna "Created by:" con l'utente corrente (senza await!)
+      fetch('/auth/me', { credentials: 'include' })
+        .then(res => res.ok ? res.json() : null)
+        .then(user => {
+          const displayName = user ? user.displayName || 'You' : 'You';
+          this.showCreatedBy({ owner: { displayName } });
+        })
+        .catch(() => {
+          this.showCreatedBy({ owner: { displayName: 'You' } });
+        });
+
+      // Renderizza
+      this.render();
+
       modal.classList.add('hidden');
       createBtn.removeEventListener('click', handler);
 
-      this.render();
+
     };
 
     createBtn.onclick = handler;
@@ -406,7 +438,7 @@ class GypsyApp {
     const sheet = document.getElementById('lead-sheet');
     this.updateUIControls();
     if (!this.currentSong) {
- sheet.innerHTML = `
+      sheet.innerHTML = `
       <p style="
         color: #999;
         font-size: 1.3em;
