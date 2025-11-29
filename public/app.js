@@ -606,6 +606,7 @@ class GypsyApp {
 
     // Drop estensioni — LA TUA LOGICA ESATTA, INTATTA
     box.ondragover = e => e.preventDefault();
+
     box.ondrop = e => {
       e.preventDefault();
       e.stopPropagation();
@@ -624,8 +625,8 @@ class GypsyApp {
           newChord = root[0] + droppedText;
         } else {
           newChord = root + droppedText;
-          if (droppedText === 'ø') newChord += '7';
-          if (droppedText === 'o') newChord += '7';
+          if (droppedText === 'ø');
+          if (droppedText === 'o');
         }
 
         const rest = chord.slice(root.length);
@@ -646,6 +647,8 @@ class GypsyApp {
       measure.chords[index] = newChord;
       this.preloadIfNeeded(newChord);
       this.render();
+
+
     };
 
     // Tasto ×
@@ -749,11 +752,12 @@ class GypsyApp {
   async preloadIfNeeded(chord) {
     const style = (document.querySelector(`.chord-box[textContent="${chord}"]`)?.dataset.style) || this.currentStyle || 'swing';
     if (this.player.buffers.has(chord + '|' + style)) return;
-    await this.player.load(chord, style); // passa stile
-    if (this.player.buffers.has(chord)) return;
+
+
 
     try {
-      await this.player.load(chord);
+      await this.player.load(chord, style); // passa stile
+      if (this.player.buffers.has(chord)) return;
     } catch (err) {
       if (err.message === 'REMOVE_CHORD') {
         // Rimuove TUTTI gli accordi con quel nome dalla griglia
@@ -769,7 +773,7 @@ class GypsyApp {
         if (removed) {
           this.render();
           // Toast opzionale (puoi rimuoverlo se non vuoi)
-          this.showToast?.(`Accordo non valido rimosso: ${err.chordToRemove}`, 'warning');
+          this.showToast?.(`Invalid chord ${err.chordToRemove}`, 'warning');
         }
       } else {
         console.error('Errore audio:', err);
