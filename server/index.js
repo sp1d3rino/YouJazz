@@ -123,6 +123,29 @@ app.delete('/api/songs/:id', requireAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+
+// POST /api/songs/:id/like → Toggle like
+app.post('/api/songs/:id/like', requireAuth, async (req, res) => {
+  try {
+    const song = await Song.findById(req.params.id);
+    if (!song) return res.status(404).json({ error: 'Brano non trovato' });
+
+    const userId = req.user._id;
+    const index = song.likes.indexOf(userId);
+
+    if (index === -1) {
+      song.likes.push(userId);
+    } else {
+      song.likes.splice(index, 1);
+    }
+
+    await song.save();
+    res.json({ likes: song.likes.length, hasLiked: index === -1 });
+  } catch (err) {
+    res.status(500).json({ error: 'Errore server' });
+  }
+});
+
 // MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connesso'))

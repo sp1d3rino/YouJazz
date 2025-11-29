@@ -266,7 +266,7 @@ class GypsyApp {
         e.dataTransfer.setData('type', 'chord');
         e.dataTransfer.setData('style', style);  // ← Ora passa sempre 'swing' corretto
 
-    
+
       });
       chordList.appendChild(btn);
     });
@@ -463,7 +463,7 @@ class GypsyApp {
           measure.style.display = 'flex';
           measure.style.justifyContent = 'space-around';
           measure.style.alignItems = 'center';
- 
+
 
           m.chords.forEach((chord, i) => {
             const box = this.createChordBox(chord, i, m); // funzione separata sotto
@@ -871,79 +871,138 @@ class GypsyApp {
     }
   }
 
+  updateLikeButton(song, currentUser) {
+    let btn = document.getElementById('like-btn-current');
+
+    // Crea il pulsante solo la prima volta
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.id = 'like-btn-current';
+      btn.className = 'like-btn';
+      btn.innerHTML = ' 👍  <span id="like-count">0</span>';
+      document.querySelector('#clear-all').after(btn);
+    }
+
+    if (!song?._id) {
+      btn.style.display = 'none';
+      return;
+    }
+
+    btn.style.display = 'inline-block';
+    const likes = song.likes?.length || 0;
+    btn.querySelector('#like-count').textContent = likes;
+
+    const hasLiked = currentUser && song.likes?.includes(currentUser.id);
+    btn.classList.toggle('liked', hasLiked);
+    btn.disabled = !currentUser;
+    btn.onclick = null; // ← previene duplicati di click
+    btn.onclick = async () => {
+      if (!currentUser) {
+        YouJazz.showMessage("Login richiesto", "Devi essere loggato per mettere like");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/songs/${song._id}/like`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        if (!res.ok) throw new Error();
+
+        const data = await res.json();
+        btn.querySelector('#like-count').textContent = data.likes;
+        btn.classList.toggle('liked', data.hasLiked);
+
+        // Aggiorna dropdown
+        this.loadSongsList();
+      } catch (err) {
+        YouJazz.showMessage("Errore", "Impossibile aggiornare il like");
+      }
+    };
+  }
+
   async loadSongsList() {
     try {
-
-
       const songs = await Database.getSongs();
       const sel = document.getElementById('song-list');
+
+      // PULIZIA TOTALE – QUESTO È IL FIX DEFINITIVO
       sel.innerHTML = '<option value="">– Load Song –</option>';
-      songs.forEach(s => {
+
+      // Utente loggato (una sola volta)
+      let currentUser = null;
+      try {
+        const res = await fetch('/auth/me', { credentials: 'include' });
+        if (res.ok) currentUser = await res.json();
+      } catch (e) { }
+
+      // Popola la lista – UNA SOLA VOLTA per brano
+      songs.forEach(song => {
         const opt = document.createElement('option');
-        opt.value = s._id;
-        const ownerName = this.getOwnerName(s);  // ← Aggiungi questo
-        opt.textContent = `${s.title} (${ownerName})`;  // ← Modifica: titolo + (owner)
+        opt.value = song._id;
+
+        const likes = song.likes?.length || 0;
+        const likeText = likes > 0 ? `👍 ${likes}` : '';
+
+        opt.textContent = `${song.title} (${this.getOwnerName(song)})${likeText}`;
         sel.appendChild(opt);
       });
 
+      // onchange – NON RICHIAMA loadSongsList() qui dentro!
       sel.onchange = async () => {
-
-
-
-
         const id = sel.value;
         if (!id) return;
-        const res = await fetch(`/api/songs/${id}`);
-        const db = await res.json();
-        this.currentSong = {
-          _id: db._id,
-          title: db.title,
-          style: db.style || 'swing',
-          bpm: db.bpm || 200,
-          grid: db.grid || { rows: 4, cols: 4 },
-          measures: []
-        };
-        this.currentStyle = db.style || 'swing';
 
-        // Applica stile a tutti i chord-box
-        document.querySelectorAll('.chord-box').forEach(box => {
-          box.dataset.style = this.currentStyle;
-        });
-        // Ricarica i sample con il nuovo stile
-        this.reloadAllSamples();
+        try {
+          const res = await fetch(`/api/songs/${id}`, { credentials: 'include' });
+          const db = await res.json();
 
-        // Aggiorna UI pulsanti
-        document.querySelectorAll('.style-btn').forEach(b => {
-          b.classList.toggle('active', b.dataset.style === this.currentStyle);
-        });
+          // Ricostruisci currentSong (identico al tuo originale)
+          this.currentSong = {
+            _id: db._id,
+            title: db.title,
+            style: db.style || 'swing',
+            bpm: db.bpm || 200,
+            grid: db.grid || { rows: 4, cols: 4 },
+            measures: []
+          };
+          this.currentStyle = db.style || 'swing';
 
+          document.querySelectorAll('.chord-box').forEach(box => box.dataset.style = this.currentStyle);
+          this.reloadAllSamples();
+          document.querySelectorAll('.style-btn').forEach(b => b.classList.toggle('active', b.dataset.style === this.currentStyle));
 
-        let cur = { chords: [] };
-        let beats = 0;
-        db.measures.forEach(m => {
-          if (beats + m.beats > 4) {
-            this.currentSong.measures.push(cur);
-            cur = { chords: [] };
-            beats = 0;
+          let cur = { chords: [] };
+          let beats = 0;
+          db.measures.forEach(m => {
+            if (beats + m.beats > 4) {
+              this.currentSong.measures.push(cur);
+              cur = { chords: [] };
+              beats = 0;
+            }
+            cur.chords.push(m.chord);
+            beats += m.beats;
+          });
+          if (cur.chords.length) this.currentSong.measures.push(cur);
+          while (this.currentSong.measures.length < this.currentSong.grid.rows * this.currentSong.grid.cols) {
+            this.currentSong.measures.push({ chords: [] });
           }
-          cur.chords.push(m.chord);
-          beats += m.beats;
-        });
-        if (cur.chords.length) this.currentSong.measures.push(cur);
 
-        while (this.currentSong.measures.length < this.currentSong.grid.rows * this.currentSong.grid.cols) {
-          this.currentSong.measures.push({ chords: [] });
+          document.getElementById('song-title').value = db.title;
+          document.getElementById('bpm-slider').value = db.bpm;
+          document.getElementById('bpm-value').textContent = db.bpm;
+          this.showCreatedBy(db);
+          this.render();
+
+          // Aggiorna solo il pulsante like – NON richiama loadSongsList()
+          this.updateLikeButton(db, currentUser);
+
+        } catch (e) {
+          console.error(e);
+          YouJazz.showMessage("Errore", "Impossibile caricare il brano");
         }
-
-        document.getElementById('song-title').value = db.title;
-        document.getElementById('bpm-slider').value = db.bpm;
-        document.getElementById('bpm-value').textContent = db.bpm;
-
-        // ← Aggiungi: mostra "Created by"
-        this.showCreatedBy(db);
-
-        this.render();
       };
+
     } catch (e) {
       console.error('Error loading songs:', e);
     }
@@ -951,5 +1010,3 @@ class GypsyApp {
 }
 
 const app = new GypsyApp();
-app.render();                    // mostra il messaggio iniziale
-app.loadSongsList();             // popola la dropdown subito
