@@ -19,12 +19,6 @@ class GypsyApp {
     this.setupGlobalEvents();
     this.setupEvents();               // eventi sempre attivi (BPM, Play, Stop, ecc.)
     this.setupCopyPaste();
-      // Add notice
-      const notice = document.createElement('div');
-      notice.id = 'dev-notice';
-      notice.style.cssText = 'position:fixed;top:10px;left:10px;background:#ff6b6b;color:white;padding:10px;border-radius:8px;font-size:0.9em;z-index:1000;';
-      notice.textContent = 'DEV ENVIRONMENT';
-      document.body.appendChild(notice);
 
     this.currentStyle = 'swing'; // default iniziale
     if (window.innerWidth <= 768) {
