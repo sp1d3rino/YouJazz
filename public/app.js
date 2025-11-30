@@ -1,3 +1,5 @@
+
+
 const CHORDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'P'];
 const CHORD_EXTENSIONS = ['#', '♭', 'ø', 'o', '6', '7', '9', 'm', 'maj7'];
 const SONG_STYLES = ['swing', 'bossa'];
@@ -17,7 +19,13 @@ class GypsyApp {
     this.setupGlobalEvents();
     this.setupEvents();               // eventi sempre attivi (BPM, Play, Stop, ecc.)
     this.setupCopyPaste();
-    //this.currentStyle = localStorage.getItem('lastStyle') || 'swing';
+      // Add notice
+      const notice = document.createElement('div');
+      notice.id = 'dev-notice';
+      notice.style.cssText = 'position:fixed;top:10px;left:10px;background:#ff6b6b;color:white;padding:10px;border-radius:8px;font-size:0.9em;z-index:1000;';
+      notice.textContent = 'DEV ENVIRONMENT';
+      document.body.appendChild(notice);
+
     this.currentStyle = 'swing'; // default iniziale
     if (window.innerWidth <= 768) {
       const palette = document.querySelector('.chord-palette');

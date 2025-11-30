@@ -20,7 +20,7 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
 }
 
 // Middleware
-app.use(cors({ origin: 'https://youjazz.spi.cloudns.org', credentials: true }));
+app.use(cors({ origin: 'https://youjazz-dev.spi.cloudns.org', credentials: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -39,7 +39,7 @@ app.use(passport.session());
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "https://youjazz.spi.cloudns.org/auth/google/callback"
+  callbackURL: "https://youjazz-dev.spi.cloudns.org/auth/google/callback"
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     let user = await User.findOne({ googleId: profile.id });
