@@ -741,6 +741,10 @@ class GypsyApp {
 
   async play() {
     if (this.isPlaying || !this.currentSong) return;
+ 
+    if (this.currentSong?._id) {
+      Database.incrementPlayCount(this.currentSong._id);
+    }
 
     this.isPlaying = true;
     this.currentChordIndex = 0;

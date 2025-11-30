@@ -146,6 +146,28 @@ app.post('/api/songs/:id/like', requireAuth, async (req, res) => {
   }
 });
 
+
+app.post('/api/songs/:id/play', async (req, res) => {
+  try {
+    const song = await Song.findById(req.params.id);
+    
+    if (!song) {
+      return res.status(404).json({ error: 'Song not found' });
+    }
+
+    // Incrementa il contatore (se non esiste, parte da 0)
+    song.playCount = (song.playCount || 0) + 1;
+    await song.save();
+
+    // Risposta minima (il frontend non la usa, ma è buona pratica)
+    res.json({ success: true, playCount: song.playCount });
+  } catch (err) {
+    console.error('Errore increment playCount:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
 // MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connesso'))
