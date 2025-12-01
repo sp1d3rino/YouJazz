@@ -1000,6 +1000,13 @@ class GypsyApp {
   async loadSongsList() {
     try {
       const songs = await Database.getSongs();
+
+          // ORDINA I BRANI IN ORDINE ALFABETICO PER TITOLO (case-insensitive)
+    songs.sort((a, b) => {
+      const titleA = (a.title || '').trim().toLowerCase();
+      const titleB = (b.title || '').trim().toLowerCase();
+      return titleA.localeCompare(titleB);
+    });
       const sel = document.getElementById('song-list');
 
       // PULIZIA TOTALE – QUESTO È IL FIX DEFINITIVO
