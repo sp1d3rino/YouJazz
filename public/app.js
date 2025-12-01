@@ -19,12 +19,12 @@ class GypsyApp {
     this.setupGlobalEvents();
     this.setupEvents();               // eventi sempre attivi (BPM, Play, Stop, ecc.)
     this.setupCopyPaste();
-      // Add notice
-      const notice = document.createElement('div');
-      notice.id = 'dev-notice';
-      notice.style.cssText = 'position:fixed;top:10px;left:10px;background:#ff6b6b;color:white;padding:10px;border-radius:8px;font-size:0.9em;z-index:1000;';
-      notice.textContent = 'DEV ENVIRONMENT';
-      document.body.appendChild(notice);
+    // Add notice
+    const notice = document.createElement('div');
+    notice.id = 'dev-notice';
+    notice.style.cssText = 'position:fixed;top:10px;left:10px;background:#ff6b6b;color:white;padding:10px;border-radius:8px;font-size:0.9em;z-index:1000;';
+    notice.textContent = 'DEV ENVIRONMENT';
+    document.body.appendChild(notice);
 
     this.currentStyle = 'swing'; // default iniziale
     if (window.innerWidth <= 768) {
@@ -55,23 +55,30 @@ class GypsyApp {
       });
     }
 
-    // Visual feedback drag & drop
+
+
+    // === NUOVO CODICE UNICO PER DRAGOVER/DROP GLOBALE (sostituisci i vecchi 3 blocchi) ===
     document.addEventListener('dragover', e => {
-      const target = e.target.closest('.measure, .chord-box');
-      if (target) {
-        target.classList.add('drag-over');
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
+      const measure = e.target.closest('.measure');
+      if (measure) {
+        e.preventDefault(); // permette il drop su tutte le misure
+        if (e.dataTransfer.types.includes('youjazz/measure-clone') ||
+          e.dataTransfer.getData('type') === 'chord') {
+          measure.classList.add('drag-over');
+        }
       }
     });
 
     document.addEventListener('dragleave', e => {
-      const target = e.target.closest('.measure, .chord-box');
-      if (target) target.classList.remove('drag-over');
+      const measure = e.target.closest('.measure');
+      if (measure && !measure.contains(e.relatedTarget)) {
+        measure.classList.remove('drag-over');
+      }
     });
 
     document.addEventListener('drop', e => {
-      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      // Rimuove il feedback visivo
+      document.querySelectorAll('.measure').forEach(m => m.classList.remove('drag-over'));
     });
 
     // Icona manina con Ctrl (per copy)
@@ -487,66 +494,80 @@ class GypsyApp {
     sheet.innerHTML = '';
     sheet.style.gridTemplateColumns = `repeat(${this.currentSong.grid.cols}, 1fr)`;
 
-    this.currentSong.measures.forEach(m => {
+    this.currentSong.measures.forEach((measureData, measureIndex) => {
       const measure = document.createElement('div');
-      measure.className = 'measure' + (m.chords.length === 0 ? ' empty' : '');
+      measure.className = 'measure' + (measureData.chords.length === 0 ? ' empty' : '');
+      measure.dataset.index = measureIndex;
+
+      // === 1. DROP DALLA PALETTE (singolo accordo) ===
+      measure.ondragover = e => e.preventDefault();
 
       measure.ondrop = e => {
         e.preventDefault();
+        e.stopPropagation(); // fondamentale!
+
         const droppedText = e.dataTransfer.getData('text/plain');
         const type = e.dataTransfer.getData('type');
-        const style = e.dataTransfer.getData('style') || 'swing'; // ← recupera stile
+        const style = e.dataTransfer.getData('style') || 'swing';
 
+        // Drag dalla palette
         if (type === 'chord' && droppedText) {
-          m.chords.push(droppedText);
-
-          // Forza render per aggiornare DOM
+          measureData.chords.push(droppedText);
           this.render();
-
-          // Dopo render, aggiungi data-style al box appena creato
           setTimeout(() => {
             const boxes = measure.querySelectorAll('.chord-box');
             const lastBox = boxes[boxes.length - 1];
-            if (lastBox) {
-              lastBox.dataset.style = style;
-            }
+            if (lastBox) lastBox.dataset.style = style;
           }, 0);
-
           this.preloadIfNeeded(droppedText);
+          return;
+        }
+
+        // === 2. DROP DA ALTRA MISURA (clonazione completa) ===
+        const cloneData = e.dataTransfer.getData('youjazz/measure-clone');
+        if (cloneData) {
+          try {
+            const chords = JSON.parse(cloneData);
+            this.currentSong.measures[measureIndex] = { chords: [...chords] };
+            this.render();
+          } catch (err) {
+            console.error("Errore clonazione:", err);
+          }
         }
       };
-      measure.ondragover = e => e.preventDefault();
 
-      const chordsInMeasure = m.chords.length;
+      // === FEEDBACK VISIVO DRAG OVER (opzionale ma bello) ===
+      measure.addEventListener('dragenter', e => {
+        if (e.dataTransfer.types.includes('youjazz/measure-clone') || e.dataTransfer.getData('type') === 'chord') {
+          measure.classList.add('drag-over');
+        }
+      });
 
-      // Ripristiniamo sempre lo stato originale della misura
-      measure.style.display = '';
-      measure.style.gridTemplateColumns = '';
-      measure.style.gridTemplateRows = '';
-      measure.style.gap = '';
-      measure.style.padding = '';
-      measure.innerHTML = ''; // importante: svuotiamo per ricostruire
+      measure.addEventListener('dragleave', () => {
+        measure.classList.remove('drag-over');
+      });
 
-      if (chordsInMeasure === 0) {
+      // Reset contenuto
+      measure.style.cssText = '';
+      measure.innerHTML = '';
+
+      if (measureData.chords.length === 0) {
         measure.classList.add('empty');
       } else {
         measure.classList.remove('empty');
 
-        if (chordsInMeasure <= 2) {
-          // 1 o 2 accordi → disposizione orizzontale classica
+        if (measureData.chords.length <= 2) {
           measure.style.display = 'flex';
           measure.style.justifyContent = 'space-around';
           measure.style.alignItems = 'center';
 
-
-          m.chords.forEach((chord, i) => {
-            const box = this.createChordBox(chord, i, m); // funzione separata sotto
+          measureData.chords.forEach((chord, i) => {
+            const box = this.createChordBox(chord, i, measureData, measureIndex);
             box.style.fontSize = '1.4em';
             measure.appendChild(box);
           });
 
         } else {
-          // 3 o 4 accordi → SUB-GRID 2×2 solo per questa misura
           measure.style.display = 'grid';
           measure.style.gridTemplateColumns = '1fr 1fr';
           measure.style.gridTemplateRows = '1fr 1fr';
@@ -555,18 +576,16 @@ class GypsyApp {
           measure.style.background = 'rgba(40,40,40,0.9)';
           measure.style.borderRadius = '6px';
 
-          // Crea 4 posizioni (anche se usiamo solo 3)
-          // ORDINE ORARIO: 0=(0,0), 1=(0,1), 2=(1,1), 3=(1,0)
-          const clockwiseOrder = [0, 1, 3, 2]; // ← questa è la magia!
-
-          const displayOrder = [
-            { gridRow: 1, gridColumn: 1, logicalIndex: 0 }, // 1° accordo → alto-sinistra
-            { gridRow: 1, gridColumn: 2, logicalIndex: 1 }, // 2° → alto-destra
-            { gridRow: 2, gridColumn: 2, logicalIndex: 2 }, // 3° → basso-destra
-            { gridRow: 2, gridColumn: 1, logicalIndex: 3 }  // 4° → basso-sinistra
+          const positions = [
+            { row: 1, col: 1, idx: 0 },
+            { row: 1, col: 2, idx: 1 },
+            { row: 2, col: 2, idx: 2 },
+            { row: 2, col: 1, idx: 3 }
           ];
 
-          displayOrder.forEach((posInfo, visualIndex) => {
+          positions.forEach((pos, i) => {
+            if (i >= measureData.chords.length) return;
+
             const cell = document.createElement('div');
             cell.style.display = 'flex';
             cell.style.alignItems = 'center';
@@ -574,32 +593,24 @@ class GypsyApp {
             cell.style.background = 'rgba(30,30,30,0.8)';
             cell.style.borderRadius = '4px';
             cell.style.minHeight = '36px';
-            cell.style.gridRow = posInfo.gridRow;
-            cell.style.gridColumn = posInfo.gridColumn;
 
-            // Se abbiamo abbastanza accordi, inseriamo quello corrispondente
-            if (visualIndex < chordsInMeasure) {
-              const logicalIndex = posInfo.logicalIndex;
-              const chord = m.chords[logicalIndex];
+            const chord = measureData.chords[pos.idx];
+            const box = this.createChordBox(chord, pos.idx, measureData, measureIndex);
+            box.style.fontSize = '1.05em';
+            box.style.lineHeight = '1.1';
+            box.classList.add('sub-chord-box');
 
-              const box = this.createChordBox(chord, logicalIndex, m); // logicalIndex = indice reale nell'array
-              box.style.fontSize = '1.05em';
-              box.style.lineHeight = '1.1';
-              box.classList.add('sub-chord-box');
-
-              cell.appendChild(box);
-            }
-
+            cell.appendChild(box);
             measure.appendChild(cell);
           });
         }
+
+        // Rendi l'intera misura draggabile (solo sfondo)
+        this.makeMeasureDraggable(measure, measureData.chords);
       }
 
       sheet.appendChild(measure);
     });
-
-
-
 
     // NEW: Disable editing for guests
     if (this.isGuest()) {
@@ -637,9 +648,43 @@ class GypsyApp {
       if (notice) notice.remove();
     }
 
+  }
 
+  makeMeasureDraggable(measureEl, chords) {
+    measureEl.draggable = true;
 
+    measureEl.addEventListener('dragstart', e => {
+      // Se si sta trascinando un chord-box → lascia che sia il box a gestire
+      if (e.target.closest('.chord-box')) {
+        return;
+      }
 
+      if (chords.length === 0) {
+        e.preventDefault();
+        return;
+      }
+
+      // CLONAZIONE COMPLETA
+      e.dataTransfer.setData('youjazz/measure-clone', JSON.stringify(chords));
+      e.dataTransfer.setData('text/plain', chords.join(' '));
+      e.dataTransfer.effectAllowed = 'copy';
+
+      // Ghost image visibile
+      const ghost = document.createElement('div');
+      ghost.textContent = chords.join('  │  ');
+      ghost.style.cssText = `
+      position: absolute; top: -9999px; left: -9999px;
+      background: linear-gradient(135deg, #6a1b9a, #8e24aa);
+      color: white; padding: 14px 22px; border-radius: 12px;
+      font-size: 1.6em; font-weight: bold; font-family: system-ui;
+      border: 3px solid #e91e63; box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+      pointer-events: none; white-space: nowrap; z-index: 9999;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    `;
+      document.body.appendChild(ghost);
+      e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, ghost.offsetHeight / 2);
+      setTimeout(() => ghost.remove(), 0);
+    });
   }
 
   createChordBox(chord, index, measure) {
@@ -741,7 +786,7 @@ class GypsyApp {
 
   async play() {
     if (this.isPlaying || !this.currentSong) return;
- 
+
     if (this.currentSong?._id) {
       Database.incrementPlayCount(this.currentSong._id);
     }
@@ -1007,12 +1052,12 @@ class GypsyApp {
     try {
       const songs = await Database.getSongs();
 
-          // ORDINA I BRANI IN ORDINE ALFABETICO PER TITOLO (case-insensitive)
-    songs.sort((a, b) => {
-      const titleA = (a.title || '').trim().toLowerCase();
-      const titleB = (b.title || '').trim().toLowerCase();
-      return titleA.localeCompare(titleB);
-    });
+      // ORDINA I BRANI IN ORDINE ALFABETICO PER TITOLO (case-insensitive)
+      songs.sort((a, b) => {
+        const titleA = (a.title || '').trim().toLowerCase();
+        const titleB = (b.title || '').trim().toLowerCase();
+        return titleA.localeCompare(titleB);
+      });
       const sel = document.getElementById('song-list');
 
       // PULIZIA TOTALE – QUESTO È IL FIX DEFINITIVO

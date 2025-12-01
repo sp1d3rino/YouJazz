@@ -666,3 +666,10 @@ body.ctrl-active * {
 .like-btn.liked { background: #3498db; border-color: #e74c3c; color: white; }
 .like-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 #like-count { font-size: 0.9em; margin-left: 6px; }
+
+
+.measure.drag-over {
+  outline: 4px solid #e91e63 !important;
+  outline-offset: -4px;
+  background: rgba(233, 30, 99, 0.15) !important;
+}
