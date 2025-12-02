@@ -14,7 +14,7 @@ class GypsyApp {
 
     // AVVIO IMMEDIATO – NON SERVE PIÙ init() dopo New Song
     this.loadChordsPalette();
-    this.setupMobileDragDrop(); 
+    this.setupMobileDragDrop();
     this.render();                    // mostra griglia vuota o messaggio
     this.loadSongsList();             // carica subito la dropdown
     this.setupGlobalEvents();
@@ -124,150 +124,150 @@ class GypsyApp {
 
   // Add this code to your GypsyApp constructor, after loadChordsPalette()
 
-setupMobileDragDrop() {
-  let draggedChord = null;
-  let draggedType = null;
-  let draggedStyle = null;
-  let touchStartElement = null;
+  setupMobileDragDrop() {
+    let draggedChord = null;
+    let draggedType = null;
+    let draggedStyle = null;
+    let touchStartElement = null;
 
-  // Touch events for chord buttons
-  document.addEventListener('touchstart', (e) => {
-    const chordBtn = e.target.closest('.chord-btn');
-    const extBtn = e.target.closest('.extension-btn');
-    
-    if (chordBtn) {
-      touchStartElement = chordBtn;
-      draggedChord = chordBtn.textContent;
-      draggedType = 'chord';
-      draggedStyle = this.currentStyle;
-      
-      // Visual feedback
-      chordBtn.style.opacity = '0.5';
-      e.preventDefault();
-    } else if (extBtn) {
-      touchStartElement = extBtn;
-      draggedChord = extBtn.textContent;
-      draggedType = 'extension';
-      
-      // Visual feedback
-      extBtn.style.opacity = '0.5';
-      e.preventDefault();
-    }
-  }, { passive: false });
+    // Touch events for chord buttons
+    document.addEventListener('touchstart', (e) => {
+      const chordBtn = e.target.closest('.chord-btn');
+      const extBtn = e.target.closest('.extension-btn');
 
-  document.addEventListener('touchmove', (e) => {
-    if (!draggedChord) return;
-    
-    const touch = e.touches[0];
-    const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
-    
-    // Remove previous hover effects
-    document.querySelectorAll('.measure').forEach(m => m.classList.remove('drag-over'));
-    
-    // Add hover effect to current measure
-    const measure = elementAtPoint?.closest('.measure');
-    if (measure) {
-      measure.classList.add('drag-over');
-    }
-    
-    e.preventDefault();
-  }, { passive: false });
+      if (chordBtn) {
+        touchStartElement = chordBtn;
+        draggedChord = chordBtn.textContent;
+        draggedType = 'chord';
+        draggedStyle = this.currentStyle;
 
-  document.addEventListener('touchend', (e) => {
-    if (!draggedChord) return;
+        // Visual feedback
+        chordBtn.style.opacity = '0.5';
+        e.preventDefault();
+      } else if (extBtn) {
+        touchStartElement = extBtn;
+        draggedChord = extBtn.textContent;
+        draggedType = 'extension';
 
-    const touch = e.changedTouches[0];
-    const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
-    const measure = elementAtPoint?.closest('.measure');
-    
-    // Remove all hover effects
-    document.querySelectorAll('.measure').forEach(m => m.classList.remove('drag-over'));
-    
-    // Reset visual feedback
-    if (touchStartElement) {
-      touchStartElement.style.opacity = '';
-      touchStartElement = null;
-    }
-
-    if (measure && draggedType === 'chord') {
-      const measureIndex = Array.from(document.querySelectorAll('.measure')).indexOf(measure);
-      const measureData = this.currentSong.measures[measureIndex];
-      
-      if (measureData && measureData.chords.length < 4) {
-        const rect = measure.getBoundingClientRect();
-        const x = touch.clientX - rect.left;
-        const y = touch.clientY - rect.top;
-
-        let insertIndex = measureData.chords.length;
-
-        if (measureData.chords.length > 0) {
-          if (x < rect.width / 2 && y < rect.height / 2) insertIndex = 0;
-          else if (x >= rect.width / 2 && y < rect.height / 2) insertIndex = 1;
-          else if (x >= rect.width / 2 && y >= rect.height / 2) insertIndex = 2;
-          else if (x < rect.width / 2 && y >= rect.height / 2) insertIndex = 3;
-        }
-
-        measureData.chords.splice(insertIndex, 0, draggedChord);
-        this.render();
-
-        setTimeout(() => {
-          const box = measure.querySelectorAll('.chord-box')[insertIndex];
-          if (box) box.dataset.style = draggedStyle;
-        }, 0);
-
-        this.preloadIfNeeded(draggedChord);
+        // Visual feedback
+        extBtn.style.opacity = '0.5';
+        e.preventDefault();
       }
-    } else if (measure && draggedType === 'extension') {
-      // Handle extension drop on chord box
-      const chordBox = elementAtPoint?.closest('.chord-box');
-      if (chordBox) {
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!draggedChord) return;
+
+      const touch = e.touches[0];
+      const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+
+      // Remove previous hover effects
+      document.querySelectorAll('.measure').forEach(m => m.classList.remove('drag-over'));
+
+      // Add hover effect to current measure
+      const measure = elementAtPoint?.closest('.measure');
+      if (measure) {
+        measure.classList.add('drag-over');
+      }
+
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+      if (!draggedChord) return;
+
+      const touch = e.changedTouches[0];
+      const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+      const measure = elementAtPoint?.closest('.measure');
+
+      // Remove all hover effects
+      document.querySelectorAll('.measure').forEach(m => m.classList.remove('drag-over'));
+
+      // Reset visual feedback
+      if (touchStartElement) {
+        touchStartElement.style.opacity = '';
+        touchStartElement = null;
+      }
+
+      if (measure && draggedType === 'chord') {
         const measureIndex = Array.from(document.querySelectorAll('.measure')).indexOf(measure);
         const measureData = this.currentSong.measures[measureIndex];
-        const chordIndex = Array.from(measure.querySelectorAll('.chord-box')).indexOf(chordBox);
-        
-        if (chordIndex !== -1) {
-          let chord = measureData.chords[chordIndex];
-          let newChord = chord;
 
-          if (['#', 'b', 'ø', 'o'].includes(draggedChord)) {
-            const rootMatch = chord.match(/^([A-G][#b]?)/i);
-            const root = rootMatch ? rootMatch[0] : chord[0];
+        if (measureData && measureData.chords.length < 4) {
+          const rect = measure.getBoundingClientRect();
+          const x = touch.clientX - rect.left;
+          const y = touch.clientY - rect.top;
 
-            if (draggedChord === '#' || draggedChord === 'b') {
-              newChord = root[0] + draggedChord;
-            } else {
-              newChord = root + draggedChord;
-            }
+          let insertIndex = measureData.chords.length;
 
-            const rest = chord.slice(root.length);
-            if (rest && !['#', 'b', 'ø', 'o'].includes(rest[0])) {
-              newChord += rest.replace(/^(maj|m)?[0-9]*/g, '');
-            }
-          } else if (draggedChord === 'm') {
-            newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'm';
-          } else if (draggedChord === 'maj7') {
-            newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'maj7';
-          } else if (['6', '7', '9'].includes(draggedChord)) {
-            newChord = chord.replace(/[0-9]+$/, '') + draggedChord;
+          if (measureData.chords.length > 0) {
+            if (x < rect.width / 2 && y < rect.height / 2) insertIndex = 0;
+            else if (x >= rect.width / 2 && y < rect.height / 2) insertIndex = 1;
+            else if (x >= rect.width / 2 && y >= rect.height / 2) insertIndex = 2;
+            else if (x < rect.width / 2 && y >= rect.height / 2) insertIndex = 3;
           }
 
-          measureData.chords[chordIndex] = newChord;
-          this.preloadIfNeeded(newChord);
+          measureData.chords.splice(insertIndex, 0, draggedChord);
           this.render();
+
+          setTimeout(() => {
+            const box = measure.querySelectorAll('.chord-box')[insertIndex];
+            if (box) box.dataset.style = draggedStyle;
+          }, 0);
+
+          this.preloadIfNeeded(draggedChord);
+        }
+      } else if (measure && draggedType === 'extension') {
+        // Handle extension drop on chord box
+        const chordBox = elementAtPoint?.closest('.chord-box');
+        if (chordBox) {
+          const measureIndex = Array.from(document.querySelectorAll('.measure')).indexOf(measure);
+          const measureData = this.currentSong.measures[measureIndex];
+          const chordIndex = Array.from(measure.querySelectorAll('.chord-box')).indexOf(chordBox);
+
+          if (chordIndex !== -1) {
+            let chord = measureData.chords[chordIndex];
+            let newChord = chord;
+
+            if (['#', 'b', 'ø', 'o'].includes(draggedChord)) {
+              const rootMatch = chord.match(/^([A-G][#b]?)/i);
+              const root = rootMatch ? rootMatch[0] : chord[0];
+
+              if (draggedChord === '#' || draggedChord === 'b') {
+                newChord = root[0] + draggedChord;
+              } else {
+                newChord = root + draggedChord;
+              }
+
+              const rest = chord.slice(root.length);
+              if (rest && !['#', 'b', 'ø', 'o'].includes(rest[0])) {
+                newChord += rest.replace(/^(maj|m)?[0-9]*/g, '');
+              }
+            } else if (draggedChord === 'm') {
+              newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'm';
+            } else if (draggedChord === 'maj7') {
+              newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'maj7';
+            } else if (['6', '7', '9'].includes(draggedChord)) {
+              newChord = chord.replace(/[0-9]+$/, '') + draggedChord;
+            }
+
+            measureData.chords[chordIndex] = newChord;
+            this.preloadIfNeeded(newChord);
+            this.render();
+          }
         }
       }
-    }
 
-    // Reset
-    draggedChord = null;
-    draggedType = null;
-    draggedStyle = null;
-    
-    e.preventDefault();
-  }, { passive: false });
-}
+      // Reset
+      draggedChord = null;
+      draggedType = null;
+      draggedStyle = null;
 
- 
+      e.preventDefault();
+    }, { passive: false });
+  }
+
+
 
   isGuest() {
     return document.body.classList.contains('guest-mode');
@@ -619,7 +619,7 @@ setupMobileDragDrop() {
 
         </div>
       `;
-      
+
       return;
     }
 
@@ -1022,6 +1022,21 @@ setupMobileDragDrop() {
       if (box) {
         box.classList.add('playing');
         measure.classList.add('measure-playing');
+
+        // AUTO-SCROLL SOLO SU MOBILE
+        if (window.innerWidth <= 768) {
+          const measureRect = measure.getBoundingClientRect();
+          const screenCenter = window.innerHeight / 2;
+          const measureCenter = measureRect.top + measureRect.height / 2;
+          const offset = measureCenter - screenCenter;
+
+          if (Math.abs(offset) > 50) {
+            window.scrollBy({
+              top: offset,
+              behavior: 'smooth'
+            });
+          }
+        }
       }
     };
 
