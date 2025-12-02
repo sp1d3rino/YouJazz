@@ -689,3 +689,372 @@ body.ctrl-active * {
 .measure.measure-playing.empty {
   background: rgba(255, 255, 0, 0.1) !important;
 }
+
+/* ========== MOBILE RESPONSIVE STYLES ========== */
+/* Aggiungi questo alla fine del tuo styles.css */
+
+@media (max-width: 768px) {
+  /* Header ottimizzato */
+  header h1 {
+    font-size: 1.5em;
+    margin-bottom: 8px;
+  }
+
+  #song-title {
+    width: 90%;
+    font-size: 1.2em;
+    padding: 8px;
+  }
+
+  /* User info compatta */
+  header > div[style*="position:absolute"] {
+    position: static !important;
+    text-align: center !important;
+    margin-top: 10px;
+  }
+
+  #user-name {
+    font-size: 0.9em !important;
+  }
+
+  #user-pic {
+    width: 30px !important;
+    height: 30px !important;
+    margin-top: 5px !important;
+  }
+
+  /* Controls responsive */
+  .controls {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .controls button {
+    width: 100%;
+    padding: 12px;
+    margin: 0;
+    font-size: 1em;
+  }
+
+  .controls label {
+    display: block;
+    text-align: center;
+    margin: 8px 0 4px 0;
+  }
+
+  #bpm-slider {
+    width: 100%;
+  }
+
+  .select-wrapper {
+    width: 100%;
+  }
+
+  #song-list {
+    width: 100%;
+    min-width: auto;
+  }
+
+  /* Layout principale mobile */
+  .main {
+    grid-template-columns: 1fr;
+    gap: 0;
+    position: relative;
+  }
+
+  /* Lead sheet ottimizzato */
+  #lead-sheet {
+    padding: 15px 10px;
+    gap: 12px;
+    min-height: auto;
+    margin-bottom: 180px; /* Spazio per palette e controlli */
+  }
+
+  /* Misure più compatte */
+  .measure {
+    min-height: 70px;
+    padding: 8px;
+    gap: 4px;
+  }
+
+  /* Chord box mobile */
+  .chord-box {
+    font-size: 1.2em !important;
+    padding: 6px 4px;
+    min-height: 40px;
+  }
+
+  .sub-chord-box {
+    font-size: 0.9em !important;
+    min-height: 35px;
+  }
+
+  .chord-box .remove {
+    font-size: 18px;
+    top: 1px;
+    right: 3px;
+  }
+
+  /* Player controls in basso fissi */
+  .player-controls {
+    position: fixed;
+    bottom: 100px; /* Sopra la palette */
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    padding: 10px;
+    z-index: 99;
+    display: flex;
+    gap: 8px;
+    border-top: 2px solid #333;
+  }
+
+  .player-controls button {
+    flex: 1;
+    padding: 14px 8px;
+    margin: 0;
+    font-size: 1.1em;
+  }
+
+  /* Palette mobile in basso */
+  .chord-palette {
+    position: fixed !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: auto;
+    max-height: 100px;
+    top: auto;
+    border-radius: 12px 12px 0 0;
+    padding: 12px 8px;
+    z-index: 100;
+    overflow-x: auto;
+    overflow-y: hidden;
+    transform: translateY(0);
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.5);
+  }
+
+  .chord-palette h3 {
+    display: none; /* Nascondi titoli su mobile */
+  }
+
+  .control-group {
+    display: none; /* Nascondi style selector su mobile per risparmiare spazio */
+  }
+
+  /* Accordi in riga orizzontale */
+  .chord-list {
+    display: flex !important;
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 0;
+    flex-wrap: nowrap;
+  }
+
+  .chord-btn {
+    min-width: 45px;
+    padding: 12px 8px;
+    font-size: 1.1em;
+    flex-shrink: 0;
+  }
+
+  /* Estensioni in riga */
+  .extension-list {
+    display: flex !important;
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 0;
+    flex-wrap: nowrap;
+  }
+
+  .extension-btn {
+    min-width: 40px;
+    padding: 10px 6px;
+    font-size: 1em;
+    flex-shrink: 0;
+  }
+
+  /* Scrollbar orizzontale più visibile su mobile */
+  .chord-list::-webkit-scrollbar,
+  .extension-list::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .chord-list::-webkit-scrollbar-thumb,
+  .extension-list::-webkit-scrollbar-thumb {
+    background: #d4af37;
+    border-radius: 2px;
+  }
+
+  /* Modal responsive */
+  .modal-content {
+    width: 90%;
+    min-width: auto;
+    padding: 25px 20px;
+  }
+
+  .modal-content h2 {
+    font-size: 1.5em;
+  }
+
+  .grid-inputs {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .grid-inputs input[type="number"] {
+    width: 100%;
+    font-size: 1.2em;
+  }
+
+  #create-grid {
+    width: 100%;
+    font-size: 1.1em;
+  }
+
+  /* Spinner mobile */
+  .audio-spinner {
+    font-size: 1.2em;
+  }
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+  }
+
+  /* Guest notice mobile */
+  #guest-notice {
+    top: 5px !important;
+    right: 5px !important;
+    left: 5px !important;
+    padding: 8px !important;
+    font-size: 0.8em !important;
+    text-align: center;
+  }
+
+  /* Like button mobile */
+  .like-btn {
+    padding: 6px 10px;
+    font-size: 1em;
+    margin-left: 8px;
+  }
+
+  /* Created by text */
+  .created-by {
+    font-size: 0.8em;
+  }
+
+  /* Message box mobile */
+  .yj-message-box {
+    width: 90%;
+    max-width: 90%;
+    padding: 20px;
+  }
+
+  .yj-message-icon {
+    font-size: 3em;
+  }
+
+  .yj-message-title {
+    font-size: 1.4em;
+  }
+
+  .yj-message-text {
+    font-size: 1em;
+  }
+
+  .yj-message-btn {
+    padding: 12px 24px;
+    font-size: 1em;
+  }
+
+  /* Grid columns adattive per mobile */
+  #lead-sheet {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+  }
+
+  /* Prevent zoom on input focus */
+  input[type="text"],
+  input[type="number"],
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Extra small phones (< 400px) */
+@media (max-width: 400px) {
+  header h1 {
+    font-size: 1.2em;
+  }
+
+  #song-title {
+    font-size: 1em;
+  }
+
+  .controls button {
+    padding: 10px;
+    font-size: 0.9em;
+  }
+
+  .chord-btn {
+    min-width: 40px;
+    padding: 10px 6px;
+    font-size: 1em;
+  }
+
+  .extension-btn {
+    min-width: 35px;
+    padding: 8px 4px;
+    font-size: 0.9em;
+  }
+
+  .player-controls button {
+    padding: 12px 6px;
+    font-size: 1em;
+  }
+
+  .measure {
+    min-height: 60px;
+  }
+
+  .chord-box {
+    font-size: 1em !important;
+  }
+}
+
+/* Landscape mode per mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  header {
+    margin-bottom: 10px;
+  }
+
+  header h1 {
+    font-size: 1.3em;
+    margin-bottom: 5px;
+  }
+
+  .controls {
+    padding: 8px;
+  }
+
+  .chord-palette {
+    max-height: 80px;
+  }
+
+  .player-controls {
+    bottom: 80px;
+  }
+
+  #lead-sheet {
+    margin-bottom: 140px;
+    padding: 10px;
+  }
+}
