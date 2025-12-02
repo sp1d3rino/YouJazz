@@ -297,8 +297,13 @@ class GypsyApp {
 
     const createBtn = document.getElementById('create-grid');
     const handler = () => {
-      const rows = parseInt(document.getElementById('grid-rows').value) || 4;
-      const cols = parseInt(document.getElementById('grid-cols').value) || 4;
+      const rows_temp = parseInt(document.getElementById('grid-rows').value) || 4;
+      const cols_temp = parseInt(document.getElementById('grid-cols').value) || 4;
+      let rows=0;
+      let cols=0;
+      if (rows_temp < 1 || rows_temp > 10) {rows = 4} else {rows = rows_temp};
+      if (cols_temp < 1 || cols_temp > 10) {cols = 4} else {cols = cols_temp};
+
       // Crea il nuovo brano
       this.currentSong = {
         title: 'Song name',
