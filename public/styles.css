@@ -929,18 +929,19 @@ body.ctrl-active * {
     overflow-x: hidden;
   }
 
+    /* User info compatta */
+  header>div[style*="position:absolute"] {
+    position: static !important;
+    text-align: center !important;
+    margin-top: 10px;
+  }
   #song-title {
     width: 90%;
     font-size: 1.2em;
     padding: 8px;
   }
 
-  /* User info compatta */
-  header>div[style*="position:absolute"] {
-    position: static !important;
-    text-align: center !important;
-    margin-top: 10px;
-  }
+
 
   #user-name {
     font-size: 0.9em !important;
@@ -1299,4 +1300,19 @@ body.ctrl-active * {
     margin-bottom: 140px;
     padding: 10px;
   }
+}
+
+/* Migliora l'aspetto del dropdown utente */
+#user-dropdown {
+  animation: fadeIn 0.2s ease-out;
+}
+
+#user-dropdown div:hover {
+  background: #333 !important;
+}
+
+/* Animazione apertura menu */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
