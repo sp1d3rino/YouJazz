@@ -606,9 +606,9 @@ class GypsyApp {
           height: 70vh;
           display: flex;
           flex-direction: column;
-          align-items: center;
+          align-items: left;
           justify-content: center;
-          text-align: center;
+          text-align: left;
           color: #999;
           pointer-events: none;
           user-select: none;
@@ -619,7 +619,16 @@ class GypsyApp {
             margin: 0 20px 30px;
             line-height: 1.5;
           ">
-            Create a new song or load one from the list
+            Create a new song or load one from the list <br/><br/>
+
+            How to create a song: <br/>
+              - use drag and drop chords into the grid.<br/>
+              - use the extension buttons to modify chords (minor, 7th, diminished, etc.).<br/>
+              - user ctrl + drag to copy chords or entire measures.<br/>
+              - use the style tabs to change the rhythm style (swing, bossa).<br/>
+              - set the BPM with the slider.<br/>
+              - choose the song title.<br/>
+              - save your song to your account.   
           </p>
 
         </div>
