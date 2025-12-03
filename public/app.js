@@ -229,18 +229,18 @@ class GypsyApp {
             let chord = measureData.chords[chordIndex];
             let newChord = chord;
 
-            if (['#', 'b', 'ø', 'o'].includes(draggedChord)) {
-              const rootMatch = chord.match(/^([A-G][#b]?)/i);
+            if (['#', '♭', 'ø', 'o'].includes(draggedChord)) {
+              const rootMatch = chord.match(/^([A-G][#♭]?)/i);
               const root = rootMatch ? rootMatch[0] : chord[0];
 
-              if (draggedChord === '#' || draggedChord === 'b') {
+              if (draggedChord === '#' || draggedChord === '♭') {
                 newChord = root[0] + draggedChord;
               } else {
                 newChord = root + draggedChord;
               }
 
               const rest = chord.slice(root.length);
-              if (rest && !['#', 'b', 'ø', 'o'].includes(rest[0])) {
+              if (rest && !['#', '♭', 'ø', 'o'].includes(rest[0])) {
                 newChord += rest.replace(/^(maj|m)?[0-9]*/g, '');
               }
             } else if (draggedChord === 'm') {
@@ -910,18 +910,18 @@ class GypsyApp {
         const droppedText = e.dataTransfer.getData('text/plain');
         let newChord = chord;
 
-        if (['#', 'b', 'ø', 'o'].includes(droppedText)) {
+        if (['#', '♭', 'ø', 'o'].includes(droppedText)) {
           const rootMatch = chord.match(/^([A-G][#b]?)/i);
           const root = rootMatch ? rootMatch[0] : chord[0];
 
-          if (droppedText === '#' || droppedText === 'b') {
+          if (droppedText === '#' || droppedText === '♭') {
             newChord = root[0] + droppedText;
           } else {
             newChord = root + droppedText;
           }
 
           const rest = chord.slice(root.length);
-          if (rest && !['#', 'b', 'ø', 'o'].includes(rest[0])) {
+          if (rest && !['#', '♭', 'ø', 'o'].includes(rest[0])) {
             newChord += rest.replace(/^(maj|m)?[0-9]*/g, '');
           }
         }
