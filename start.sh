@@ -16,4 +16,4 @@ npm run clean
 npm run build
 
 #startYoujazz in HA
-pm2 start dist-$DIR/index.js --name "yj-$DIR"
+pm2 start index.js --name "yj-$DIR" --cwd dist-$DIR
