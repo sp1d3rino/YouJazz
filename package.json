@@ -1,12 +1,25 @@
 {
-  "name": "youjazz",
+  "name": "gypsy-jazz-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "main": "server/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rm -rf dist dist-1 dist-2",
+    "build": "npm run clean && npm run build:code && npm run build:static",
+    "build:code": "esbuild server/index.js --platform=node --packages=external --bundle --minify --sourcemap --outdir=dist --format=cjs",
+    "build:static": "cp -r public dist/ && cp -r dist dist-1/ && cp -r dist dist-2/ && cp .env1 dist-1/.env && cp .env2 dist-2/.env",
+    "copy-to-instances": "cp -r dist dist-1 && cp -r dist dist-2"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "dependencies": {
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "express-session": "^1.18.2",
+    "mongoose": "^8.20.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.1"
+  }
 }
