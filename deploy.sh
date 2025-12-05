@@ -16,4 +16,4 @@ pm2 stop $ENV-$DIR
 npm run build:i-$DIR
 
 #startYoujazz in HA
-pm2 start index.js --name "$ENV-$DIR" --cwd dist-$DIR
+pm2 start dist/index.js --name "$ENV-$DIR" --cwd dist-$DIR
