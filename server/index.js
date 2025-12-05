@@ -22,12 +22,10 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
 // Middleware
 app.use(cors({ origin: process.env.CALLBACK_URL, credentials: true }));
 app.use(express.json());
-if (process.env.ENV === 'production') {
-  app.use(express.static(path.join(__dirname, './public')));
-}else{
-  app.use(express.static(path.join(__dirname, '../public')));
-}
-// Sessioni
+
+app.use(express.static(path.join(__dirname, './public')));
+
+  // Sessioni
 app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback-secret',
   resave: false,
