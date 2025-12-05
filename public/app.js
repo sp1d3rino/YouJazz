@@ -1339,6 +1339,7 @@ class GypsyApp {
   async loadSongsList() {
     try {
       const songs = await Database.getSongs();
+      const publicSongsCount = songs.filter(song => song.isPublic === true).length;
 
       // ORDINA I BRANI IN ORDINE ALFABETICO PER TITOLO (case-insensitive)
       songs.sort((a, b) => {
@@ -1349,7 +1350,7 @@ class GypsyApp {
       const sel = document.getElementById('song-list');
 
       // PULIZIA TOTALE – QUESTO È IL FIX DEFINITIVO
-      sel.innerHTML = '<option value="">– Load Song –</option>';
+      sel.innerHTML = `<option value="">${publicSongsCount} public songs available!</option>`;
 
       // Utente loggato (una sola volta)
       let currentUser = null;
