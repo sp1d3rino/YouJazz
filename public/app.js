@@ -18,7 +18,8 @@ class GypsyApp {
     this.render();                    // mostra griglia vuota o messaggio
     this.loadSongsList();             // carica subito la dropdown
     this.setupGlobalEvents();
-    this.setupEvents();               // eventi sempre attivi (BPM, Play, Stop, ecc.)
+    this.setupEvents();
+    this.setupPublicToggle();         // eventi sempre attivi (BPM, Play, Stop, ecc.)
     this.setupCopyPaste();
 
     this.currentStyle = 'swing'; // default iniziale
@@ -110,6 +111,46 @@ class GypsyApp {
       }
     });
 
+  }
+
+  setupPublicToggle() {
+    const toggleContainer = document.createElement('div');
+    toggleContainer.id = 'public-toggle-container';
+    toggleContainer.style.cssText = 'display: inline-flex; align-items: center; gap: 8px; margin-left: 15px;';
+
+    const label = document.createElement('label');
+    label.style.cssText = 'display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.95em; color: #bbb;';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = 'public-checkbox';
+    checkbox.checked = true;
+    checkbox.style.cssText = 'width: 18px; height: 18px; cursor: pointer; accent-color: #e91e63;';
+
+    const labelText = document.createElement('span');
+    labelText.textContent = 'Public';
+
+    label.appendChild(checkbox);
+    label.appendChild(labelText);
+    toggleContainer.appendChild(label);
+
+    const titleInput = document.getElementById('song-title');
+    titleInput.parentNode.insertBefore(toggleContainer, titleInput.nextSibling);
+
+    checkbox.addEventListener('change', async () => {
+      if (!this.currentSong) return;
+      this.currentSong.isPublic = checkbox.checked;
+      if (this.currentSong._id) {
+        try {
+          await Database.updatePublicStatus(this.currentSong._id, checkbox.checked);
+          YouJazz.showMessage("Visibility Updated", `Song is now ${checkbox.checked ? 'public' : 'private'}`);
+          await this.loadSongsList();
+        } catch (err) {
+          checkbox.checked = !checkbox.checked;
+          YouJazz.showMessage("Error", "Unable to update visibility");
+        }
+      }
+    });
   }
 
   async updateCreatedByForCurrentUser() {
@@ -329,6 +370,7 @@ class GypsyApp {
       this.currentSong = {
         title: 'Song name',
         style: this.currentStyle,
+        isPublic: true,
         bpm: 120,
         grid: { rows, cols },
         measures: Array(rows * cols).fill(null).map(() => ({ chords: [] }))
@@ -350,6 +392,8 @@ class GypsyApp {
 
       // Renderizza
       this.render();
+      const checkbox = document.getElementById('public-checkbox');
+      if (checkbox) checkbox.checked = true;
 
       modal.classList.add('hidden');
       createBtn.removeEventListener('click', handler);
@@ -1175,6 +1219,10 @@ class GypsyApp {
         }
       }
 
+
+      const checkbox = document.getElementById('public-checkbox');
+      console.log('Public checkbox:', checkbox.checked);
+      if (checkbox) this.currentSong.isPublic = checkbox.checked;
       // Se arriviamo qui → l'utente può salvare (nuovo brano o suo)
       const saved = await Database.saveSong(this.currentSong);
 
@@ -1192,6 +1240,7 @@ class GypsyApp {
       YouJazz.showMessage("Save Error", "Unable to save the song. Are you logged in?");
     }
   }
+
 
   async deleteCurrentSong() {
     if (!this.currentSong?._id) return YouJazz.showMessage("Delete Error", "No song loaded.");
@@ -1309,15 +1358,23 @@ class GypsyApp {
         if (res.ok) currentUser = await res.json();
       } catch (e) { }
 
+      const visibleSongs = songs.filter(song => {
+        if (song.isPublic) return true;
+        if (!currentUser) return false;
+        return song.owner._id === currentUser.id;
+      });
+
       // Popola la lista – UNA SOLA VOLTA per brano
-      songs.forEach(song => {
+      visibleSongs.forEach(song => {
         const opt = document.createElement('option');
         opt.value = song._id;
+        const privacyIcon = !song.isPublic ? '🔒 ' : '';
+
 
         const likes = song.likes?.length || 0;
         const likeText = likes > 0 ? `👍 ${likes}` : '';
 
-        opt.textContent = `${song.title} (${this.getOwnerName(song)})${likeText}`;
+        opt.textContent = `${song.title} (${this.getOwnerName(song)})${privacyIcon}${likeText}`;
         sel.appendChild(opt);
       });
 
@@ -1335,10 +1392,13 @@ class GypsyApp {
             _id: db._id,
             title: db.title,
             style: db.style || 'swing',
+            isPublic: db.isPublic !== false,
             bpm: db.bpm || 200,
             grid: db.grid || { rows: 4, cols: 4 },
             measures: []
           };
+          const checkbox = document.getElementById('public-checkbox');
+          if (checkbox) checkbox.checked = this.currentSong.isPublic;
           this.currentStyle = db.style || 'swing';
 
           document.querySelectorAll('.chord-box').forEach(box => box.dataset.style = this.currentStyle);

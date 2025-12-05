@@ -22,7 +22,7 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
 // Middleware
 app.use(cors({ origin: process.env.CALLBACK_URL, credentials: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, './public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Sessioni
 app.use(session({
@@ -79,12 +79,15 @@ const requireAuth = (req, res, next) => {
 // GET /api/songs — Lista con owner popolato
 app.get('/api/songs', async (req, res) => {
   try {
-    const songs = await Song.find()
-      .populate('owner', 'displayName')  // ← Aggiungi questo: fetcha solo displayName
+    const query = req.user 
+      ? { $or: [{ isPublic: true }, { owner: req.user._id }] }
+      : { isPublic: true };
+    
+    const songs = await Song.find(query)
+      .populate('owner', 'displayName')
       .sort({ createdAt: -1 });
     res.json(songs);
   } catch (err) {
-    console.error('Errore caricamento brani:', err);
     res.status(500).json({ error: 'Errore del server' });
   }
 });
@@ -167,6 +170,20 @@ app.post('/api/songs/:id/play', async (req, res) => {
   }
 });
 
+app.patch('/api/songs/:id/public', requireAuth, async (req, res) => {
+  try {
+    console.log('Updating public status for song:', req.params.id, 'to', req.body.isPublic);
+    const song = await Song.findOneAndUpdate(
+      { _id: req.params.id, owner: req.user._id },
+      { isPublic: req.body.isPublic },
+      { new: true }
+    );
+    if (!song) return res.status(404).json({ error: 'Not found or unauthorized' });
+    res.json({ success: true, isPublic: song.isPublic });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 // MongoDB
 mongoose.connect(process.env.MONGODB_URI)
