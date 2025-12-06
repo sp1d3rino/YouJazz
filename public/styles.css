@@ -179,10 +179,7 @@ header h1 {
   background: #3498db;
 }
 
-#clear-all {
-  background: #3498db;
-}
-
+ 
 #save-song {
   background: #3498db;
 }
@@ -1316,3 +1313,112 @@ body.ctrl-active * {
   from { opacity: 0; transform: translateY(-10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* User info posizionamento migliorato */
+#user-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+#user-pic {
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+
+#user-pic:hover {
+  transform: scale(1.1);
+}
+
+#user-dropdown {
+  display: none;
+  position: absolute;
+  top: 55px;
+  right: 0;
+  background: #1a1a1a;
+  border: 2px solid #444;
+  border-radius: 12px;
+  min-width: 200px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+  overflow: hidden;
+}
+
+.dropdown-header {
+  padding: 16px;
+  color: #eee;
+  font-weight: bold;
+  border-bottom: 1px solid #444;
+  background: #222;
+}
+
+.dropdown-item {
+  padding: 12px 16px;
+  color: #ff6b6b;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background: #333;
+}
+
+/* Public toggle nel controls */
+#public-toggle-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #222;
+  border-radius: 8px;
+  margin: 0 10px;
+}
+
+#public-toggle-container label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  color: #ddd;
+  margin: 0;
+}
+
+#public-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #e91e63;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  #user-info {
+    position: static;
+    text-align: center;
+    margin: 10px 0;
+  }
+  
+  #user-dropdown {
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+  }
+  
+  #public-toggle-container {
+    width: 100%;
+    justify-content: center;
+    margin: 10px 0;
+  }
+}
+
+#add-row {
+  background: #3498db;
+}
+
+#add-row:hover:not(:disabled) {
+  background: #3498db;
+}
+

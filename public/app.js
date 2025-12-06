@@ -135,7 +135,7 @@ class GypsyApp {
     toggleContainer.appendChild(label);
 
     const titleInput = document.getElementById('song-title');
-    titleInput.parentNode.insertBefore(toggleContainer, titleInput.nextSibling);
+    document.querySelector('.controls').appendChild(toggleContainer);
 
     checkbox.addEventListener('change', async () => {
       if (!this.currentSong) return;
@@ -338,10 +338,19 @@ class GypsyApp {
   updateUIControls() {
     const isPlaying = this.isPlaying;
 
+    const addRowBtn = document.getElementById('add-row');
+    if (addRowBtn) {
+      const canAddRow = this.currentSong &&
+        !this.currentSong._id &&
+        !isPlaying &&
+        !this.isGuest();
+      addRowBtn.disabled = !canAddRow;
+    }
+
     // Play / Stop / Clear Grid buttons
     document.getElementById('play').disabled = isPlaying;
     document.getElementById('stop').disabled = !isPlaying;
-    document.getElementById('clear-all').disabled = isPlaying;
+    document.getElementById('add-row').disabled = isPlaying;
 
     // BPM slider
     document.getElementById('bpm-slider').disabled = isPlaying;
@@ -427,31 +436,24 @@ class GypsyApp {
       if (this.currentSong) this.currentSong.bpm = +e.target.value;
     };
 
-    document.getElementById('clear-all').onclick = () => {
-      if (this.isGuest()) {
-        YouJazz.showMessage("Permission denied", "Guest mode: You cannot clear songs.");
-        return;
-      }
-    };
 
-    document.getElementById('clear-all').onclick = async () => {
-      if (!this.currentSong) return;
-
-      const confirmed = await YouJazz.showConfirm(
-        "Clear All",
-        "Are you sure you want to clear all chords? This action cannot be undone.",
-        "Clear All",
-        "Cancel"
-      );
-
-      if (!confirmed) return;
-
-      this.currentSong.measures.forEach(m => m.chords = []);
-      this.render();
-    };
 
     document.getElementById('play').onclick = () => this.play();
     document.getElementById('stop').onclick = () => this.stopPlayback();
+
+    document.getElementById('add-row').onclick = () => {
+      if (!this.currentSong || this.currentSong._id || this.isPlaying) return;
+
+      const cols = this.currentSong.grid.cols;
+      const newRow = Array(cols).fill(null).map(() => ({ chords: [] }));
+      this.currentSong.measures.push(...newRow);
+      this.currentSong.grid.rows++;
+
+      this.render();
+      YouJazz.showMessage("Row Added", `New row added (${this.currentSong.grid.rows}x${cols})`);
+    };
+
+
     document.getElementById('save-song').onclick = () => {
       if (this.isGuest()) {
 
@@ -862,7 +864,8 @@ class GypsyApp {
       document.getElementById('new-song').style.display = 'none';
       document.getElementById('save-song').style.display = 'none';
       document.getElementById('delete-song').style.display = 'none';
-      document.getElementById('clear-all').style.display = 'none';
+      document.getElementById('add-row').style.display = 'none';
+
       // Add notice
       const notice = document.createElement('div');
       notice.id = 'guest-notice';
@@ -879,7 +882,7 @@ class GypsyApp {
       document.getElementById('new-song').style.display = '';
       document.getElementById('save-song').style.display = '';
       document.getElementById('delete-song').style.display = '';
-      document.getElementById('clear-all').style.display = '';
+      document.getElementById('add-row').style.display = '';
       const notice = document.getElementById('guest-notice');
       if (notice) notice.remove();
     }
@@ -1295,7 +1298,7 @@ class GypsyApp {
       btn.id = 'like-btn-current';
       btn.className = 'like-btn';
       btn.innerHTML = ' 👍  <span id="like-count">0</span>';
-      document.querySelector('#clear-all').after(btn);
+      document.querySelector('#add-row').after(btn);
     }
 
     if (!song?._id) {

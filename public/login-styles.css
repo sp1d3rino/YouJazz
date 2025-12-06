@@ -35,13 +35,14 @@ h1 {
     height: auto;
     border-radius: 12px;
 }
-.google-btn {
+
+
+.google-btn,
+.guest-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 16px;
-    background: white;
-    color: #444;
     padding: 18px 40px;
     border-radius: 12px;
     font-size: 1.5em;
@@ -49,8 +50,24 @@ h1 {
     text-decoration: none;
     box-shadow: 0 8px 30px rgba(0,0,0,0.6);
     transition: all 0.3s ease;
-    margin-top: 30px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
 }
+
+.google-btn {
+    background: white;
+    color: #444;
+}
+
+.guest-btn {
+    background: #333;
+    color: #ddd;
+    border: 2px solid #555;
+}
+
+
+
 .google-btn:hover {
     transform: translateY(-4px);
     box-shadow: 0 15px 40px rgba(0,0,0,0.7);
@@ -74,22 +91,7 @@ h1 {
     0 0 80px #ff6b6b;
 }
 
-.guest-btn {
-  display: inline-block;
-  background: #333;
-  color: #ddd;
-  padding: 18px 40px;
-  border-radius: 12px;
-  font-size: 1.4em;
-  font-weight: bold;
-  text-decoration: none;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-  border: 2px solid #555;
-  transition: all 0.3s ease;
-  width: 100%;
-  max-width: 420px;
-  text-align: center;
-}
+ 
 
 .guest-btn:hover {
   background: #444;
