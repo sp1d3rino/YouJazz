@@ -59,7 +59,7 @@ YouJazz is built for **Gypsy Jazz lovers** – inspired by Django Reinhardt and 
    npm install
    ```
 
-3. **Configure Environment** (.env file):
+3. **Configure Environment** (.env1 and .env files): create these two .env file where only the port changes. the deploy.sh will copy them in dist directory
    ```
    MONGODB_URI=mongodb://localhost:27017/youjazz
    GOOGLE_CLIENT_ID=your_google_client_id
@@ -79,10 +79,10 @@ YouJazz is built for **Gypsy Jazz lovers** – inspired by Django Reinhardt and 
    git clone https://github.com/sp1d3rino/YouJazz.git
    cd YouJazz
    npm install
-   # Configure .env with production values
-   pm2 start index.js --name youjazz
-   pm2 startup
-   pm2 save
+   # Configure .env1 with production values for instance 1
+   ./deploy.sh yj 1
+   # Configure .env2 with production values for instance 2
+   ./deploy.sh yj 2
    ```
 
 ### Audio Samples
@@ -113,7 +113,7 @@ YouJazz is built for **Gypsy Jazz lovers** – inspired by Django Reinhardt and 
 4. Push to branch (`git push origin feature/amazing-chord`).
 5. Open Pull Request.
 
-I welcome PRs for new chord samples, styles, or UI improvements. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+I welcome PRs for new ideas, styles, or UI improvements. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
