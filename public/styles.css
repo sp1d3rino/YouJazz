@@ -1408,7 +1408,7 @@ body.ctrl-active * {
   }
   
   #public-toggle-container {
-    width: 100%;
+    width: fit-content;
     justify-content: center;
     margin: 10px 0;
   }
