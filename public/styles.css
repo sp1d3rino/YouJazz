@@ -850,16 +850,33 @@ body.ctrl-active * {
 
 
 
-.like-btn {
+ .like-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   background: #1a1a1a;
   border: 2px solid #d4af37;
   color: #d4af37;
-  padding: 8px 14px;
-  border-radius: 30px;
-  font-size: 1.3em;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 1em;
   cursor: pointer;
   margin-left: 12px;
   transition: all 0.3s;
+}
+
+.like-btn .icon-svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+#like-count,
+#fav-count {
+  font-size: 0.95em;
+  margin-left: 4px;
+  font-weight: bold;
 }
 
 .like-btn:hover {
@@ -878,10 +895,6 @@ body.ctrl-active * {
   cursor: not-allowed;
 }
 
-#like-count {
-  font-size: 0.9em;
-  margin-left: 6px;
-}
 
 
 .measure.drag-over {

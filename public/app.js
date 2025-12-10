@@ -669,17 +669,18 @@ class GypsyApp {
     const sheet = document.getElementById('lead-sheet');
     this.updateUIControls();
 
-    if (!this.currentSong) {
-      const publicBtn = document.getElementById('public-toggle-btn');
-      if (publicBtn) {
-        if (this.currentSong) {
-          publicBtn.classList.toggle('active', this.currentSong.isPublic !== false);
-          publicBtn.disabled = false;
-        } else {
-          publicBtn.classList.remove('active');
-          publicBtn.disabled = true;
-        }
+    const publicBtn = document.getElementById('public-toggle-btn');
+    if (publicBtn) {
+      if (this.currentSong) {
+        publicBtn.classList.toggle('active', this.currentSong.isPublic !== false);
+        publicBtn.disabled = false;
+      } else {
+        publicBtn.classList.remove('active');
+        publicBtn.disabled = true;
       }
+    }
+
+    if (!this.currentSong) {
       sheet.innerHTML = `
         <div style="
           height: 70vh;
@@ -897,6 +898,12 @@ class GypsyApp {
       document.getElementById('add-row').style.display = '';
       const notice = document.getElementById('guest-notice');
       if (notice) notice.remove();
+    }
+    // Update public button state after render
+    const publicBtn2 = document.getElementById('public-toggle-btn');
+    if (publicBtn2 && this.currentSong) {
+      publicBtn2.classList.toggle('active', this.currentSong.isPublic !== false);
+      publicBtn2.disabled = false;
     }
 
   }
@@ -1366,7 +1373,6 @@ class GypsyApp {
   <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
   </svg>
-  <span id="fav-count">0</span>
 `;
       btn.after(favBtn);
     }
@@ -1378,7 +1384,7 @@ class GypsyApp {
 
     favBtn.style.display = 'inline-block';
     const favs = song.favourites?.length || 0;
-    favBtn.querySelector('#fav-count').textContent = favs;
+    //favBtn.querySelector('#fav-count').textContent = favs;
 
     const isFavourite = currentUser && song.favourites?.includes(currentUser.id);
     favBtn.classList.toggle('liked', isFavourite);
@@ -1392,7 +1398,7 @@ class GypsyApp {
 
       try {
         const res = await Database.toggleFavourite(song._id);
-        favBtn.querySelector('#fav-count').textContent = res.favouritesCount;
+        //favBtn.querySelector('#fav-count').textContent = res.favouritesCount;
         favBtn.classList.toggle('liked', res.isFavourite);
 
         // Reload list if filter active
