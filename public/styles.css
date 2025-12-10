@@ -1422,3 +1422,46 @@ body.ctrl-active * {
   background: #3498db;
 }
 
+/* AI Button */
+.ai-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  font-size: 1.5em;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.3s;
+  position: relative;
+}
+
+.ai-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.ai-btn:hover::after {
+  content: 'Try another version!';
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.6em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.ai-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Favourite Star in dropdown */
+.song-option-fav {
+  color: gold;
+  margin-right: 5px;
+}

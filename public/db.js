@@ -19,6 +19,15 @@ class Database {
     return await res.json();
   }
 
+  static async toggleFavourite(songId) {
+    const res = await fetch(`/api/songs/${songId}/favourite`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error('Errore toggle favourite');
+    return await res.json();
+  }
+
 
   static async saveSong(song) {
     // Convertiamo il nostro formato interno in quello del DB
@@ -29,6 +38,7 @@ class Database {
       bpm: song.bpm,
       measures: []
     };
+
 
 
 
@@ -70,6 +80,17 @@ class Database {
     }
   }
 
+  static async saveAs(song) {
+    const res = await fetch('/api/songs/save-as', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(song)
+    });
+    if (!res.ok) throw new Error('Errore save-as');
+    return await res.json();
+  }
+
   static async deleteSong(id) {
     await fetch(`/api/songs/${id}`, { method: 'DELETE' });
   }
@@ -91,6 +112,17 @@ class Database {
       // Silenzio totale anche in caso di errore (es. offline)
       console.warn('playCount non aggiornato (offline o errore server)');
     }
+  }
+
+  static async aiReharmonize(measures) {
+    const res = await fetch('/api/songs/ai-reharmonize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ measures })
+    });
+    if (!res.ok) throw new Error('AI reharmonization failed');
+    return await res.json();
   }
 
 }

@@ -88,7 +88,7 @@
     show({ type: 'alert', title, text, icon });
 
   YouJazz.showConfirm = (title, text, yesText = "Sì, elimina", noText = "No") =>
-    show({ type: 'confirm', title, text, yesText, noText, icon: "Warning" });
+    show({ type: 'confirm', title, text, yesText, noText, icon: "Youjazz warning" });
 
   YouJazz.showPrompt = (title, text, placeholder = "") =>
     show({ type: 'prompt', title, text, input: true, icon: "Edit" });

@@ -21,6 +21,9 @@ class GypsyApp {
     this.setupEvents();
     this.setupPublicToggle();         // eventi sempre attivi (BPM, Play, Stop, ecc.)
     this.setupCopyPaste();
+    this.setupFavouritesFilter();
+    this.setupSaveAs();
+    this.setupAIReharmonize();
 
     this.currentStyle = 'swing'; // default iniziale
     if (window.innerWidth <= 768) {
@@ -1337,6 +1340,216 @@ class GypsyApp {
         YouJazz.showMessage("Errore", "Impossibile aggiornare il like");
       }
     };
+
+    let favBtn = document.getElementById('fav-btn-current');
+
+    if (!favBtn) {
+      favBtn = document.createElement('button');
+      favBtn.id = 'fav-btn-current';
+      favBtn.className = 'like-btn';
+      favBtn.innerHTML = '⭐ <span id="fav-count">0</span>';
+      btn.after(favBtn);
+    }
+
+    if (!song?._id) {
+      favBtn.style.display = 'none';
+      return;
+    }
+
+    favBtn.style.display = 'inline-block';
+    const favs = song.favourites?.length || 0;
+    favBtn.querySelector('#fav-count').textContent = favs;
+
+    const isFavourite = currentUser && song.favourites?.includes(currentUser.id);
+    favBtn.classList.toggle('liked', isFavourite);
+    favBtn.disabled = !currentUser;
+    favBtn.onclick = null;
+    favBtn.onclick = async () => {
+      if (!currentUser) {
+        YouJazz.showMessage("Login required", "Login to add favourites");
+        return;
+      }
+
+      try {
+        const res = await Database.toggleFavourite(song._id);
+        favBtn.querySelector('#fav-count').textContent = res.favouritesCount;
+        favBtn.classList.toggle('liked', res.isFavourite);
+
+        // Reload list if filter active
+        const filterCheckbox = document.getElementById('filter-favourites');
+        if (filterCheckbox?.checked) {
+          await this.loadSongsList();
+        }
+      } catch (err) {
+        YouJazz.showMessage("Error", "Unable to update favourite");
+      }
+    };
+  }
+
+
+  setupFavouritesFilter() {
+    const checkbox = document.getElementById('filter-favourites');
+    if (!checkbox) return;
+
+    checkbox.addEventListener('change', () => {
+      this.loadSongsList();
+    });
+  }
+  async setupSaveAs() {
+    const btn = document.getElementById('save-as-song');
+ 
+    if (!btn) return;
+
+    btn.onclick = async () => {
+      if (!this.currentSong) {
+        return YouJazz.showMessage("Error", "No song loaded");
+      }
+
+      if (this.isGuest()) {
+        return YouJazz.showMessage("Permission denied", "Login to save songs");
+      }
+
+      const confirmed = await YouJazz.showConfirm(
+        "Save As Copy",
+        `Create a personal copy of "${this.currentSong.title}"?`,
+        "Yes, save copy",
+        "Cancel"
+      );
+
+      if (!confirmed) return;
+
+      try {
+        // Convert to DB format
+        const dbSong = {
+          title: this.currentSong.title,
+          bpm: this.currentSong.bpm,
+          style: this.currentSong.style,
+          grid: this.currentSong.grid,
+          measures: []
+        };
+
+        this.currentSong.measures.forEach(measure => {
+          if (measure.chords.length === 0) return;
+          const realChords = measure.chords.filter(c => c !== '%');
+          if (realChords.length === 0) return;
+          const beatsPerChord = 4 / realChords.length;
+          realChords.forEach(chord => {
+            dbSong.measures.push({ chord, beats: beatsPerChord });
+          });
+        });
+
+        const saved = await Database.saveAs(dbSong);
+        this.currentSong._id = saved._id;
+        this.currentSong.title = saved.title;
+        document.getElementById('song-title').value = saved.title;
+
+        YouJazz.showMessage("Success", `Song saved as "${saved.title}"`);
+        await this.loadSongsList();
+      } catch (e) {
+        console.error('Save as error:', e);
+        YouJazz.showMessage("Error", "Unable to save copy");
+      }
+    };
+  };
+
+
+  async setupAIReharmonize() {
+    const btn = document.getElementById('ai-reharmonize');
+    if (!btn) return;
+
+    btn.onclick = async () => {
+      if (!this.currentSong || this.currentSong.measures.length === 0) {
+        return YouJazz.showMessage("Error", "No song loaded");
+      }
+
+      if (this.isGuest()) {
+        return YouJazz.showMessage("Permission denied", "Login to use AI features");
+      }
+
+      const confirmed = await YouJazz.showConfirm(
+        "AI Reharmonization 🤖",
+        "Generate an alternative jazz version of this progression?",
+        "Yes, do it!",
+        "Cancel"
+      );
+
+      if (!confirmed) return;
+
+      btn.disabled = true;
+      btn.textContent = '⏳';
+
+
+
+      try {
+        // Convert current song to DB format
+        const measures = [];
+        measures.push(this.currentSong.title);
+        this.currentSong.measures.forEach(m => {
+          if (m.chords.length === 0) return;
+          const realChords = m.chords.filter(c => c !== '%');
+          const beatsPerChord = 4 / realChords.length;
+
+
+          realChords.forEach(chord => {
+            measures.push({ chord, beats: beatsPerChord });
+          });
+        });
+
+        const result = await Database.aiReharmonize(measures);
+
+        // Rebuild grid from AI response
+        this.reconstructGridFromMeasures(result.measures);
+        this.render();
+
+        YouJazz.showMessage("AI Reharmonization ✨", "New version generated!");
+      } catch (e) {
+        console.error('AI error:', e);
+        YouJazz.showMessage("Error", "AI reharmonization failed. Try again.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🤖';
+      }
+    };
+  }
+
+  reconstructGridFromMeasures(dbMeasures) {
+    // Reset grid
+    this.currentSong.measures = Array(this.currentSong.grid.rows * this.currentSong.grid.cols)
+      .fill(null)
+      .map(() => ({ chords: [] }));
+
+    let currentMeasure = { chords: [] };
+    let currentBeats = 0;
+    let measureIndex = 0;
+
+    dbMeasures.forEach(m => {
+      if (currentBeats + m.beats > 4) {
+        // Save current and start new
+        if (currentMeasure.chords.length > 0 && measureIndex < this.currentSong.measures.length) {
+          this.currentSong.measures[measureIndex] = currentMeasure;
+          measureIndex++;
+        }
+        currentMeasure = { chords: [] };
+        currentBeats = 0;
+      }
+
+      currentMeasure.chords.push(m.chord);
+      currentBeats += m.beats;
+
+      if (currentBeats === 4) {
+        if (measureIndex < this.currentSong.measures.length) {
+          this.currentSong.measures[measureIndex] = currentMeasure;
+          measureIndex++;
+        }
+        currentMeasure = { chords: [] };
+        currentBeats = 0;
+      }
+    });
+
+    // Save last measure if not empty
+    if (currentMeasure.chords.length > 0 && measureIndex < this.currentSong.measures.length) {
+      this.currentSong.measures[measureIndex] = currentMeasure;
+    }
   }
 
   async loadSongsList() {
@@ -1362,23 +1575,34 @@ class GypsyApp {
         if (res.ok) currentUser = await res.json();
       } catch (e) { }
 
+
+      const filterCheckbox = document.getElementById('filter-favourites');
+      const showOnlyFavourites = filterCheckbox?.checked;
       const visibleSongs = songs.filter(song => {
-        if (song.isPublic) return true;
-        if (!currentUser) return false;
-        return song.owner._id === currentUser.id;
+        // Privacy filter (existing)
+        const passesPrivacy = song.isPublic || (currentUser && song.owner._id === currentUser.id);
+        if (!passesPrivacy) return false;
+
+        // Favourites filter (new)
+        if (showOnlyFavourites && currentUser) {
+          return song.favourites?.includes(currentUser.id);
+        }
+
+        return true;
       });
 
       // Popola la lista – UNA SOLA VOLTA per brano
       visibleSongs.forEach(song => {
         const opt = document.createElement('option');
         opt.value = song._id;
+
+        const isFavourite = currentUser && song.favourites?.includes(currentUser.id);
+        const favIcon = isFavourite ? '⭐ ' : '';
         const privacyIcon = !song.isPublic ? '🔒 ' : '';
-
-
         const likes = song.likes?.length || 0;
-        const likeText = likes > 0 ? `👍 ${likes}` : '';
+        const likeText = likes > 0 ? ` 👍 ${likes}` : '';
 
-        opt.textContent = `${song.title} (${this.getOwnerName(song)})${privacyIcon}${likeText}`;
+        opt.textContent = `${favIcon}${privacyIcon}${song.title} (${this.getOwnerName(song)})${likeText}`;
         sel.appendChild(opt);
       });
 
