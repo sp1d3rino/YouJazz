@@ -400,7 +400,7 @@ Generate an alternative jazz reharmonization using substitutions, extensions. ch
       throw new Error("Could not extract text from OpenAI response");
     }
 
-    aiOutput = aiOutput.trim();
+    aiOutput = aiOutput.replace(/b/g, '♭').trim();
 
     console.log("AI Output:", aiOutput);
     // Parse output: "Cmaj7|4 Dm7|2 G7|2 ..." -> [{chord, beats}, ...]

@@ -128,10 +128,10 @@ class GypsyApp {
     checkbox.type = 'checkbox';
     checkbox.id = 'public-checkbox';
     checkbox.checked = true;
-    checkbox.style.cssText = 'width: 18px; height: 18px; cursor: pointer; accent-color: #e91e63;';
+    checkbox.style.cssText = 'width: 18px; height: 18px; cursor: pointer; accent-color: #ffffffff;';
 
     const labelText = document.createElement('span');
-    labelText.textContent = 'Public';
+    labelText.textContent = '🌍';
 
     label.appendChild(checkbox);
     label.appendChild(labelText);
@@ -1230,6 +1230,7 @@ class GypsyApp {
       console.log('Public checkbox:', checkbox.checked);
       if (checkbox) this.currentSong.isPublic = checkbox.checked;
       // Se arriviamo qui → l'utente può salvare (nuovo brano o suo)
+
       const saved = await Database.saveSong(this.currentSong);
 
       // Aggiorniamo l'_id solo se è un nuovo brano

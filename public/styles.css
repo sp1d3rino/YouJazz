@@ -1426,7 +1426,7 @@ body.ctrl-active * {
 .ai-btn {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  font-size: 1.5em;
+  font-size: 1em;
   padding: 8px 16px;
   cursor: pointer;
   border-radius: 8px;

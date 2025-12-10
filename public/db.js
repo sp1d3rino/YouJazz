@@ -34,6 +34,7 @@ class Database {
     const dbSong = {
       title: song.title,
       style: song.style,
+      grid: song.grid,
       isPublic: song.isPublic,
       bpm: song.bpm,
       measures: []

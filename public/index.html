@@ -87,24 +87,23 @@
     </header>
 
     <div class="controls">
-      <button id="new-song">New Song</button>
-      <button id="save-song">Save Song</button>
-      <button id="delete-song" class="danger">Delete Song</button>
-      <button id="save-as-song" style="background:#9c27b0;">Save As Copy</button>
-      <button id="ai-reharmonize" class="ai-btn">
-        🤖
-      </button>
+      <button id="new-song">new</button>
+      <button id="save-song">save</button>
+      <button id="save-as-song">save as</button>
+      <button id="delete-song">delete</button>
+      <button id="ai-reharmonize" class="ai-btn">🤖</button>
       <label>BPM: <span id="bpm-value">120</span></label>
       <input type="range" id="bpm-slider" min="40" max="300" value="120" step="5">
       <div class="select-wrapper">
         <select id="song-list">
-          <label style="margin-left: 15px;">
-            <input type="checkbox" id="filter-favourites" style="width:18px;height:18px;vertical-align:middle;">
-            <span style="color:#bbb;font-size:0.95em;"> ⭐ Favourites only</span>
-          </label>
           <option value="">— Load Song —</option>
         </select>
       </div>
+      <label style="margin-left: 15px;">
+        <input type="checkbox" id="filter-favourites" style="width:18px;height:18px;vertical-align:middle;">
+        <span style="color:#bbb;font-size:0.95em;"> ⭐</span>
+      </label>
+
     </div>
 
     <div class="main">
