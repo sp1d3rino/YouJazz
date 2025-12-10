@@ -67,7 +67,16 @@
   <div class="container">
     <header>
       <h1>Gypsy Jazz Backing Track Composer</h1>
-      <input type="text" id="song-title" placeholder="Song name" value="Song name" />
+      <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+        <input type="text" id="song-title" placeholder="Song name" value="Song name" />
+        <button id="public-toggle-btn" class="toggle-btn public-btn" title="Public/Private">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path
+              d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
+        </button>
+      </div>
       <div id="user-info" style="position:absolute;top:20px;right:20px;text-align:right;cursor:pointer;">
         <!--<span id="user-name" style="font-size:1.2em;"></span><br>-->
         <img id="user-pic" width="40" height="40" style="border-radius:50%;margin-top:8px;vertical-align:middle;">
@@ -87,11 +96,49 @@
     </header>
 
     <div class="controls">
-      <button id="new-song">new</button>
-      <button id="save-song">save</button>
-      <button id="save-as-song">save as</button>
-      <button id="delete-song">delete</button>
-      <button id="ai-reharmonize" class="ai-btn">🤖</button>
+      <button id="new-song" class="icon-btn new-btn" title="New Song">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </button>
+
+      <button id="save-song" class="icon-btn save-btn" title="Save">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+          <polyline points="17 21 17 13 7 13 7 21" />
+          <polyline points="7 3 7 8 15 8" />
+        </svg>
+      </button>
+
+      <button id="save-as-song" class="icon-btn save-as-btn" title="Save As">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+          <polyline points="17 21 17 13 7 13 7 21" />
+          <polyline points="7 3 7 8 15 8" />
+          <circle cx="17" cy="7" r="3" fill="currentColor" />
+        </svg>
+       </button>
+
+      <button id="delete-song" class="icon-btn delete-btn" title="Delete">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6" />
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          <line x1="10" y1="11" x2="10" y2="17" />
+          <line x1="14" y1="11" x2="14" y2="17" />
+        </svg>
+      </button>
+
+      <button id="ai-reharmonize" class="icon-btn ai-btn" title="AI Reharmonize">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <circle cx="9" cy="10" r="1" fill="currentColor" />
+          <circle cx="15" cy="10" r="1" fill="currentColor" />
+          <path d="M9 16c1 1 2 1.5 3 1.5s2-.5 3-1.5" />
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+        </svg>
+ 
+      </button>
+
       <label>BPM: <span id="bpm-value">120</span></label>
       <input type="range" id="bpm-slider" min="40" max="300" value="120" step="5">
       <div class="select-wrapper">
@@ -99,10 +146,12 @@
           <option value="">— Load Song —</option>
         </select>
       </div>
-      <label style="margin-left: 15px;">
-        <input type="checkbox" id="filter-favourites" style="width:18px;height:18px;vertical-align:middle;">
-        <span style="color:#bbb;font-size:0.95em;"> ⭐</span>
-      </label>
+      <button id="filter-favourites" class="toggle-btn favourite-filter-btn" title="Show Favourites Only">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon
+            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      </button>
 
     </div>
 
@@ -122,9 +171,27 @@
       <section id="lead-sheet"></section>
 
       <aside class="player-controls">
-        <button id="play">Play</button>
-        <button id="stop">Stop</button>
-        <button id="add-row">Add Row</button>
+        <button id="play" class="icon-btn play-btn" title="Play">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+        </button>
+
+        <button id="stop" class="icon-btn stop-btn" title="Stop">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="6" y="6" width="12" height="12" />
+          </svg>
+        </button>
+
+        <button id="add-row" class="icon-btn add-row-btn" title="Add Row">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <line x1="3" y1="9" x2="21" y2="9" />
+            <line x1="3" y1="15" x2="21" y2="15" />
+            <line x1="12" y1="15" x2="12" y2="21" />
+            <line x1="9" y1="18" x2="15" y2="18" />
+          </svg>
+        </button>
       </aside>
     </div>
   </div>

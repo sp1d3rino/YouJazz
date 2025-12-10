@@ -1365,33 +1365,8 @@ body.ctrl-active * {
   background: #333;
 }
 
-/* Public toggle nel controls */
-#public-toggle-container {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: #222;
-  border-radius: 8px;
-  margin: 0 10px;
-}
 
-#public-toggle-container label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 1em;
-  color: #ddd;
-  margin: 0;
-}
-
-#public-checkbox {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  accent-color: #e91e63;
-}
+ 
 
 /* Mobile adjustments */
 @media (max-width: 768px) {
@@ -1406,12 +1381,7 @@ body.ctrl-active * {
     transform: translateX(-50%);
     right: auto;
   }
-  
-  #public-toggle-container {
-    width: fit-content;
-    justify-content: center;
-    margin: 10px 0;
-  }
+ 
 }
 
 #add-row {
@@ -1423,16 +1393,7 @@ body.ctrl-active * {
 }
 
 /* AI Button */
-.ai-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  font-size: 1em;
-  padding: 8px 16px;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: 0.3s;
-  position: relative;
-}
+
 
 .ai-btn:hover {
   transform: scale(1.1);
@@ -1464,4 +1425,134 @@ body.ctrl-active * {
 .song-option-fav {
   color: gold;
   margin-right: 5px;
+}
+
+/* ========== SVG ICON BUTTONS ========== */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.icon-btn .icon-svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Specific button styles */
+.icon-btn.new-btn {
+  background: #3498db;
+  color: white;
+}
+
+.icon-btn.save-btn {
+  background: #27ae60;
+  color: white;
+}
+
+.icon-btn.save-as-btn {
+  background: #16a085;
+  color: white;
+}
+
+.icon-btn.delete-btn {
+  background: #e74c3c;
+  color: white;
+}
+
+.icon-btn.ai-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.icon-btn.play-btn {
+  background: #3498db;
+  color: white;
+  width: 100%;
+  padding: 20px;
+  font-size: 1.2em;
+}
+
+.icon-btn.stop-btn {
+  background: #e74c3c;
+  color: white;
+  width: 100%;
+  padding: 20px;
+  font-size: 1.2em;
+}
+
+.icon-btn.add-row-btn {
+  background: #9b59b6;
+  color: white;
+  width: 100%;
+  padding: 20px;
+  font-size: 1.2em;
+}
+
+.icon-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.icon-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Toggle buttons (favourite and public) */
+.toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border: 2px solid #444;
+  background: #222;
+  color: #888;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.toggle-btn .icon-svg {
+  width: 20px;
+  height: 20px;
+}
+
+.toggle-btn.active {
+  background: #d4af37;
+  color: #000;
+  border-color: #d4af37;
+}
+
+.toggle-btn:hover:not(:disabled) {
+  border-color: #666;
+  transform: scale(1.05);
+}
+
+.public-btn {
+  padding: 8px 12px;
+}
+
+.public-btn.active {
+  background: #3498db;
+  border-color: #3498db;
+  color: white;
+}
+
+.favourite-filter-btn {
+  margin-left: 15px;
+}
+
+/* Player controls larger icons */
+.player-controls .icon-btn .icon-svg {
+  width: 32px;
+  height: 32px;
 }

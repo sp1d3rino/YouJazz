@@ -20,11 +20,15 @@ class GypsyApp {
     this.setupGlobalEvents();
     this.setupEvents();
     this.setupPublicToggle();         // eventi sempre attivi (BPM, Play, Stop, ecc.)
+    const publicBtn = document.getElementById('public-toggle-btn');
+    if (publicBtn) {
+      publicBtn.disabled = true; // Disabled until a song is loaded
+    }
+
     this.setupCopyPaste();
     this.setupFavouritesFilter();
     this.setupSaveAs();
     this.setupAIReharmonize();
-
     this.currentStyle = 'swing'; // default iniziale
     if (window.innerWidth <= 768) {
       const palette = document.querySelector('.chord-palette');
@@ -117,39 +121,33 @@ class GypsyApp {
   }
 
   setupPublicToggle() {
-    const toggleContainer = document.createElement('div');
-    toggleContainer.id = 'public-toggle-container';
-    toggleContainer.style.cssText = 'display: inline-flex; align-items: center; gap: 8px; margin-left: 15px;';
 
-    const label = document.createElement('label');
-    label.style.cssText = 'display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.95em; color: #bbb;';
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.id = 'public-checkbox';
-    checkbox.checked = true;
-    checkbox.style.cssText = 'width: 18px; height: 18px; cursor: pointer; accent-color: #ffffffff;';
+    const btn = document.getElementById('public-toggle-btn');
+    if (!btn) return;
 
-    const labelText = document.createElement('span');
-    labelText.textContent = '🌍';
+    // Set initial state based on current song or default to true
+    const initialState = this.currentSong ? (this.currentSong.isPublic !== false) : true;
+    btn.classList.toggle('active', initialState);
+    btn.disabled = !this.currentSong; // Disable if no song loaded
 
-    label.appendChild(checkbox);
-    label.appendChild(labelText);
-    toggleContainer.appendChild(label);
+    btn.addEventListener('click', async () => {
+      if (!this.currentSong) {
+        YouJazz.showMessage("No Song", "Load or create a song first");
+        return;
+      }
 
-    const titleInput = document.getElementById('song-title');
-    document.querySelector('.controls').appendChild(toggleContainer);
+      const newState = !btn.classList.contains('active');
+      btn.classList.toggle('active', newState);
+      this.currentSong.isPublic = newState;
 
-    checkbox.addEventListener('change', async () => {
-      if (!this.currentSong) return;
-      this.currentSong.isPublic = checkbox.checked;
       if (this.currentSong._id) {
         try {
-          await Database.updatePublicStatus(this.currentSong._id, checkbox.checked);
-          YouJazz.showMessage("Visibility Updated", `Song is now ${checkbox.checked ? 'public' : 'private'}`);
+          await Database.updatePublicStatus(this.currentSong._id, newState);
+          YouJazz.showMessage("Visibility Updated", `Song is now ${newState ? 'public' : 'private'}`);
           await this.loadSongsList();
         } catch (err) {
-          checkbox.checked = !checkbox.checked;
+          btn.classList.toggle('active', !newState);
           YouJazz.showMessage("Error", "Unable to update visibility");
         }
       }
@@ -670,7 +668,18 @@ class GypsyApp {
   render() {
     const sheet = document.getElementById('lead-sheet');
     this.updateUIControls();
+
     if (!this.currentSong) {
+      const publicBtn = document.getElementById('public-toggle-btn');
+      if (publicBtn) {
+        if (this.currentSong) {
+          publicBtn.classList.toggle('active', this.currentSong.isPublic !== false);
+          publicBtn.disabled = false;
+        } else {
+          publicBtn.classList.remove('active');
+          publicBtn.disabled = true;
+        }
+      }
       sheet.innerHTML = `
         <div style="
           height: 70vh;
@@ -1301,7 +1310,12 @@ class GypsyApp {
       btn = document.createElement('button');
       btn.id = 'like-btn-current';
       btn.className = 'like-btn';
-      btn.innerHTML = ' 👍  <span id="like-count">0</span>';
+      btn.innerHTML = `
+  <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+  <span id="like-count">0</span>
+`;
       document.querySelector('#add-row').after(btn);
     }
 
@@ -1348,7 +1362,12 @@ class GypsyApp {
       favBtn = document.createElement('button');
       favBtn.id = 'fav-btn-current';
       favBtn.className = 'like-btn';
-      favBtn.innerHTML = '⭐ <span id="fav-count">0</span>';
+      favBtn.innerHTML = `
+  <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+  </svg>
+  <span id="fav-count">0</span>
+`;
       btn.after(favBtn);
     }
 
@@ -1389,16 +1408,17 @@ class GypsyApp {
 
 
   setupFavouritesFilter() {
-    const checkbox = document.getElementById('filter-favourites');
-    if (!checkbox) return;
+    const btn = document.getElementById('filter-favourites');
+    if (!btn) return;
 
-    checkbox.addEventListener('change', () => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
       this.loadSongsList();
     });
   }
   async setupSaveAs() {
     const btn = document.getElementById('save-as-song');
- 
+
     if (!btn) return;
 
     btn.onclick = async () => {
@@ -1577,8 +1597,8 @@ class GypsyApp {
       } catch (e) { }
 
 
-      const filterCheckbox = document.getElementById('filter-favourites');
-      const showOnlyFavourites = filterCheckbox?.checked;
+      const filterBtn = document.getElementById('filter-favourites');
+      const showOnlyFavourites = filterBtn?.classList.contains('active');
       const visibleSongs = songs.filter(song => {
         // Privacy filter (existing)
         const passesPrivacy = song.isPublic || (currentUser && song.owner._id === currentUser.id);
