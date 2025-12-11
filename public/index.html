@@ -63,6 +63,17 @@
   <div id="auth-loader">
     <div class="auth-spinner"></div>
   </div>
+  <div class="select-wrapper">
+    <select id="song-list">
+      <option value="">— Load Song —</option>
+    </select>
+  </div>
+  <button id="filter-favourites" class="toggle-btn favourite-filter-btn" title="Show Favourites Only">
+    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polygon
+        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  </button>
   <div class="container">
     <header>
       <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
@@ -115,7 +126,7 @@
           <polyline points="7 3 7 8 15 8" />
           <circle cx="17" cy="7" r="3" fill="currentColor" />
         </svg>
-       </button>
+      </button>
 
       <button id="delete-song" class="icon-btn delete-btn" title="Delete">
         <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -134,22 +145,12 @@
           <path d="M9 16c1 1 2 1.5 3 1.5s2-.5 3-1.5" />
           <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
         </svg>
- 
+
       </button>
 
       <label>BPM: <span id="bpm-value">120</span></label>
       <input type="range" id="bpm-slider" min="40" max="300" value="120" step="5">
-      <div class="select-wrapper">
-        <select id="song-list">
-          <option value="">— Load Song —</option>
-        </select>
-      </div>
-      <button id="filter-favourites" class="toggle-btn favourite-filter-btn" title="Show Favourites Only">
-        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon
-            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-      </button>
+
 
     </div>
 
