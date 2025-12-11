@@ -76,16 +76,6 @@
   </button>
   <div class="container">
     <header>
-      <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-        <input type="text" id="song-title" placeholder="Song name" value="Song name" />
-        <button id="public-toggle-btn" class="toggle-btn public-btn" title="Public/Private">
-          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10" />
-            <path
-              d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-          </svg>
-        </button>
-      </div>
       <div id="user-info" style="position:absolute;top:20px;right:20px;text-align:right;cursor:pointer;">
         <!--<span id="user-name" style="font-size:1.2em;"></span><br>-->
         <img id="user-pic" width="40" height="40" style="border-radius:50%;margin-top:8px;vertical-align:middle;">
@@ -147,6 +137,17 @@
         </svg>
 
       </button>
+
+      <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+        <input type="text" id="song-title" placeholder="Song name" value="Song name" />
+        <button id="public-toggle-btn" class="toggle-btn public-btn" title="Public/Private">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path
+              d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
+        </button>
+      </div>
 
       <label>BPM: <span id="bpm-value">120</span></label>
       <input type="range" id="bpm-slider" min="40" max="300" value="120" step="5">
