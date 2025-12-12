@@ -48,7 +48,7 @@ header h1 {
 .controls button {
   padding: 10px 20px;
   margin: 0 10px;
-  background: #27ae60;
+  background: #222;
   color: white;
   border: none;
   border-radius: 6px;
@@ -850,7 +850,7 @@ body.ctrl-active * {
 
 
 
- .like-btn {
+ .fav-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -866,7 +866,7 @@ body.ctrl-active * {
   transition: all 0.3s;
 }
 
-.like-btn .icon-svg {
+.fav-btn .icon-svg {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
@@ -879,18 +879,18 @@ body.ctrl-active * {
   font-weight: bold;
 }
 
-.like-btn:hover {
+.fav-btn:hover {
   background: #3498db;
   color: #000;
 }
 
-.like-btn.liked {
-  background: #3498db;
+.fav-btn.liked {
+  background: #d4af37;
   border-color: #e74c3c;
   color: white;
 }
 
-.like-btn:disabled {
+.fav-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -1185,7 +1185,7 @@ body.ctrl-active * {
   }
 
   /* Like button mobile */
-  .like-btn {
+  .fav-btn {
     padding: 6px 10px;
     font-size: 1em;
     margin-left: 8px;
@@ -1496,7 +1496,7 @@ body.ctrl-active * {
 }
 
 .icon-btn.stop-btn {
-  background: #e74c3c;
+  background: #3498db;
   color: white;
   width: 100%;
   padding: 20px;
@@ -1504,12 +1504,13 @@ body.ctrl-active * {
 }
 
 .icon-btn.add-row-btn {
-  background: #9b59b6;
+  background: #3498db;
   color: white;
   width: 100%;
   padding: 20px;
   font-size: 1.2em;
 }
+
 
 .icon-btn:hover:not(:disabled) {
   transform: translateY(-2px);
@@ -1546,7 +1547,7 @@ body.ctrl-active * {
 }
 
 .toggle-btn:hover:not(:disabled) {
-  border-color: #666;
+  border-color: #222;
   transform: scale(1.05);
 }
 
@@ -1555,11 +1556,11 @@ body.ctrl-active * {
 }
 
 .public-btn.active {
-  background: #3498db;
+  background: #d4af37;
   border-color: #3498db;
   color: white;
 }
-
+ 
 .favourite-filter-btn {
   margin-left: 15px;
 }

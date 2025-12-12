@@ -63,19 +63,21 @@
   <div id="auth-loader">
     <div class="auth-spinner"></div>
   </div>
-  <div class="select-wrapper">
-    <select id="song-list">
-      <option value="">— Load Song —</option>
-    </select>
-  </div>
-  <button id="filter-favourites" class="toggle-btn favourite-filter-btn" title="Show Favourites Only">
-    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polygon
-        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  </button>
   <div class="container">
     <header>
+      <button id="filter-favourites" class="toggle-btn favourite-filter-btn" title="Show Favourites Only">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon
+            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      </button>
+
+      <div class="select-wrapper">
+        <select id="song-list">
+          <option value="">— Load Song —</option>
+        </select>
+      </div>
+
       <div id="user-info" style="position:absolute;top:20px;right:20px;text-align:right;cursor:pointer;">
         <!--<span id="user-name" style="font-size:1.2em;"></span><br>-->
         <img id="user-pic" width="40" height="40" style="border-radius:50%;margin-top:8px;vertical-align:middle;">
@@ -137,22 +139,20 @@
         </svg>
 
       </button>
-
-      <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-        <input type="text" id="song-title" placeholder="Song name" value="Song name" />
-        <button id="public-toggle-btn" class="toggle-btn public-btn" title="Public/Private">
+      <button id="public-toggle-btn" class="toggle-btn public-btn" title="Public/Private">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
             <path
               d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
           </svg>
         </button>
-      </div>
-
-      <label>BPM: <span id="bpm-value">120</span></label>
-      <input type="range" id="bpm-slider" min="40" max="300" value="120" step="5">
-
-
+      <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+        <input type="text" id="song-title" placeholder="Song name" value="Song name" />
+       </div>
+     <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+      <label class="created-by">created by </label>
+    </div>
+ 
     </div>
 
     <div class="main">
@@ -161,6 +161,9 @@
           <h3>Rhythm Style</h3>
           <div class="style-selector"></div>
         </div>
+      <label>BPM: <span id="bpm-value">120</span></label>
+      <input type="range" id="bpm-slider" min="60" max="280" value="120" step="5">
+
         <h3>Chords</h3>
         <div class="chord-list"></div>
 
@@ -192,6 +195,14 @@
             <line x1="9" y1="18" x2="15" y2="18" />
           </svg>
         </button>
+
+        <button id="fav-btn" class="icon-btn fav-btn" title="Favourites">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+        </button>
+
       </aside>
     </div>
   </div>

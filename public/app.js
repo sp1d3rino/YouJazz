@@ -20,15 +20,11 @@ class GypsyApp {
     this.setupGlobalEvents();
     this.setupEvents();
     this.setupPublicToggle();         // eventi sempre attivi (BPM, Play, Stop, ecc.)
-    const publicBtn = document.getElementById('public-toggle-btn');
-    if (publicBtn) {
-      publicBtn.disabled = true; // Disabled until a song is loaded
-    }
-
     this.setupCopyPaste();
     this.setupFavouritesFilter();
     this.setupSaveAs();
     this.setupAIReharmonize();
+    this.showCreatedBy(null);
     this.currentStyle = 'swing'; // default iniziale
     if (window.innerWidth <= 768) {
       const palette = document.querySelector('.chord-palette');
@@ -154,34 +150,18 @@ class GypsyApp {
     });
   }
 
-  async updateCreatedByForCurrentUser() {
-    try {
-      const res = await fetch('/auth/me', { credentials: 'include' });
-      if (res.ok) {
-        const user = await res.json();
-        // Simula un oggetto song con owner = utente corrente
-        this.showCreatedBy({ owner: { displayName: user.displayName || 'You' } });
-      } else {
-        this.showCreatedBy({ owner: null }); // guest o errore
-      }
-    } catch (e) {
-      this.showCreatedBy({ owner: null });
-    }
-  }
+ 
 
   showCreatedBy(song) {
-    const titleBox = document.getElementById('song-title');
-    let createdByEl = titleBox.nextElementSibling;
-
-    if (!createdByEl || !createdByEl.classList.contains('created-by')) {
-      createdByEl = document.createElement('div');
-      createdByEl.className = 'created-by';
-      createdByEl.style.cssText = 'font-size: 0.9em; color: #888; margin-top: 5px; text-align: center; font-style: italic;';
-      titleBox.parentNode.insertBefore(createdByEl, titleBox.nextSibling);
+    let createdByEl = document.getElementsByClassName('created-by')[0];
+    if (!song) {
+      createdByEl.textContent = '';
+      return;
     }
-
-    const ownerName = this.getOwnerName(song);
-    createdByEl.textContent = `Created by: ${ownerName}`;
+    else {
+      const ownerName = this.getOwnerName(song);
+      createdByEl.textContent = `Created by: ${ownerName}`;
+    }
   }
 
 
@@ -380,7 +360,7 @@ class GypsyApp {
       this.currentSong = {
         title: 'Song name',
         style: this.currentStyle,
-        isPublic: true,
+        isPublic: false,
         bpm: 120,
         grid: { rows, cols },
         measures: Array(rows * cols).fill(null).map(() => ({ chords: [] }))
@@ -402,8 +382,8 @@ class GypsyApp {
 
       // Renderizza
       this.render();
-      const checkbox = document.getElementById('public-checkbox');
-      if (checkbox) checkbox.checked = true;
+      //const checkbox = document.getElementById('public-checkbox');
+      //if (checkbox) checkbox.checked = true;
 
       modal.classList.add('hidden');
       createBtn.removeEventListener('click', handler);
@@ -1242,9 +1222,9 @@ class GypsyApp {
       }
 
 
-      const checkbox = document.getElementById('public-checkbox');
-      console.log('Public checkbox:', checkbox.checked);
-      if (checkbox) this.currentSong.isPublic = checkbox.checked;
+      //      const checkbox = document.getElementById('public-checkbox');
+
+      //      if (checkbox) this.currentSong.isPublic = checkbox.checked;
       // Se arriviamo qui → l'utente può salvare (nuovo brano o suo)
 
       const saved = await Database.saveSong(this.currentSong);
@@ -1309,73 +1289,9 @@ class GypsyApp {
     }
   }
 
-  updateLikeButton(song, currentUser) {
-    let btn = document.getElementById('like-btn-current');
+  updateFavButton(song, currentUser) {
 
-    // Crea il pulsante solo la prima volta
-    if (!btn) {
-      btn = document.createElement('button');
-      btn.id = 'like-btn-current';
-      btn.className = 'like-btn';
-      btn.innerHTML = `
-  <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-  </svg>
-  <span id="like-count">0</span>
-`;
-      document.querySelector('#add-row').after(btn);
-    }
-
-    if (!song?._id) {
-      btn.style.display = 'none';
-      return;
-    }
-
-    btn.style.display = 'inline-block';
-    const likes = song.likes?.length || 0;
-    btn.querySelector('#like-count').textContent = likes;
-
-    const hasLiked = currentUser && song.likes?.includes(currentUser.id);
-    btn.classList.toggle('liked', hasLiked);
-    btn.disabled = !currentUser;
-    btn.onclick = null; // ← previene duplicati di click
-    btn.onclick = async () => {
-      if (!currentUser) {
-        YouJazz.showMessage("Login richiesto", "Devi essere loggato per mettere like");
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/songs/${song._id}/like`, {
-          method: 'POST',
-          credentials: 'include'
-        });
-        if (!res.ok) throw new Error();
-
-        const data = await res.json();
-        btn.querySelector('#like-count').textContent = data.likes;
-        btn.classList.toggle('liked', data.hasLiked);
-
-        // Aggiorna dropdown
-        this.loadSongsList();
-      } catch (err) {
-        YouJazz.showMessage("Errore", "Impossibile aggiornare il like");
-      }
-    };
-
-    let favBtn = document.getElementById('fav-btn-current');
-
-    if (!favBtn) {
-      favBtn = document.createElement('button');
-      favBtn.id = 'fav-btn-current';
-      favBtn.className = 'like-btn';
-      favBtn.innerHTML = `
-  <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-  </svg>
-`;
-      btn.after(favBtn);
-    }
+    let favBtn = document.getElementById('fav-btn');
 
     if (!song?._id) {
       favBtn.style.display = 'none';
@@ -1398,7 +1314,7 @@ class GypsyApp {
 
       try {
         const res = await Database.toggleFavourite(song._id);
-        //favBtn.querySelector('#fav-count').textContent = res.favouritesCount;
+
         favBtn.classList.toggle('liked', res.isFavourite);
 
         // Reload list if filter active
@@ -1625,11 +1541,9 @@ class GypsyApp {
 
         const isFavourite = currentUser && song.favourites?.includes(currentUser.id);
         const favIcon = isFavourite ? '⭐ ' : '';
-        const privacyIcon = !song.isPublic ? '🔒 ' : '';
-        const likes = song.likes?.length || 0;
-        const likeText = likes > 0 ? ` 👍 ${likes}` : '';
+        const privacyIcon = !song.isPublic ? '' : '🌏 ';
 
-        opt.textContent = `${favIcon}${privacyIcon}${song.title} (${this.getOwnerName(song)})${likeText}`;
+        opt.textContent = `${privacyIcon}${song.title} (${this.getOwnerName(song)})${favIcon}`;
         sel.appendChild(opt);
       });
 
@@ -1652,8 +1566,8 @@ class GypsyApp {
             grid: db.grid || { rows: 4, cols: 4 },
             measures: []
           };
-          const checkbox = document.getElementById('public-checkbox');
-          if (checkbox) checkbox.checked = this.currentSong.isPublic;
+          //const checkbox = document.getElementById('public-checkbox');
+          //if (checkbox) checkbox.checked = this.currentSong.isPublic;
           this.currentStyle = db.style || 'swing';
 
           document.querySelectorAll('.chord-box').forEach(box => box.dataset.style = this.currentStyle);
@@ -1682,8 +1596,8 @@ class GypsyApp {
           this.showCreatedBy(db);
           this.render();
 
-          // Aggiorna solo il pulsante like – NON richiama loadSongsList()
-          this.updateLikeButton(db, currentUser);
+          // Aggiorna solo il pulsante fav – NON richiama loadSongsList()
+          this.updateFavButton(db, currentUser);
 
         } catch (e) {
           console.error(e);
