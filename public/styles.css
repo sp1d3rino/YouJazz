@@ -180,10 +180,6 @@ header h1 {
 }
 
  
-#save-song {
-  background: #3498db;
-}
-
 .select-wrapper {
   position: relative;
   display: inline-block;
@@ -222,9 +218,7 @@ header h1 {
   box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
 }
 
-.danger {
-  background: #e74c3c !important;
-}
+
 
 .danger:hover {
   background: #c0392b !important;
@@ -294,13 +288,7 @@ header h1 {
   margin-top: 20px;
 }
 
-#new-song {
-  background: #3498db !important;
-}
 
-#new-song:hover {
-  background: #2980b9 !important;
-}
 
 /* SPINNER DURANTE CARICAMENTO AUDIO */
 .audio-spinner {
@@ -439,7 +427,7 @@ input[type="range"]:disabled {
   font-size: 0.9em;
   color: #888;
   margin-top: 5px;
-  text-align: center;
+  text-align: right;
   font-style: italic;
 }
 
@@ -857,7 +845,6 @@ body.ctrl-active * {
   gap: 6px;
   background: #1a1a1a;
   border: 2px solid #d4af37;
-  color: #d4af37;
   padding: 10px 16px;
   border-radius: 8px;
   font-size: 1em;
@@ -866,11 +853,7 @@ body.ctrl-active * {
   transition: all 0.3s;
 }
 
-.fav-btn .icon-svg {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
+ 
 
 #like-count,
 #fav-count {
@@ -879,10 +862,7 @@ body.ctrl-active * {
   font-weight: bold;
 }
 
-.fav-btn:hover {
-  background: #3498db;
-  color: #000;
-}
+ 
 
 .fav-btn.liked {
   background: #d4af37;
@@ -1461,36 +1441,11 @@ body.ctrl-active * {
   flex-shrink: 0;
 }
 
-/* Specific button styles */
-.icon-btn.new-btn {
-  background: #3498db;
-  color: white;
-}
-
-.icon-btn.save-btn {
-  background: #27ae60;
-  color: white;
-}
-
-.icon-btn.save-as-btn {
-  background: #16a085;
-  color: white;
-}
-
-.icon-btn.delete-btn {
-  background: #e74c3c;
-  color: white;
-}
-
-.icon-btn.ai-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
 .icon-btn.play-btn {
   background: #3498db;
   color: white;
   width: 100%;
+  height: auto;
   padding: 20px;
   font-size: 1.2em;
 }
@@ -1499,6 +1454,7 @@ body.ctrl-active * {
   background: #3498db;
   color: white;
   width: 100%;
+  height: auto;
   padding: 20px;
   font-size: 1.2em;
 }
@@ -1507,6 +1463,7 @@ body.ctrl-active * {
   background: #3498db;
   color: white;
   width: 100%;
+  height: auto;
   padding: 20px;
   font-size: 1.2em;
 }
@@ -1528,6 +1485,7 @@ body.ctrl-active * {
   justify-content: center;
   padding: 8px 16px;
   border: 2px solid #444;
+  height: auto;
   background: #222;
   color: #888;
   border-radius: 8px;
@@ -1569,4 +1527,292 @@ body.ctrl-active * {
 .player-controls .icon-btn .icon-svg {
   width: 32px;
   height: 32px;
+}
+
+
+
+/* HAMBURGER MENU - VERSIONE DEFINITIVA (sotto il pulsante su tutti i dispositivi) */
+.menu-wrapper {
+  position: relative;
+  z-index: 9999;
+}
+
+#main-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background: #1a1a1a;
+  border-radius: 16px;
+  min-width: 280px;
+  max-width: 90vw;
+  width: fit-content;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+  z-index: 99999;
+  overflow: hidden;
+  animation: slideDown 0.25s ease-out;
+}
+
+#main-menu.show {
+  display: block;
+}
+
+/* Icone perfette */
+#main-menu .icon-svg {
+  width: 20px !important;
+  height: 20px !important;
+  flex-shrink: 0;
+  stroke-width: 2.2;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  color: #eee;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-weight: 500;
+  font-size: 1.05em;
+}
+
+.menu-item:hover {
+  background: #333;
+}
+
+.menu-item.danger {
+  color: #ff0b0b;
+}
+
+.menu-item.danger:hover {
+  background: #440000;
+  color: white;
+}
+
+.menu-divider {
+  height: 1px;
+  background: #444;
+  margin: 8px 16px;
+}
+
+/* Mobile: menu più largo e centrato orizzontalmente sotto il pulsante */
+@media (max-width: 768px) {
+  .menu-wrapper {
+    width: 50%;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  #hamburger-menu {
+    margin-left: 12px;
+  }
+
+  #main-menu {
+    left: 12px !important;
+    right: auto;
+    transform: none;
+    min-width: calc(100vw - 24px);
+    max-width: none;
+  }
+
+  /* Overlay scuro + blur quando aperto */
+  #main-menu.show::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.075);
+    backdrop-filter: blur(8px);
+    z-index: -1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Effetto neon leggero sul testo */
+.neon {
+    text-shadow: 
+    0 0 10px #ff6b6b,
+    0 0 20px #ff6b6b,
+    0 0 40px #ff6b6b,
+    0 0 80px #ff6b6b;
+}
+
+ 
+/* BARRA SUPERIORE FISSA CON TITOLO CENTRATO */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 9998;
+  border-bottom: 1px solid #333;
+}
+
+.top-bar-right {
+  width: 60px; /* bilancia il pulsante hamburger */
+}
+
+/* TITOLO CENTRATO CON NEON YOUJAZZ */
+#app-title.neon-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: 2.2em;
+  font-weight: 900;
+  font-family: 'Georgia', serif;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #ff6b6b, #f1c40f, #d4af37, #f1c40f, #ff6b6b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 
+    0 0 10px rgba(255, 107, 107, 0.8),
+    0 0 20px rgba(241, 196, 15, 0.6),
+    0 0 40px rgba(212, 175, 55, 0.5),
+    0 0 80px rgba(255, 107, 107, 0.3);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* PULSANTE HAMBURGER BELLISSIMO */
+#hamburger-menu {
+  background: transparent !important;
+  border: 2px solid #ff6b6b !important;
+  padding: 12px;
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+#hamburger-menu .icon-svg {
+  stroke: #ff6b6b !important;
+  stroke-width: 2.8 !important;
+}
+
+#hamburger-menu:hover {
+  background: rgba(212, 175, 55, 0.2) !important;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+  transform: scale(1.05);
+}
+
+
+/* Mobile: titolo più piccolo ma sempre centrato */
+@media (max-width: 768px) {
+  .top-bar {
+    height: 60px;
+    padding: 0 16px;
+  }
+  
+  #app-title.neon-text {
+    font-size: 1.6em;
+    letter-spacing: 1px;
+  }
+  
+  .container {
+    margin-top: 10px !important;
+  }
+}/* BARRA SUPERIORE FISSA CON TITOLO CENTRATO */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 9998;
+  border-bottom: 1px solid #333;
+}
+
+.top-bar-right {
+  width: 60px; /* bilancia il pulsante hamburger */
+}
+
+/* TITOLO CENTRATO CON NEON YOUJAZZ */
+#app-title.neon-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: 2.2em;
+  font-weight: 900;
+  font-family: 'Georgia', serif;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #ff6b6b, #f1c40f, #d4af37, #f1c40f, #ff6b6b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 
+    0 0 10px rgba(255, 107, 107, 0.8),
+    0 0 20px rgba(241, 196, 15, 0.6),
+    0 0 40px rgba(212, 175, 55, 0.5),
+    0 0 80px rgba(255, 107, 107, 0.3);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* PULSANTE HAMBURGER BELLISSIMO */
+#hamburger-menu {
+  background: transparent !important;
+  border: 2px solid #eee !important;
+  padding: 12px;
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+#hamburger-menu .icon-svg {
+  stroke: #eee !important;
+  stroke-width: 2.8 !important;
+}
+
+#hamburger-menu:hover {
+  background: rgba(212, 175, 55, 0.2) !important;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+  transform: scale(1.05);
+}
+
+/* Spazio sotto la barra fissa */
+.container {
+  margin-top: 20px !important; /* importante: sposta tutto giù */
+}
+
+/* Mobile: titolo più piccolo ma sempre centrato */
+@media (max-width: 768px) {
+  .top-bar {
+    height: 60px;
+    padding: 0 16px;
+  }
+  
+  #app-title.neon-text {
+    font-size: 1.6em;
+    letter-spacing: 1px;
+  }
+  
+  .container {
+    margin-top: 10px !important;
+  }
 }

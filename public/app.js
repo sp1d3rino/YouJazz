@@ -54,12 +54,7 @@ class GypsyApp {
       });
     }
 
-    document.getElementById('user-info')?.addEventListener('click', function (e) {
-      const dropdown = document.getElementById('user-dropdown');
-      const isVisible = dropdown.style.display === 'block';
-      dropdown.style.display = isVisible ? 'none' : 'block';
-      e.stopPropagation();
-    });
+
 
     // Chiude il menu cliccando fuori
     document.addEventListener('click', function () {
@@ -114,7 +109,38 @@ class GypsyApp {
       }
     });
 
+    // HAMBURGER MENU - apertura/chiusura + chiusura automatica al click
+    const hamburgerBtn = document.getElementById('hamburger-menu');
+    const menu = document.getElementById('main-menu');
+
+    hamburgerBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      menu.classList.toggle('show');
+    });
+
+    // Chiude il menu quando si clicca su un item
+    document.querySelectorAll('#main-menu .menu-item').forEach(item => {
+      item.addEventListener('click', () => {
+        menu.classList.remove('show');
+        document.body.style.overflow = ''; // sblocca scroll se era bloccato
+      });
+    });
+
+    // Chiude cliccando fuori
+    document.addEventListener('click', function (e) {
+      if (menu.classList.contains('show') &&
+        !menu.contains(e.target) &&
+        !hamburgerBtn.contains(e.target)) {
+        menu.classList.remove('show');
+      }
+    });
+
   }
+
+
+
+
+
 
   setupPublicToggle() {
 
@@ -124,7 +150,7 @@ class GypsyApp {
 
     // Set initial state based on current song or default to true
     const initialState = this.currentSong ? (this.currentSong.isPublic !== false) : true;
-    btn.classList.toggle('active', initialState);
+    //btn.classList.toggle('active', initialState);
     btn.disabled = !this.currentSong; // Disable if no song loaded
 
     btn.addEventListener('click', async () => {
@@ -150,7 +176,7 @@ class GypsyApp {
     });
   }
 
- 
+
 
   showCreatedBy(song) {
     let createdByEl = document.getElementsByClassName('created-by')[0];
@@ -367,7 +393,10 @@ class GypsyApp {
       };
 
       // Resetta il titolo nel campo input
+      this.loadSongsList();
       document.getElementById('song-title').value = 'Song name';
+      document.getElementById('bpm-slider').value = 120;
+      document.getElementById('bpm-value').textContent = '120';
 
       // Aggiorna "Created by:" con l'utente corrente (senza await!)
       fetch('/auth/me', { credentials: 'include' })
@@ -382,9 +411,7 @@ class GypsyApp {
 
       // Renderizza
       this.render();
-      //const checkbox = document.getElementById('public-checkbox');
-      //if (checkbox) checkbox.checked = true;
-
+ 
       modal.classList.add('hidden');
       createBtn.removeEventListener('click', handler);
 
@@ -854,11 +881,7 @@ class GypsyApp {
         b.onclick = null;
       });
       document.querySelectorAll('.remove').forEach(r => r.style.display = 'none');
-      document.getElementById('new-song').style.display = 'none';
-      document.getElementById('save-song').style.display = 'none';
-      document.getElementById('delete-song').style.display = 'none';
-      document.getElementById('add-row').style.display = 'none';
-
+ 
       // Add notice
       const notice = document.createElement('div');
       notice.id = 'guest-notice';
@@ -1283,6 +1306,7 @@ class GypsyApp {
       this.render();
       YouJazz.showMessage("Song deleted", 'Song successfully deleted');
       await this.loadSongsList();
+      document.getElementById('song-title').value = 'Song name'; 
     } catch (e) {
       console.error('Saving error:', e);
       YouJazz.showMessage("Save Error", "Unable to save the song. Are you logged in?");
@@ -1317,11 +1341,8 @@ class GypsyApp {
 
         favBtn.classList.toggle('liked', res.isFavourite);
 
-        // Reload list if filter active
-        const filterCheckbox = document.getElementById('filter-favourites');
-        if (filterCheckbox?.checked) {
-          await this.loadSongsList();
-        }
+        await this.loadSongsList();
+ 
       } catch (err) {
         YouJazz.showMessage("Error", "Unable to update favourite");
       }
@@ -1410,7 +1431,7 @@ class GypsyApp {
       }
 
       const confirmed = await YouJazz.showConfirm(
-        "AI Reharmonization 🤖",
+        "YouJazz AI Reharmonization 🤖",
         "Generate an alternative jazz version of this progression?",
         "Yes, do it!",
         "Cancel"
