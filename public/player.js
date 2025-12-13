@@ -72,11 +72,7 @@ class GypsyPlayer {
       return this.processedBuffers.get(cacheKey);
     }*/
 
-    try {
-      const originalBuffer = await this.load(chord);
-    } catch (err) {
-      throw err; // Rilancia l'errore per essere gestito a monte
-    }
+    const originalBuffer = await this.load(chord);
     const tempoRatio = bpm / 120;
 
     const kali = new Kali(originalBuffer.numberOfChannels);
@@ -148,11 +144,8 @@ class GypsyPlayer {
     this.isPlaying = true;
     this.bpm = bpm;
 
-    try {
-      await Promise.all(chords.map(ch => this.getStretchedBuffer(ch, bpm)));
-    } catch (err) {
-      throw err; // Rilancia l'errore per essere gestito a monte
-    }
+    await Promise.all(chords.map(ch => this.getStretchedBuffer(ch, bpm)));
+
     if (this.audioContext.state === "suspended") {
       await this.audioContext.resume();
     }
