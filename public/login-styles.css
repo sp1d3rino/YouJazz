@@ -100,11 +100,26 @@ h1 {
 
 /* Effetto neon leggero sul testo */
 .neon {
+    position: absolute;
+    left: 50%;
+    top: auto;
+    transform: translate(-50%, -50%);
+    margin: auto;
+    font-size: 5.2em;
+    font-weight: 900;
+    font-family: 'Georgia', serif;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #ff6b6b, #f1c40f, #d4af37, #f1c40f, #ff6b6b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     text-shadow:
         0 0 10px rgba(255, 107, 107, 0.8),
         0 0 20px rgba(241, 196, 15, 0.6),
         0 0 40px rgba(212, 175, 55, 0.5),
         0 0 80px rgba(255, 107, 107, 0.3);
+    pointer-events: none;
+    z-index: 1;
 }
 
 
