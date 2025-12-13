@@ -840,6 +840,8 @@ body.ctrl-active * {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  height: 18px;
+  padding: 10px;
   background: #1a1a1a;
   border: 2px solid #d4af37;
   padding: 10px 16px;
@@ -868,6 +870,7 @@ body.ctrl-active * {
 }
 
 .fav-btn:disabled {
+
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -1482,7 +1485,7 @@ body.ctrl-active * {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 15px;
+  height: 18px;
   padding: 10px;
   border: 2px solid #444;
   height: auto;
@@ -1496,6 +1499,7 @@ body.ctrl-active * {
 .toggle-btn .icon-svg {
   width: 20px;
   height: 20px;
+
 }
 
 .toggle-btn.active {
@@ -1505,6 +1509,7 @@ body.ctrl-active * {
 }
 
 .toggle-btn:hover:not(:disabled) {
+ 
   border-color: #222;
   transform: scale(1.05);
 }
