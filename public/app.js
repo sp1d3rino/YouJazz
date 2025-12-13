@@ -1192,11 +1192,24 @@ class GypsyApp {
     // Preload TUTTI i buffer
     document.getElementById('audio-spinner').classList.remove('hidden');
     try {
-      await Promise.all(seq.map(ch => {
+      const preloadResults = await Promise.allSettled(seq.map(ch => {
         const box = document.querySelector(`.chord-box[textContent="${ch}"]`);
         const style = box?.dataset.style || this.currentStyle;
-        return this.player.load(ch, style).catch(() => { });
+        return this.player.load(ch, style);
       }));
+
+      // ✅ VERIFICA SE CI SONO ACCORDI NON TROVATI
+      const failed = preloadResults.filter(r => r.status === 'rejected');
+
+      if (failed.length > 0) {
+        console.error('Accordi non trovati:', failed);
+        YouJazz.showMessage("Unable to Play", "Unable to play all the chords of this song version");
+        this.isPlaying = false;
+        this.updateUIControls();
+        document.getElementById('audio-spinner').classList.add('hidden');
+        return;
+      }
+
     } catch (err) {
       console.error("Preload error:", err);
       YouJazz.showMessage("Playback Error", "An error occurred while loading audio samples.");
@@ -1550,8 +1563,6 @@ class GypsyApp {
 
       if (!confirmed) return;
 
-      btn.disabled = true;
-      btn.textContent = '⏳';
 
       document.getElementById('ai-spinner').classList.remove('hidden');
 
@@ -1580,10 +1591,7 @@ class GypsyApp {
       } catch (e) {
         console.error('AI error:', e);
         YouJazz.showMessage("Error", "AI reharmonization failed. Try again.");
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '🤖';
-      }
+      }  
     };
   }
 
