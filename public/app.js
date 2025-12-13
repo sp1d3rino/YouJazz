@@ -10,6 +10,7 @@ class GypsyApp {
     this.currentSong = null;
     this.isPlaying = false;
     this.currentChordIndex = 0;
+    this.FavFilterSearch = false;
 
 
     // AVVIO IMMEDIATO – NON SERVE PIÙ init() dopo New Song
@@ -532,6 +533,37 @@ class GypsyApp {
       }
       this.saveSong();
     };
+
+    document.getElementById('fav-search-toggle').onclick = () => {
+      if (this.isGuest()) {
+
+        YouJazz.showMessage("Permission denied", "Guest mode: You cannot filter. Login to save.");
+        return;
+      }
+      this.FavFilterSearch = !this.FavFilterSearch;
+      if (this.FavFilterSearch)
+        document.getElementById('fav-search-toggle').innerHTML =
+          `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+          Show All Songs`;
+      else document.getElementById('fav-search-toggle').innerHTML =
+        `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+          Show Only Favourite Songs`;
+
+      //refresh song list
+      try {
+        this.loadSongsList();
+      } catch (err) {
+        console.error("Error loading songs list with favourites filter:", err);
+      }
+    };
+
+
 
     document.getElementById('delete-song').onclick = () => {
       if (this.isGuest()) {
@@ -1619,8 +1651,7 @@ class GypsyApp {
       } catch (e) { }
 
 
-      const filterBtn = document.getElementById('filter-favourites');
-      const showOnlyFavourites = filterBtn?.classList.contains('active');
+      const showOnlyFavourites = this.FavFilterSearch;
       const visibleSongs = songs.filter(song => {
         // Privacy filter (existing)
         const passesPrivacy = song.isPublic || (currentUser && song.owner._id === currentUser.id);
