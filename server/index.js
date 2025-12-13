@@ -77,7 +77,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_APP_ID,
   clientSecret: process.env.FACEBOOK_APP_SECRET,
-  callbackURL: "https://www.youjazz.org/auth/facebook/callback",  // Adatta se localhost
+  callbackURL: process.env.FACEBOOK_CALLBACK_URL,  // Adatta se localhost
   profileFields: ['id', 'displayName', 'photos', 'email']  // Richiedi questi campi
 },
 async (accessToken, refreshToken, profile, done) => {
