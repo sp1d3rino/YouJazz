@@ -24,6 +24,7 @@ class GypsyApp {
     this.setupFavouritesFilter();
     this.setupSaveAs();
     this.setupAIReharmonize();
+    this.setupMobilePlaybackControls();
     this.showCreatedBy(null);
 
 
@@ -140,7 +141,66 @@ class GypsyApp {
   }
 
 
+  setupMobilePlaybackControls() {
+    if (window.innerWidth > 768) return; // Solo su mobile
 
+    let hideTimeout;
+    const controlsToHide = [
+      document.querySelector('.chord-palette'),
+      document.querySelector('.player-controls')
+    ];
+
+    const hideControls = () => {
+      if (!this.isPlaying) return;
+      controlsToHide.forEach(el => {
+        if (el) el.classList.add('mobile-hidden-playback');
+      });
+    };
+
+    const showControls = () => {
+      controlsToHide.forEach(el => {
+        if (el) el.classList.remove('mobile-hidden-playback');
+      });
+
+      // Auto-hide dopo 3 secondi se in playback
+      if (this.isPlaying) {
+        clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(hideControls, 3000);
+      }
+    };
+
+    // Tap su schermo per mostrare/nascondere
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth <= 768 && this.isPlaying) {
+        // Non triggherare se clicchi sui controlli stessi
+        if (!e.target.closest('.chord-palette') &&
+          !e.target.closest('.player-controls')) {
+          showControls();
+        }
+      }
+    });
+
+    // Nascondi controlli quando inizia playback
+    const originalPlay = this.play.bind(this);
+    this.play = async function () {
+      await originalPlay();
+      if (window.innerWidth <= 768 && this.isPlaying) {
+        setTimeout(() => {
+          hideControls();
+        }, 3000); // Nasconde dopo 3 secondi dall'avvio
+      }
+    };
+
+    // Mostra controlli quando stoppa playback
+    const originalStop = this.stopPlayback.bind(this);
+    this.stopPlayback = function () {
+      originalStop();
+      if (window.innerWidth <= 768) {
+        showControls();
+        clearTimeout(hideTimeout);
+      }
+    };
+  }
 
 
 

@@ -4,7 +4,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gypsy Jazz Backing Track Composer</title>
+
+  <!-- SEO Meta Tags -->
+  <title>YouJazz - Online Gypsy Jazz Backing Track Composer & Lead Sheet Editor</title>
+  <meta name="description"
+    content="Create, compose and play gypsy jazz backing tracks online. Interactive lead sheet editor with swing and bossa nova rhythms. Save and share your jazz compositions." />
+  <meta name="keywords"
+    content="gypsy jazz, backing tracks, lead sheet, jazz composer, manouche guitar, swing, bossa nova, online music editor, chord progression" />
+  <meta name="author" content="YouJazz" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.youjazz.org" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.youjazz.org" />
+  <meta property="og:title" content="YouJazz - Gypsy Jazz Backing Track Composer" />
+  <meta property="og:description"
+    content="Create and play gypsy jazz backing tracks online with interactive lead sheet editor." />
+  <meta property="og:image" content="https://www.youjazz.org/images/og-image.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://www.youjazz.org" />
+  <meta property="twitter:title" content="YouJazz - Gypsy Jazz Backing Track Composer" />
+  <meta property="twitter:description" content="Create and play gypsy jazz backing tracks online." />
+  <meta property="twitter:image" content="https://www.youjazz.org/images/twitter-image.png" />
+
+  <!-- Structured Data JSON-LD -->
+  <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "YouJazz",
+        "url": "https://www.youjazz.org",
+        "description": "Online gypsy jazz backing track composer and lead sheet editor",
+        "applicationCategory": "MusicApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "creator": {
+          "@type": "Organization",
+          "name": "YouJazz"
+        }
+      }
+</script>
   <link rel="stylesheet" href="styles.css" />
   <script src="libs/kali.min.js"></script>
   <link rel="icon" type="image/png" href="/images/favicon-96x96.png" sizes="96x96" />
@@ -65,7 +111,12 @@
 
 
   </div>
+
+  <!-- SEO: Hidden H1 for better indexing -->
+  <h1 style="position: absolute; left: -9999px;">YouJazz - Online Gypsy Jazz Backing Track Composer and Lead Sheet
+    Editor</h1>
   <!-- HAMBURGER MENU -->
+
   <div class="top-bar">
     <!-- Hamburger a sinistra -->
     <div class="menu-wrapper">
@@ -117,7 +168,7 @@
           </svg>
           Delete Song
         </div>
-<!--        <div class="menu-item" id="ai-reharmonize">
+        <!--        <div class="menu-item" id="ai-reharmonize">
           🤖 Reharmonize it!
         </div>-->
         <div class="menu-divider"></div>
@@ -171,9 +222,9 @@
       <div style="margin-top:0px;display: flex; align-items: left; justify-content:left; gap: 12px; flex: 1;">
         <h3 style="color: #aaa;">BPM:</h3>
         <label style="color: #aaa;"><span id="bpm-value">120</span></label>
-         <input type="range" id="bpm-slider" min="60" max="280" value="120" step="5">
+        <input type="range" id="bpm-slider" min="60" max="280" value="120" step="5">
       </div>
- 
+
       <h3 style="margin-top: 30px; color: #aaa;">Chords</h3>
 
       <div class="chord-list"></div>

@@ -1630,7 +1630,7 @@ body.ctrl-active * {
 
   .fav-btn {
     background: #1a1a1a;
-    color:  #d4af37;
+    color: #d4af37;
     height: 18px;
     padding: 10px;
   }
@@ -1869,5 +1869,22 @@ body.ctrl-active * {
 
   .container {
     margin-top: 10px !important;
+  }
+
+  /* MOBILE: Hide controls during playback */
+  @media (max-width: 768px) {
+    .mobile-hidden-playback {
+      transform: translateY(100%) !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transition: transform 0.4s ease, opacity 0.4s ease !important;
+    }
+
+    .chord-palette:not(.mobile-hidden-playback),
+    .player-controls:not(.mobile-hidden-playback) {
+      transform: translateY(0) !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
   }
 }
