@@ -7,7 +7,7 @@ const path = require('path');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-
+const FacebookStrategy = require('passport-facebook').Strategy;
 const Song = require('./models/Song');
 const User = require('./models/User');
 const AICache = require('./models/AICache');
@@ -70,6 +70,42 @@ passport.deserializeUser(async (id, done) => {
     done(err);
   }
 });
+
+
+
+
+passport.use(new FacebookStrategy({
+  clientID: process.env.FACEBOOK_APP_ID,
+  clientSecret: process.env.FACEBOOK_APP_SECRET,
+  callbackURL: "https://www.youjazz.org/auth/facebook/callback",  // Adatta se localhost
+  profileFields: ['id', 'displayName', 'photos', 'email']  // Richiedi questi campi
+},
+async (accessToken, refreshToken, profile, done) => {
+  try {
+    let user = await User.findOne({ facebookId: profile.id });
+
+    if (!user) {
+      // Crea nuovo utente se non esiste
+      user = new User({
+        facebookId: profile.id,
+        displayName: profile.displayName,
+        email: profile.emails ? profile.emails[0].value : null,
+        picture: profile.photos ? profile.photos[0].value : null
+      });
+      await user.save();
+    } else {
+      // Aggiorna info se necessario
+      user.displayName = user.displayName || profile.displayName;
+      user.picture = user.picture || (profile.photos ? profile.photos[0].value : null);
+      await user.save();
+    }
+
+    return done(null, user);
+  } catch (err) {
+    return done(err);
+  }
+}));
+
 
 // Rotte
 app.use('/auth', authRoutes);
