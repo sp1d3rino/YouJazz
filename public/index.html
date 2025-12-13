@@ -117,9 +117,9 @@
           </svg>
           Delete Song
         </div>
-        <div class="menu-item" id="ai-reharmonize">
-        🤖 Reharmonize it!
-        </div>
+<!--        <div class="menu-item" id="ai-reharmonize">
+          🤖 Reharmonize it!
+        </div>-->
         <div class="menu-divider"></div>
         <div class="menu-item danger" onclick="Auth.logout()">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -132,7 +132,7 @@
       </div>
     </div>
     <!-- TITOLO CENTRATO CON EFFETTO NEON -->
-    <h1 id="app-title" class="neon">YouJazz</h1>
+    <h1 id="app-title" class="neon-text">YouJazz</h1>
     <!-- Spazio vuoto a destra per bilanciare -->
     <div class="top-bar-right"></div>
   </div>
@@ -165,13 +165,17 @@
   <div class="main">
     <aside class="chord-palette">
       <div class="control-group">
-        <h3>Rhythm Style</h3>
+        <h3 style="margin-top: 10px; color: #aaa;">Rhythm Style</h3>
         <div class="style-selector"></div>
       </div>
-      <label>BPM: <span id="bpm-value">120</span></label>
-      <input type="range" id="bpm-slider" min="60" max="280" value="120" step="5">
+      <div style="margin-top:0px;display: flex; align-items: left; justify-content:left; gap: 12px; flex: 1;">
+        <h3 style="color: #aaa;">BPM:</h3>
+        <label style="color: #aaa;"><span id="bpm-value">120</span></label>
+         <input type="range" id="bpm-slider" min="60" max="280" value="120" step="5">
+      </div>
+ 
+      <h3 style="margin-top: 30px; color: #aaa;">Chords</h3>
 
-      <h3>Chords</h3>
       <div class="chord-list"></div>
 
       <h3 style="margin-top: 30px; color: #aaa;">Chord Extensions</h3>
@@ -225,7 +229,12 @@
   <!-- Spinner durante caricamento audio -->
   <div id="audio-spinner" class="audio-spinner hidden">
     <div class="spinner"></div>
-    <p>Generating audio...</p>
+    <p>Loading audio files...</p>
+  </div>
+
+  <div id="ai-spinner" class="audio-spinner hidden">
+    <div class="spinner"></div>
+    <p>AI is elaborating a new version...</p>
   </div>
 
   <!-- Modal creazione griglia (nascosto all'avvio) -->

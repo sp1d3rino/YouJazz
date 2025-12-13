@@ -25,7 +25,9 @@ class GypsyApp {
     this.setupSaveAs();
     this.setupAIReharmonize();
     this.showCreatedBy(null);
-    this.currentStyle = 'swing'; // default iniziale
+
+
+    this.currentStyle = 'swing'; // default  
     if (window.innerWidth <= 768) {
       const palette = document.querySelector('.chord-palette');
       let lastScrollY = window.scrollY;
@@ -411,7 +413,7 @@ class GypsyApp {
 
       // Renderizza
       this.render();
- 
+
       modal.classList.add('hidden');
       createBtn.removeEventListener('click', handler);
 
@@ -881,7 +883,7 @@ class GypsyApp {
         b.onclick = null;
       });
       document.querySelectorAll('.remove').forEach(r => r.style.display = 'none');
- 
+
       // Add notice
       const notice = document.createElement('div');
       notice.id = 'guest-notice';
@@ -1097,11 +1099,20 @@ class GypsyApp {
 
     // Preload TUTTI i buffer
     document.getElementById('audio-spinner').classList.remove('hidden');
-    await Promise.all(seq.map(ch => {
-      const box = document.querySelector(`.chord-box[textContent="${ch}"]`);
-      const style = box?.dataset.style || this.currentStyle;
-      return this.player.load(ch, style).catch(() => { });
-    }));
+    try {
+      await Promise.all(seq.map(ch => {
+        const box = document.querySelector(`.chord-box[textContent="${ch}"]`);
+        const style = box?.dataset.style || this.currentStyle;
+        return this.player.load(ch, style).catch(() => { });
+      }));
+    } catch (err) {
+      console.error("Preload error:", err);
+      YouJazz.showMessage("Playback Error", "An error occurred while loading audio samples.");
+      this.isPlaying = false;
+      this.updateUIControls();
+      document.getElementById('audio-spinner').classList.add('hidden');
+      return;
+    }
     document.getElementById('audio-spinner').classList.add('hidden');
 
     // CALLBACK HIGHLIGHT PER POSIZIONE ESATTA
@@ -1150,14 +1161,22 @@ class GypsyApp {
     };
 
     // Avvia con count-in integrato
-    this.player.playVariableSequence(
-      seq,
-      beatCounts.map(b => b * (60 / this.currentSong.bpm)),
-      this.currentSong.bpm,
-      onChordPlay,
-      onEnd,
-      true  // enableCountIn
-    );
+    try {
+      this.player.playVariableSequence(
+        seq,
+        beatCounts.map(b => b * (60 / this.currentSong.bpm)),
+        this.currentSong.bpm,
+        onChordPlay,
+        onEnd,
+        true  // enableCountIn
+      );
+
+    } catch (err) {
+      console.error("Playback error:", err);
+      YouJazz.showMessage("Playback Error", "An error occurred during playback.");
+      this.isPlaying = false;
+      this.updateUIControls();
+    }
   }
 
   reloadAllSamples() {
@@ -1306,7 +1325,7 @@ class GypsyApp {
       this.render();
       YouJazz.showMessage("Song deleted", 'Song successfully deleted');
       await this.loadSongsList();
-      document.getElementById('song-title').value = 'Song name'; 
+      document.getElementById('song-title').value = 'Song name';
     } catch (e) {
       console.error('Saving error:', e);
       YouJazz.showMessage("Save Error", "Unable to save the song. Are you logged in?");
@@ -1322,7 +1341,7 @@ class GypsyApp {
       return;
     }
 
-    favBtn.style.display = 'inline-block';
+    //favBtn.style.display = 'inline-block';
     const favs = song.favourites?.length || 0;
     //favBtn.querySelector('#fav-count').textContent = favs;
 
@@ -1342,7 +1361,7 @@ class GypsyApp {
         favBtn.classList.toggle('liked', res.isFavourite);
 
         await this.loadSongsList();
- 
+
       } catch (err) {
         YouJazz.showMessage("Error", "Unable to update favourite");
       }
@@ -1442,7 +1461,7 @@ class GypsyApp {
       btn.disabled = true;
       btn.textContent = '⏳';
 
-
+      document.getElementById('ai-spinner').classList.remove('hidden');
 
       try {
         // Convert current song to DB format
@@ -1464,7 +1483,7 @@ class GypsyApp {
         // Rebuild grid from AI response
         this.reconstructGridFromMeasures(result.measures);
         this.render();
-
+        document.getElementById('ai-spinner').classList.add('hidden');
         YouJazz.showMessage("AI Reharmonization ✨", "New version generated!");
       } catch (e) {
         console.error('AI error:', e);
