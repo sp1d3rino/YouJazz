@@ -62,71 +62,179 @@
   <!-- Auth loader overlay -->
   <div id="auth-loader">
     <div class="auth-spinner"></div>
+
+
+  </div>
+  <!-- HAMBURGER MENU -->
+  <div class="top-bar">
+    <!-- Hamburger a sinistra -->
+    <div class="menu-wrapper">
+      <button id="hamburger-menu" class="icon-btn" title="Menu">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <!-- MENU DROPDOWN -->
+      <div id="main-menu" class="main-menu">
+        <div class="menu-item" id="user-item">
+
+          <img id="user-pic" width="40" height="40" style="border-radius:50%;margin-top:8px;vertical-align:middle;">
+          <span id="user-name" style="font-size:1.2em;"></span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="new-song">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          New Song
+        </div>
+        <div class="menu-item" id="save-song">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
+          Save Song
+        </div>
+        <div class="menu-item" id="save-as-song">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+            <circle cx="17" cy="7" r="3" fill="currentColor" />
+          </svg>
+          Save Song As
+        </div>
+        <div class="menu-item" id="delete-song">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <line x1="10" y1="11" x2="10" y2="17" />
+            <line x1="14" y1="11" x2="14" y2="17" />
+          </svg>
+          Delete Song
+        </div>
+<!--        <div class="menu-item" id="ai-reharmonize">
+          🤖 Reharmonize it!
+        </div>-->
+        <div class="menu-divider"></div>
+        <div class="menu-item danger" onclick="Auth.logout()">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Logout
+        </div>
+      </div>
+    </div>
+    <!-- TITOLO CENTRATO CON EFFETTO NEON -->
+    <h1 id="app-title" class="neon-text">YouJazz</h1>
+    <!-- Spazio vuoto a destra per bilanciare -->
+    <div class="top-bar-right"></div>
   </div>
 
   <div class="container">
     <header>
-      <h1>Gypsy Jazz Backing Track Composer</h1>
-      <input type="text" id="song-title" placeholder="Song name" value="Song name" />
-      <div id="user-info" style="position:absolute;top:20px;right:20px;text-align:right;cursor:pointer;">
-        <!--<span id="user-name" style="font-size:1.2em;"></span><br>-->
-        <img id="user-pic" width="40" height="40" style="border-radius:50%;margin-top:8px;vertical-align:middle;">
-        <!-- Dropdown menu (nascosto di default) -->
-        <div id="user-dropdown"
-          style="display:none;position:absolute;top:70px;right:0;background:#222;border:2px solid #01010e;border-radius:8px;padding:10px 16px;min-width:140px;z-index:9999;box-shadow:0 8px 20px rgba(0,0,0,0.6);">
-          <div style="padding:8px 0;color:#eee;font-weight:bold;border-bottom:1px solid #444;margin-bottom:8px;">
-            <span id="user-name-dropdown"></span>
-          </div>
-          <div onclick="Auth.logout()"
-            style="padding:8px 12px;color:#ff6b6b;cursor:pointer;border-radius:6px;transition:0.2s;"
-            onmouseover="this.style.background='#444'" onmouseout="this.style.background='transparent'">
-            Logout
-          </div>
+      <div class="controls">
+        <div class="select-wrapper">
+          <select id="song-list">
+            <option value="">— Load Song —</option>
+          </select>
         </div>
+        <!--
+        <button id="filter-favourites" class="toggle-btn favourite-filter-btn" title="Show Favourites Only">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+        </button>
+-->
+        <!-- Rimanenti controlli centrati -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; flex: 1;">
+          <input type="text" id="song-title" placeholder="Song name" value="Song name" />
+        </div>
+        <div class="created-by">created by </div>
       </div>
     </header>
+  </div>
 
-    <div class="controls">
-      <button id="new-song">New Song</button>
-      <button id="save-song">Save Song</button>
-      <button id="delete-song" class="danger">Delete Song</button>
-
-      <label>BPM: <span id="bpm-value">120</span></label>
-      <input type="range" id="bpm-slider" min="40" max="300" value="120" step="5">
-      <div class="select-wrapper">
-        <select id="song-list">
-          <option value="">— Load Song —</option>
-        </select>
+  <div class="main">
+    <aside class="chord-palette">
+      <div class="control-group">
+        <h3 style="margin-top: 10px; color: #aaa;">Rhythm Style</h3>
+        <div class="style-selector"></div>
       </div>
-    </div>
+      <div style="margin-top:0px;display: flex; align-items: left; justify-content:left; gap: 12px; flex: 1;">
+        <h3 style="color: #aaa;">BPM:</h3>
+        <label style="color: #aaa;"><span id="bpm-value">120</span></label>
+         <input type="range" id="bpm-slider" min="60" max="280" value="120" step="5">
+      </div>
+ 
+      <h3 style="margin-top: 30px; color: #aaa;">Chords</h3>
 
-    <div class="main">
-      <aside class="chord-palette">
-        <div class="control-group">
-          <h3>Rhythm Style</h3>
-          <div class="style-selector"></div>
-        </div>
-        <h3>Chords</h3>
-        <div class="chord-list"></div>
+      <div class="chord-list"></div>
 
-        <h3 style="margin-top: 30px; color: #aaa;">Chord Extensions</h3>
-        <div class="extension-list"></div>
-      </aside>
+      <h3 style="margin-top: 30px; color: #aaa;">Chord Extensions</h3>
+      <div class="extension-list"></div>
+    </aside>
 
-      <section id="lead-sheet"></section>
+    <section id="lead-sheet"></section>
 
-      <aside class="player-controls">
-        <button id="play">Play</button>
-        <button id="stop">Stop</button>
-        <button id="add-row">Add Row</button>
-      </aside>
-    </div>
+    <aside class="player-controls">
+      <button id="play" class="icon-btn play-btn" title="Play">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="5 3 19 12 5 21 5 3" />
+        </svg>
+      </button>
+
+      <button id="stop" class="icon-btn stop-btn" title="Stop">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="6" y="6" width="12" height="12" />
+        </svg>
+      </button>
+
+      <button id="add-row" class="icon-btn add-row-btn" title="Add Row">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <line x1="3" y1="9" x2="21" y2="9" />
+          <line x1="3" y1="15" x2="21" y2="15" />
+          <line x1="12" y1="15" x2="12" y2="21" />
+          <line x1="9" y1="18" x2="15" y2="18" />
+        </svg>
+      </button>
+
+      <button id="fav-btn" class="toggle-btn fav-btn" title="Favourites">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon
+            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      </button>
+      <button id="public-toggle-btn" class="toggle-btn public-btn" title="Public/Private">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <path
+            d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+      </button>
+
+
+    </aside>
+  </div>
   </div>
 
   <!-- Spinner durante caricamento audio -->
   <div id="audio-spinner" class="audio-spinner hidden">
     <div class="spinner"></div>
-    <p>Generating audio...</p>
+    <p>Loading audio files...</p>
+  </div>
+
+  <div id="ai-spinner" class="audio-spinner hidden">
+    <div class="spinner"></div>
+    <p>AI is elaborating a new version...</p>
   </div>
 
   <!-- Modal creazione griglia (nascosto all'avvio) -->

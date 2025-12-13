@@ -16,7 +16,8 @@ const SongSchema = new mongoose.Schema({
   }],
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // optional
   isPublic: { type: Boolean, default: true }, // NEW: default public
-  likes: {  type: [mongoose.Schema.Types.ObjectId], ref: 'User', default: []}
+  likes: {  type: [mongoose.Schema.Types.ObjectId], ref: 'User', default: []},
+  favourites: { type: [mongoose.Schema.Types.ObjectId], ref: 'User', default: [] }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Song', SongSchema);

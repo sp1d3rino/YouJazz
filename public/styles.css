@@ -5,7 +5,7 @@
 }
 
 body {
-  font-family: 'Courier New', monospace;
+  font-family: 'Georgia', serif;
   background: #0a0a0a;
   color: #eee;
 }
@@ -48,7 +48,7 @@ header h1 {
 .controls button {
   padding: 10px 20px;
   margin: 0 10px;
-  background: #27ae60;
+  background: #222;
   color: white;
   border: none;
   border-radius: 6px;
@@ -59,7 +59,7 @@ header h1 {
 .main {
   display: grid;
   grid-template-columns: 220px 1fr 180px;
-  gap: 24px;
+  gap: 14px;
 }
 
 .chord-palette {
@@ -179,10 +179,6 @@ header h1 {
   background: #3498db;
 }
 
- 
-#save-song {
-  background: #3498db;
-}
 
 .select-wrapper {
   position: relative;
@@ -222,9 +218,7 @@ header h1 {
   box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
 }
 
-.danger {
-  background: #e74c3c !important;
-}
+
 
 .danger:hover {
   background: #c0392b !important;
@@ -294,13 +288,7 @@ header h1 {
   margin-top: 20px;
 }
 
-#new-song {
-  background: #3498db !important;
-}
 
-#new-song:hover {
-  background: #2980b9 !important;
-}
 
 /* SPINNER DURANTE CARICAMENTO AUDIO */
 .audio-spinner {
@@ -439,7 +427,7 @@ input[type="range"]:disabled {
   font-size: 0.9em;
   color: #888;
   margin-top: 5px;
-  text-align: center;
+  text-align: right;
   font-style: italic;
 }
 
@@ -526,7 +514,7 @@ body.ctrl-active * {
   border: 1px solid #444;
   border-radius: 5px;
   font-weight: bold;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-family: 'Georgia', serif;
   font-size: xx-large;
   color: #fff;
   position: relative;
@@ -595,7 +583,7 @@ body.ctrl-active * {
 /* Palette Sticky per Desktop */
 .chord-palette {
   background: #222;
-  padding: 20px;
+  padding: 10px;
   border-radius: 12px;
   position: sticky;
   /* Fissa in alto durante scroll verticale */
@@ -666,10 +654,7 @@ body.ctrl-active * {
     /* Spazio per palette in basso su mobile */
   }
 
-  .player-controls {
-    margin-top: 120px;
-    /* Spazio per palette */
-  }
+
 
   /* Smooth scrolling durante playback */
   html {
@@ -850,38 +835,43 @@ body.ctrl-active * {
 
 
 
-.like-btn {
+.fav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   background: #1a1a1a;
   border: 2px solid #d4af37;
-  color: #d4af37;
-  padding: 8px 14px;
-  border-radius: 30px;
-  font-size: 1.3em;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 1em;
   cursor: pointer;
   margin-left: 12px;
   transition: all 0.3s;
 }
 
-.like-btn:hover {
-  background: #3498db;
-  color: #000;
+
+
+#like-count,
+#fav-count {
+  font-size: 0.95em;
+  margin-left: 4px;
+  font-weight: bold;
 }
 
-.like-btn.liked {
-  background: #3498db;
+
+
+.fav-btn.liked {
+  background: #d4af37;
   border-color: #e74c3c;
   color: white;
 }
 
-.like-btn:disabled {
+.fav-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-#like-count {
-  font-size: 0.9em;
-  margin-left: 6px;
-}
 
 
 .measure.drag-over {
@@ -926,12 +916,13 @@ body.ctrl-active * {
     overflow-x: hidden;
   }
 
-    /* User info compatta */
+  /* User info compatta */
   header>div[style*="position:absolute"] {
     position: static !important;
     text-align: center !important;
     margin-top: 10px;
   }
+
   #song-title {
     width: 90%;
     font-size: 1.2em;
@@ -1028,7 +1019,7 @@ body.ctrl-active * {
   /* Player controls in basso fissi */
   .player-controls {
     position: fixed;
-    bottom: 100px;
+    bottom: 180px;
     /* Sopra la palette */
     left: 0;
     right: 0;
@@ -1054,8 +1045,8 @@ body.ctrl-active * {
     left: 0;
     right: 0;
     width: 100%;
-    height: auto;
-    max-height: 100px;
+    height: 180px;
+    max-height: 180px;
     top: auto;
     border-radius: 12px 12px 0 0;
     padding: 12px 8px;
@@ -1075,7 +1066,7 @@ body.ctrl-active * {
   }
 
   .control-group {
-    display: none;
+    flex-direction: row;
     /* Nascondi style selector su mobile per risparmiare spazio */
   }
 
@@ -1092,7 +1083,7 @@ body.ctrl-active * {
   .chord-btn {
     min-width: 45px;
     padding: 12px 8px;
-    font-size: 1.1em;
+    font-size: 1.0em;
     flex-shrink: 0;
   }
 
@@ -1171,12 +1162,6 @@ body.ctrl-active * {
     text-align: center;
   }
 
-  /* Like button mobile */
-  .like-btn {
-    padding: 6px 10px;
-    font-size: 1em;
-    margin-left: 8px;
-  }
 
   /* Created by text */
   .created-by {
@@ -1310,8 +1295,15 @@ body.ctrl-active * {
 
 /* Animazione apertura menu */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* User info posizionamento migliorato */
@@ -1325,7 +1317,7 @@ body.ctrl-active * {
 
 #user-pic {
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s;
 }
 
@@ -1342,7 +1334,7 @@ body.ctrl-active * {
   border: 2px solid #444;
   border-radius: 12px;
   min-width: 200px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
   overflow: hidden;
 }
 
@@ -1365,33 +1357,8 @@ body.ctrl-active * {
   background: #333;
 }
 
-/* Public toggle nel controls */
-#public-toggle-container {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: #222;
-  border-radius: 8px;
-  margin: 0 10px;
-}
 
-#public-toggle-container label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 1em;
-  color: #ddd;
-  margin: 0;
-}
 
-#public-checkbox {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  accent-color: #e91e63;
-}
 
 /* Mobile adjustments */
 @media (max-width: 768px) {
@@ -1400,18 +1367,13 @@ body.ctrl-active * {
     text-align: center;
     margin: 10px 0;
   }
-  
+
   #user-dropdown {
     left: 50%;
     transform: translateX(-50%);
     right: auto;
   }
-  
-  #public-toggle-container {
-    width: 100%;
-    justify-content: center;
-    margin: 10px 0;
-  }
+
 }
 
 #add-row {
@@ -1422,3 +1384,490 @@ body.ctrl-active * {
   background: #3498db;
 }
 
+/* AI Button */
+
+
+.ai-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.ai-btn:hover::after {
+  content: 'Try another version!';
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.6em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.ai-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Favourite Star in dropdown */
+.song-option-fav {
+  color: gold;
+  margin-right: 5px;
+}
+
+/* ========== SVG ICON BUTTONS ========== */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.icon-btn .icon-svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.icon-btn.play-btn {
+  background: #3498db;
+  color: white;
+  width: 100%;
+  height: auto;
+  padding: 20px;
+  font-size: 1.2em;
+}
+
+.icon-btn.stop-btn {
+  background: #3498db;
+  color: white;
+  width: 100%;
+  height: auto;
+  padding: 20px;
+  font-size: 1.2em;
+}
+
+.icon-btn.add-row-btn {
+  background: #3498db;
+  color: white;
+  width: 100%;
+  height: auto;
+  padding: 20px;
+  font-size: 1.2em;
+}
+
+
+.icon-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.icon-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Toggle buttons (favourite and public) */
+.toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 15px;
+  padding: 10px;
+  border: 2px solid #444;
+  height: auto;
+  background: #222;
+  color: #888;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.toggle-btn .icon-svg {
+  width: 20px;
+  height: 20px;
+}
+
+.toggle-btn.active {
+  background: #d4af37;
+  color: #000;
+  border-color: #d4af37;
+}
+
+.toggle-btn:hover:not(:disabled) {
+  border-color: #222;
+  transform: scale(1.05);
+}
+
+.public-btn {
+  padding: 8px 12px;
+}
+
+.public-btn.active {
+  background: #d4af37;
+  border-color: #3498db;
+  color: white;
+}
+
+.favourite-filter-btn {
+  margin-left: 15px;
+}
+
+/* Player controls larger icons */
+.player-controls .icon-btn .icon-svg {
+  width: 22px;
+  height: 22px;
+}
+
+
+
+/* HAMBURGER MENU - VERSIONE DEFINITIVA (sotto il pulsante su tutti i dispositivi) */
+.menu-wrapper {
+  position: relative;
+  z-index: 9999;
+}
+
+#main-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background: #1a1a1a;
+  border-radius: 16px;
+  min-width: 280px;
+  max-width: 90vw;
+  width: fit-content;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+  z-index: 99999;
+  overflow: hidden;
+  animation: slideDown 0.25s ease-out;
+}
+
+#main-menu.show {
+  display: block;
+}
+
+/* Icone perfette */
+#main-menu .icon-svg {
+  width: 20px !important;
+  height: 20px !important;
+  flex-shrink: 0;
+  stroke-width: 2.2;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  color: #eee;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-weight: 500;
+  font-size: 1.05em;
+}
+
+.menu-item:hover {
+  background: #333;
+}
+
+.menu-item.danger {
+  color: #ff0b0b;
+}
+
+.menu-item.danger:hover {
+  background: #440000;
+  color: white;
+}
+
+.menu-divider {
+  height: 1px;
+  background: #444;
+  margin: 8px 16px;
+}
+
+/* Mobile: menu più largo e centrato orizzontalmente sotto il pulsante */
+@media (max-width: 768px) {
+
+  .icon-btn.play-btn {
+    background: #3498db;
+    color: white;
+    width: 100%;
+    height: 18px;
+    padding: 10px;
+    font-size: 1.2em;
+  }
+
+  .icon-btn.stop-btn {
+    background: #3498db;
+    color: white;
+    width: 100%;
+    height: 18px;
+    padding: 10px;
+    font-size: 1.2em;
+  }
+
+  .icon-btn.add-row-btn {
+    background: #3498db;
+    color: white;
+    width: 100%;
+    height: 18px;
+    padding: 10px;
+    font-size: 1.2em;
+  }
+
+
+  .fav-btn {
+    background: #1a1a1a;
+    color:  #d4af37;
+    height: 18px;
+    padding: 10px;
+  }
+
+  .fav-btn.liked {
+    height: 18px;
+    padding: 10px;
+    background: #d4af37;
+    border-color: #e74c3c;
+    color: white;
+  }
+
+  .public-btn {
+    height: 18px;
+    padding: 10px;
+  }
+
+  .public-btn.active {
+    height: 18px;
+    padding: 10px;
+    background: #d4af37;
+    border-color: #3498db;
+    color: white;
+  }
+
+
+  .menu-wrapper {
+    width: 50%;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  #hamburger-menu {
+    margin-left: 12px;
+  }
+
+  #main-menu {
+    left: 12px !important;
+    right: auto;
+    transform: none;
+    min-width: calc(100vw - 24px);
+    max-width: none;
+  }
+
+  /* Overlay scuro + blur quando aperto */
+  #main-menu.show::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.075);
+    backdrop-filter: blur(8px);
+    z-index: -1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* BARRA SUPERIORE FISSA CON TITOLO CENTRATO */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 9998;
+  border-bottom: 1px solid #333;
+}
+
+.top-bar-right {
+  width: 60px;
+  /* bilancia il pulsante hamburger */
+}
+
+/* TITOLO CENTRATO CON NEON YOUJAZZ */
+#app-title.neon-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: 2.2em;
+  font-weight: 900;
+  font-family: 'Georgia', serif;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #ff6b6b, #f1c40f, #d4af37, #f1c40f, #ff6b6b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 0 10px rgba(255, 107, 107, 0.8),
+    0 0 20px rgba(241, 196, 15, 0.6),
+    0 0 40px rgba(212, 175, 55, 0.5),
+    0 0 80px rgba(255, 107, 107, 0.3);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* PULSANTE HAMBURGER BELLISSIMO */
+#hamburger-menu {
+  background: transparent !important;
+  border: 2px solid #ff6b6b !important;
+  padding: 12px;
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+#hamburger-menu .icon-svg {
+  stroke: #ff6b6b !important;
+  stroke-width: 2.8 !important;
+}
+
+#hamburger-menu:hover {
+  background: rgba(212, 175, 55, 0.2) !important;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+  transform: scale(1.05);
+}
+
+
+/* Mobile: titolo più piccolo ma sempre centrato */
+@media (max-width: 768px) {
+  .top-bar {
+    height: 60px;
+    padding: 0 16px;
+  }
+
+  #app-title.neon-text {
+    font-size: 1.6em;
+    letter-spacing: 1px;
+  }
+
+  .container {
+    margin-top: 10px !important;
+  }
+}
+
+/* BARRA SUPERIORE FISSA CON TITOLO CENTRATO */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 9998;
+  border-bottom: 1px solid #333;
+}
+
+.top-bar-right {
+  width: 60px;
+  /* bilancia il pulsante hamburger */
+}
+
+/* TITOLO CENTRATO CON NEON YOUJAZZ */
+#app-title.neon-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: 2.2em;
+  font-weight: 900;
+  font-family: 'Georgia', serif;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #ff6b6b, #f1c40f, #d4af37, #f1c40f, #ff6b6b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 0 10px rgba(255, 107, 107, 0.8),
+    0 0 20px rgba(241, 196, 15, 0.6),
+    0 0 40px rgba(212, 175, 55, 0.5),
+    0 0 80px rgba(255, 107, 107, 0.3);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* PULSANTE HAMBURGER BELLISSIMO */
+#hamburger-menu {
+  background: transparent !important;
+  border: 2px solid #eee !important;
+  padding: 12px;
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+#hamburger-menu .icon-svg {
+  stroke: #eee !important;
+  stroke-width: 2.8 !important;
+}
+
+#hamburger-menu:hover {
+  background: rgba(212, 175, 55, 0.2) !important;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+  transform: scale(1.05);
+}
+
+/* Spazio sotto la barra fissa */
+.container {
+  margin-top: 20px !important;
+  /* importante: sposta tutto giù */
+}
+
+/* Mobile: titolo più piccolo ma sempre centrato */
+@media (max-width: 768px) {
+  .top-bar {
+    height: 60px;
+    padding: 0 16px;
+  }
+
+  #app-title.neon-text {
+    font-size: 1.6em;
+    letter-spacing: 1px;
+  }
+
+  .container {
+    margin-top: 10px !important;
+  }
+}

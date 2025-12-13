@@ -21,8 +21,13 @@ class GypsyApp {
     this.setupEvents();
     this.setupPublicToggle();         // eventi sempre attivi (BPM, Play, Stop, ecc.)
     this.setupCopyPaste();
+    this.setupFavouritesFilter();
+    this.setupSaveAs();
+    this.setupAIReharmonize();
+    this.showCreatedBy(null);
 
-    this.currentStyle = 'swing'; // default iniziale
+
+    this.currentStyle = 'swing'; // default  
     if (window.innerWidth <= 768) {
       const palette = document.querySelector('.chord-palette');
       let lastScrollY = window.scrollY;
@@ -51,12 +56,7 @@ class GypsyApp {
       });
     }
 
-    document.getElementById('user-info')?.addEventListener('click', function (e) {
-      const dropdown = document.getElementById('user-dropdown');
-      const isVisible = dropdown.style.display === 'block';
-      dropdown.style.display = isVisible ? 'none' : 'block';
-      e.stopPropagation();
-    });
+
 
     // Chiude il menu cliccando fuori
     document.addEventListener('click', function () {
@@ -111,76 +111,85 @@ class GypsyApp {
       }
     });
 
+    // HAMBURGER MENU - apertura/chiusura + chiusura automatica al click
+    const hamburgerBtn = document.getElementById('hamburger-menu');
+    const menu = document.getElementById('main-menu');
+
+    hamburgerBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      menu.classList.toggle('show');
+    });
+
+    // Chiude il menu quando si clicca su un item
+    document.querySelectorAll('#main-menu .menu-item').forEach(item => {
+      item.addEventListener('click', () => {
+        menu.classList.remove('show');
+        document.body.style.overflow = ''; // sblocca scroll se era bloccato
+      });
+    });
+
+    // Chiude cliccando fuori
+    document.addEventListener('click', function (e) {
+      if (menu.classList.contains('show') &&
+        !menu.contains(e.target) &&
+        !hamburgerBtn.contains(e.target)) {
+        menu.classList.remove('show');
+      }
+    });
+
   }
 
+
+
+
+
+
   setupPublicToggle() {
-    const toggleContainer = document.createElement('div');
-    toggleContainer.id = 'public-toggle-container';
-    toggleContainer.style.cssText = 'display: inline-flex; align-items: center; gap: 8px; margin-left: 15px;';
 
-    const label = document.createElement('label');
-    label.style.cssText = 'display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.95em; color: #bbb;';
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.id = 'public-checkbox';
-    checkbox.checked = true;
-    checkbox.style.cssText = 'width: 18px; height: 18px; cursor: pointer; accent-color: #e91e63;';
+    const btn = document.getElementById('public-toggle-btn');
+    if (!btn) return;
 
-    const labelText = document.createElement('span');
-    labelText.textContent = 'Public';
+    // Set initial state based on current song or default to true
+    const initialState = this.currentSong ? (this.currentSong.isPublic !== false) : true;
+    //btn.classList.toggle('active', initialState);
+    btn.disabled = !this.currentSong; // Disable if no song loaded
 
-    label.appendChild(checkbox);
-    label.appendChild(labelText);
-    toggleContainer.appendChild(label);
+    btn.addEventListener('click', async () => {
+      if (!this.currentSong) {
+        YouJazz.showMessage("No Song", "Load or create a song first");
+        return;
+      }
 
-    const titleInput = document.getElementById('song-title');
-    document.querySelector('.controls').appendChild(toggleContainer);
+      const newState = !btn.classList.contains('active');
+      btn.classList.toggle('active', newState);
+      this.currentSong.isPublic = newState;
 
-    checkbox.addEventListener('change', async () => {
-      if (!this.currentSong) return;
-      this.currentSong.isPublic = checkbox.checked;
       if (this.currentSong._id) {
         try {
-          await Database.updatePublicStatus(this.currentSong._id, checkbox.checked);
-          YouJazz.showMessage("Visibility Updated", `Song is now ${checkbox.checked ? 'public' : 'private'}`);
+          await Database.updatePublicStatus(this.currentSong._id, newState);
+          YouJazz.showMessage("Visibility Updated", `Song is now ${newState ? 'public' : 'private'}`);
           await this.loadSongsList();
         } catch (err) {
-          checkbox.checked = !checkbox.checked;
+          btn.classList.toggle('active', !newState);
           YouJazz.showMessage("Error", "Unable to update visibility");
         }
       }
     });
   }
 
-  async updateCreatedByForCurrentUser() {
-    try {
-      const res = await fetch('/auth/me', { credentials: 'include' });
-      if (res.ok) {
-        const user = await res.json();
-        // Simula un oggetto song con owner = utente corrente
-        this.showCreatedBy({ owner: { displayName: user.displayName || 'You' } });
-      } else {
-        this.showCreatedBy({ owner: null }); // guest o errore
-      }
-    } catch (e) {
-      this.showCreatedBy({ owner: null });
-    }
-  }
+
 
   showCreatedBy(song) {
-    const titleBox = document.getElementById('song-title');
-    let createdByEl = titleBox.nextElementSibling;
-
-    if (!createdByEl || !createdByEl.classList.contains('created-by')) {
-      createdByEl = document.createElement('div');
-      createdByEl.className = 'created-by';
-      createdByEl.style.cssText = 'font-size: 0.9em; color: #888; margin-top: 5px; text-align: center; font-style: italic;';
-      titleBox.parentNode.insertBefore(createdByEl, titleBox.nextSibling);
+    let createdByEl = document.getElementsByClassName('created-by')[0];
+    if (!song) {
+      createdByEl.textContent = '';
+      return;
     }
-
-    const ownerName = this.getOwnerName(song);
-    createdByEl.textContent = `Created by: ${ownerName}`;
+    else {
+      const ownerName = this.getOwnerName(song);
+      createdByEl.textContent = `Created by: ${ownerName}`;
+    }
   }
 
 
@@ -379,14 +388,17 @@ class GypsyApp {
       this.currentSong = {
         title: 'Song name',
         style: this.currentStyle,
-        isPublic: true,
+        isPublic: false,
         bpm: 120,
         grid: { rows, cols },
         measures: Array(rows * cols).fill(null).map(() => ({ chords: [] }))
       };
 
       // Resetta il titolo nel campo input
+      this.loadSongsList();
       document.getElementById('song-title').value = 'Song name';
+      document.getElementById('bpm-slider').value = 120;
+      document.getElementById('bpm-value').textContent = '120';
 
       // Aggiorna "Created by:" con l'utente corrente (senza await!)
       fetch('/auth/me', { credentials: 'include' })
@@ -401,8 +413,6 @@ class GypsyApp {
 
       // Renderizza
       this.render();
-      const checkbox = document.getElementById('public-checkbox');
-      if (checkbox) checkbox.checked = true;
 
       modal.classList.add('hidden');
       createBtn.removeEventListener('click', handler);
@@ -667,6 +677,18 @@ class GypsyApp {
   render() {
     const sheet = document.getElementById('lead-sheet');
     this.updateUIControls();
+
+    const publicBtn = document.getElementById('public-toggle-btn');
+    if (publicBtn) {
+      if (this.currentSong) {
+        publicBtn.classList.toggle('active', this.currentSong.isPublic !== false);
+        publicBtn.disabled = false;
+      } else {
+        publicBtn.classList.remove('active');
+        publicBtn.disabled = true;
+      }
+    }
+
     if (!this.currentSong) {
       sheet.innerHTML = `
         <div style="
@@ -861,10 +883,6 @@ class GypsyApp {
         b.onclick = null;
       });
       document.querySelectorAll('.remove').forEach(r => r.style.display = 'none');
-      document.getElementById('new-song').style.display = 'none';
-      document.getElementById('save-song').style.display = 'none';
-      document.getElementById('delete-song').style.display = 'none';
-      document.getElementById('add-row').style.display = 'none';
 
       // Add notice
       const notice = document.createElement('div');
@@ -885,6 +903,12 @@ class GypsyApp {
       document.getElementById('add-row').style.display = '';
       const notice = document.getElementById('guest-notice');
       if (notice) notice.remove();
+    }
+    // Update public button state after render
+    const publicBtn2 = document.getElementById('public-toggle-btn');
+    if (publicBtn2 && this.currentSong) {
+      publicBtn2.classList.toggle('active', this.currentSong.isPublic !== false);
+      publicBtn2.disabled = false;
     }
 
   }
@@ -1075,11 +1099,20 @@ class GypsyApp {
 
     // Preload TUTTI i buffer
     document.getElementById('audio-spinner').classList.remove('hidden');
-    await Promise.all(seq.map(ch => {
-      const box = document.querySelector(`.chord-box[textContent="${ch}"]`);
-      const style = box?.dataset.style || this.currentStyle;
-      return this.player.load(ch, style).catch(() => { });
-    }));
+    try {
+      await Promise.all(seq.map(ch => {
+        const box = document.querySelector(`.chord-box[textContent="${ch}"]`);
+        const style = box?.dataset.style || this.currentStyle;
+        return this.player.load(ch, style).catch(() => { });
+      }));
+    } catch (err) {
+      console.error("Preload error:", err);
+      YouJazz.showMessage("Playback Error", "An error occurred while loading audio samples.");
+      this.isPlaying = false;
+      this.updateUIControls();
+      document.getElementById('audio-spinner').classList.add('hidden');
+      return;
+    }
     document.getElementById('audio-spinner').classList.add('hidden');
 
     // CALLBACK HIGHLIGHT PER POSIZIONE ESATTA
@@ -1128,14 +1161,22 @@ class GypsyApp {
     };
 
     // Avvia con count-in integrato
-    this.player.playVariableSequence(
-      seq,
-      beatCounts.map(b => b * (60 / this.currentSong.bpm)),
-      this.currentSong.bpm,
-      onChordPlay,
-      onEnd,
-      true  // enableCountIn
-    );
+    try {
+      this.player.playVariableSequence(
+        seq,
+        beatCounts.map(b => b * (60 / this.currentSong.bpm)),
+        this.currentSong.bpm,
+        onChordPlay,
+        onEnd,
+        true  // enableCountIn
+      );
+
+    } catch (err) {
+      console.error("Playback error:", err);
+      YouJazz.showMessage("Playback Error", "An error occurred during playback.");
+      this.isPlaying = false;
+      this.updateUIControls();
+    }
   }
 
   reloadAllSamples() {
@@ -1223,10 +1264,11 @@ class GypsyApp {
       }
 
 
-      const checkbox = document.getElementById('public-checkbox');
-      console.log('Public checkbox:', checkbox.checked);
-      if (checkbox) this.currentSong.isPublic = checkbox.checked;
+      //      const checkbox = document.getElementById('public-checkbox');
+
+      //      if (checkbox) this.currentSong.isPublic = checkbox.checked;
       // Se arriviamo qui → l'utente può salvare (nuovo brano o suo)
+
       const saved = await Database.saveSong(this.currentSong);
 
       // Aggiorniamo l'_id solo se è un nuovo brano
@@ -1283,60 +1325,214 @@ class GypsyApp {
       this.render();
       YouJazz.showMessage("Song deleted", 'Song successfully deleted');
       await this.loadSongsList();
+      document.getElementById('song-title').value = 'Song name';
     } catch (e) {
       console.error('Saving error:', e);
       YouJazz.showMessage("Save Error", "Unable to save the song. Are you logged in?");
     }
   }
 
-  updateLikeButton(song, currentUser) {
-    let btn = document.getElementById('like-btn-current');
+  updateFavButton(song, currentUser) {
 
-    // Crea il pulsante solo la prima volta
-    if (!btn) {
-      btn = document.createElement('button');
-      btn.id = 'like-btn-current';
-      btn.className = 'like-btn';
-      btn.innerHTML = ' 👍  <span id="like-count">0</span>';
-      document.querySelector('#add-row').after(btn);
-    }
+    let favBtn = document.getElementById('fav-btn');
 
     if (!song?._id) {
-      btn.style.display = 'none';
+      favBtn.style.display = 'none';
       return;
     }
 
-    btn.style.display = 'inline-block';
-    const likes = song.likes?.length || 0;
-    btn.querySelector('#like-count').textContent = likes;
+    //favBtn.style.display = 'inline-block';
+    const favs = song.favourites?.length || 0;
+    //favBtn.querySelector('#fav-count').textContent = favs;
 
-    const hasLiked = currentUser && song.likes?.includes(currentUser.id);
-    btn.classList.toggle('liked', hasLiked);
-    btn.disabled = !currentUser;
-    btn.onclick = null; // ← previene duplicati di click
-    btn.onclick = async () => {
+    const isFavourite = currentUser && song.favourites?.includes(currentUser.id);
+    favBtn.classList.toggle('liked', isFavourite);
+    favBtn.disabled = !currentUser;
+    favBtn.onclick = null;
+    favBtn.onclick = async () => {
       if (!currentUser) {
-        YouJazz.showMessage("Login richiesto", "Devi essere loggato per mettere like");
+        YouJazz.showMessage("Login required", "Login to add favourites");
         return;
       }
 
       try {
-        const res = await fetch(`/api/songs/${song._id}/like`, {
-          method: 'POST',
-          credentials: 'include'
-        });
-        if (!res.ok) throw new Error();
+        const res = await Database.toggleFavourite(song._id);
 
-        const data = await res.json();
-        btn.querySelector('#like-count').textContent = data.likes;
-        btn.classList.toggle('liked', data.hasLiked);
+        favBtn.classList.toggle('liked', res.isFavourite);
 
-        // Aggiorna dropdown
-        this.loadSongsList();
+        await this.loadSongsList();
+
       } catch (err) {
-        YouJazz.showMessage("Errore", "Impossibile aggiornare il like");
+        YouJazz.showMessage("Error", "Unable to update favourite");
       }
     };
+  }
+
+
+  setupFavouritesFilter() {
+    const btn = document.getElementById('filter-favourites');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      this.loadSongsList();
+    });
+  }
+  async setupSaveAs() {
+    const btn = document.getElementById('save-as-song');
+
+    if (!btn) return;
+
+    btn.onclick = async () => {
+      if (!this.currentSong) {
+        return YouJazz.showMessage("Error", "No song loaded");
+      }
+
+      if (this.isGuest()) {
+        return YouJazz.showMessage("Permission denied", "Login to save songs");
+      }
+
+      const confirmed = await YouJazz.showConfirm(
+        "Save As Copy",
+        `Create a personal copy of "${this.currentSong.title}"?`,
+        "Yes, save copy",
+        "Cancel"
+      );
+
+      if (!confirmed) return;
+
+      try {
+        // Convert to DB format
+        const dbSong = {
+          title: this.currentSong.title,
+          bpm: this.currentSong.bpm,
+          style: this.currentSong.style,
+          grid: this.currentSong.grid,
+          measures: []
+        };
+
+        this.currentSong.measures.forEach(measure => {
+          if (measure.chords.length === 0) return;
+          const realChords = measure.chords.filter(c => c !== '%');
+          if (realChords.length === 0) return;
+          const beatsPerChord = 4 / realChords.length;
+          realChords.forEach(chord => {
+            dbSong.measures.push({ chord, beats: beatsPerChord });
+          });
+        });
+
+        const saved = await Database.saveAs(dbSong);
+        this.currentSong._id = saved._id;
+        this.currentSong.title = saved.title;
+        document.getElementById('song-title').value = saved.title;
+
+        YouJazz.showMessage("Success", `Song saved as "${saved.title}"`);
+        await this.loadSongsList();
+      } catch (e) {
+        console.error('Save as error:', e);
+        YouJazz.showMessage("Error", "Unable to save copy");
+      }
+    };
+  };
+
+
+  async setupAIReharmonize() {
+    const btn = document.getElementById('ai-reharmonize');
+    if (!btn) return;
+
+    btn.onclick = async () => {
+      if (!this.currentSong || this.currentSong.measures.length === 0) {
+        return YouJazz.showMessage("Error", "No song loaded");
+      }
+
+      if (this.isGuest()) {
+        return YouJazz.showMessage("Permission denied", "Login to use AI features");
+      }
+
+      const confirmed = await YouJazz.showConfirm(
+        "YouJazz AI Reharmonization 🤖",
+        "Generate an alternative jazz version of this progression?",
+        "Yes, do it!",
+        "Cancel"
+      );
+
+      if (!confirmed) return;
+
+      btn.disabled = true;
+      btn.textContent = '⏳';
+
+      document.getElementById('ai-spinner').classList.remove('hidden');
+
+      try {
+        // Convert current song to DB format
+        const measures = [];
+        measures.push(this.currentSong.title);
+        this.currentSong.measures.forEach(m => {
+          if (m.chords.length === 0) return;
+          const realChords = m.chords.filter(c => c !== '%');
+          const beatsPerChord = 4 / realChords.length;
+
+
+          realChords.forEach(chord => {
+            measures.push({ chord, beats: beatsPerChord });
+          });
+        });
+
+        const result = await Database.aiReharmonize(measures);
+
+        // Rebuild grid from AI response
+        this.reconstructGridFromMeasures(result.measures);
+        this.render();
+        document.getElementById('ai-spinner').classList.add('hidden');
+        YouJazz.showMessage("AI Reharmonization ✨", "New version generated!");
+      } catch (e) {
+        console.error('AI error:', e);
+        YouJazz.showMessage("Error", "AI reharmonization failed. Try again.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🤖';
+      }
+    };
+  }
+
+  reconstructGridFromMeasures(dbMeasures) {
+    // Reset grid
+    this.currentSong.measures = Array(this.currentSong.grid.rows * this.currentSong.grid.cols)
+      .fill(null)
+      .map(() => ({ chords: [] }));
+
+    let currentMeasure = { chords: [] };
+    let currentBeats = 0;
+    let measureIndex = 0;
+
+    dbMeasures.forEach(m => {
+      if (currentBeats + m.beats > 4) {
+        // Save current and start new
+        if (currentMeasure.chords.length > 0 && measureIndex < this.currentSong.measures.length) {
+          this.currentSong.measures[measureIndex] = currentMeasure;
+          measureIndex++;
+        }
+        currentMeasure = { chords: [] };
+        currentBeats = 0;
+      }
+
+      currentMeasure.chords.push(m.chord);
+      currentBeats += m.beats;
+
+      if (currentBeats === 4) {
+        if (measureIndex < this.currentSong.measures.length) {
+          this.currentSong.measures[measureIndex] = currentMeasure;
+          measureIndex++;
+        }
+        currentMeasure = { chords: [] };
+        currentBeats = 0;
+      }
+    });
+
+    // Save last measure if not empty
+    if (currentMeasure.chords.length > 0 && measureIndex < this.currentSong.measures.length) {
+      this.currentSong.measures[measureIndex] = currentMeasure;
+    }
   }
 
   async loadSongsList() {
@@ -1362,23 +1558,32 @@ class GypsyApp {
         if (res.ok) currentUser = await res.json();
       } catch (e) { }
 
+
+      const filterBtn = document.getElementById('filter-favourites');
+      const showOnlyFavourites = filterBtn?.classList.contains('active');
       const visibleSongs = songs.filter(song => {
-        if (song.isPublic) return true;
-        if (!currentUser) return false;
-        return song.owner._id === currentUser.id;
+        // Privacy filter (existing)
+        const passesPrivacy = song.isPublic || (currentUser && song.owner._id === currentUser.id);
+        if (!passesPrivacy) return false;
+
+        // Favourites filter (new)
+        if (showOnlyFavourites && currentUser) {
+          return song.favourites?.includes(currentUser.id);
+        }
+
+        return true;
       });
 
       // Popola la lista – UNA SOLA VOLTA per brano
       visibleSongs.forEach(song => {
         const opt = document.createElement('option');
         opt.value = song._id;
-        const privacyIcon = !song.isPublic ? '🔒 ' : '';
 
+        const isFavourite = currentUser && song.favourites?.includes(currentUser.id);
+        const favIcon = isFavourite ? '⭐ ' : '';
+        const privacyIcon = !song.isPublic ? '' : '🌏 ';
 
-        const likes = song.likes?.length || 0;
-        const likeText = likes > 0 ? `👍 ${likes}` : '';
-
-        opt.textContent = `${song.title} (${this.getOwnerName(song)})${privacyIcon}${likeText}`;
+        opt.textContent = `${privacyIcon}${song.title} (${this.getOwnerName(song)})${favIcon}`;
         sel.appendChild(opt);
       });
 
@@ -1401,8 +1606,8 @@ class GypsyApp {
             grid: db.grid || { rows: 4, cols: 4 },
             measures: []
           };
-          const checkbox = document.getElementById('public-checkbox');
-          if (checkbox) checkbox.checked = this.currentSong.isPublic;
+          //const checkbox = document.getElementById('public-checkbox');
+          //if (checkbox) checkbox.checked = this.currentSong.isPublic;
           this.currentStyle = db.style || 'swing';
 
           document.querySelectorAll('.chord-box').forEach(box => box.dataset.style = this.currentStyle);
@@ -1431,8 +1636,8 @@ class GypsyApp {
           this.showCreatedBy(db);
           this.render();
 
-          // Aggiorna solo il pulsante like – NON richiama loadSongsList()
-          this.updateLikeButton(db, currentUser);
+          // Aggiorna solo il pulsante fav – NON richiama loadSongsList()
+          this.updateFavButton(db, currentUser);
 
         } catch (e) {
           console.error(e);
