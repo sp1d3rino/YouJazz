@@ -10,6 +10,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 const Song = require('./models/Song');
 const User = require('./models/User');
+const AICache = require('./models/AICache');
 const authRoutes = require('./routes/auth');
 const app = express();
 
@@ -197,20 +198,35 @@ app.post('/api/songs/ai-reharmonize', requireAuth, async (req, res) => {
   try {
     const { measures } = req.body;
 
-    //the first element is the title
+    // Estrai titolo
     const title = measures.shift();
 
-    // Costruisci input per OpenAI
+    // Costruisci input per cache lookup
     const chordsInput = measures
       .filter(m => m.chord)
       .map(m => `${m.chord}|${m.beats}`)
       .join(' ');
+
+    // ✅ STEP 1: Cerca nella cache
+    const cached = await AICache.findOne({ 
+      songTitle: title,
+      originalProgression: chordsInput 
+    });
+
+    if (cached) {
+      console.log('✅ AI Cache HIT per:', title);
+      return res.json({ measures: cached.reharmonizedMeasures, fromCache: true });
+    }
+
+    console.log('❌ AI Cache MISS per:', title, '→ chiamata OpenAI');
+
+    // ✅ STEP 2: Chiamata OpenAI (codice originale)
     let totalBeats = 0;
     for (const m of measures) {
       totalBeats += m.beats;
     }
 
-    const prompt = `You are a jazz reharmonization expert. I provideyou the rules for Harmonic Substitutions in Gypsy Jazz
+    const prompt = `You are a jazz reharmonization expert. I provide you the rules for Harmonic Substitutions in Gypsy Jazz
     --start of rules--
 1. DOMINANT CHORDS (7, 9, 13)
 Primary Substitutions
@@ -357,7 +373,6 @@ Now given the song named ${title} and its chord progression is ${chordsInput} wh
  and  and the style is manouche or gypsy so the reharmonization must fit the melodic and stylistic context of the song and use the rules specified above. 
 Generate an alternative jazz reharmonization using substitutions, extensions. change only where is possible otherwise keep the same chord. Return ONLY the new progression in the same format (chord|beats), separated by spaces.`;
 
-    console.log('reharmonize prompt:', prompt);
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
@@ -372,19 +387,14 @@ Generate an alternative jazz reharmonization using substitutions, extensions. ch
       })
     });
 
-
-
     if (!response.ok) throw new Error('OpenAI API error');
 
     const data = await response.json();
 
     let aiOutput = null;
 
-    // 1. Direct text field (most common)
     if (data.output_text) {
       aiOutput = data.output_text;
-
-      // 2. Structured output array (alternative)
     } else if (data.output && Array.isArray(data.output)) {
       const textChunks = data.output
         .flatMap(o => o.content)
@@ -402,20 +412,29 @@ Generate an alternative jazz reharmonization using substitutions, extensions. ch
 
     aiOutput = aiOutput.replace(/b/g, '♭').trim();
 
-    console.log("AI Output:", aiOutput);
-    // Parse output: "Cmaj7|4 Dm7|2 G7|2 ..." -> [{chord, beats}, ...]
     const newMeasures = aiOutput.split(/\s+/).map(token => {
       const [chord, beats] = token.split('|');
       return { chord: chord.trim(), beats: parseInt(beats) || 4 };
     }).filter(m => m.chord && m.beats);
-    console.log('AI reharmonization result:', newMeasures);
-    res.json({ measures: newMeasures });
+
+    // ✅ STEP 3: Salva nella cache
+    try {
+      await AICache.create({
+        songTitle: title,
+        originalProgression: chordsInput,
+        reharmonizedMeasures: newMeasures
+      });
+      console.log('💾 Salvato in cache:', title);
+    } catch (cacheErr) {
+      console.warn('⚠️ Errore salvataggio cache (duplicato?):', cacheErr.message);
+    }
+
+    res.json({ measures: newMeasures, fromCache: false });
   } catch (err) {
     console.error('AI reharmonization error:', err);
     res.status(500).json({ error: 'AI error' });
   }
 });
-
 app.post('/api/songs/:id/play', async (req, res) => {
   try {
     const song = await Song.findById(req.params.id);
