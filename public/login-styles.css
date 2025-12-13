@@ -48,12 +48,12 @@ h1 {
 .google-btn,
 .guest-btn {
     display: inline-flex;
-    align-items: center;
+    align-items: left;
     justify-content: center;
     gap: 16px;
     padding: 18px 40px;
     border-radius: 12px;
-    font-size: 1.5em;
+    font-size: 1.1em;
     font-weight: bold;
     text-decoration: none;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
@@ -126,8 +126,44 @@ h1 {
 
 .guest-btn:hover {
     background: #444;
-    border-color: #ff6b6b;
+    border-color: #eee;
     color: white;
     transform: translateY(-4px);
     box-shadow: 0 15px 40px rgba(255, 107, 107, 0.3);
+}
+
+
+
+.facebook-btn,
+.guest-btn {
+    display: inline-flex;
+    align-items: left;
+    justify-content: center;
+    gap: 16px;
+    padding: 18px 40px;
+    border-radius: 12px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+}
+
+.facebook-btn {
+    background: white;
+    color: #444;
+}
+
+ 
+
+.facebook-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+}
+
+.facebook-btn img {
+    height: 28px;
 }
