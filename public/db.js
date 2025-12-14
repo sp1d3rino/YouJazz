@@ -97,23 +97,17 @@ class Database {
   }
 
   // === INCREMENTA PLAYCOUNT (invisibile all'utente) ===
-  static async incrementPlayCount(songId) {
-    if (!songId) return;
-
-    try {
-      // Chiamata fire-and-forget: non aspettiamo risposta, non blocca nulla
-      fetch(`/api/songs/${songId}/play`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      // Nessun await → non rallenta il Play
-      // Nessun errore mostrato → silenzioso
-    } catch (err) {
-      // Silenzio totale anche in caso di errore (es. offline)
-      console.warn('playCount non aggiornato (offline o errore server)');
-    }
+static async incrementPlayCount(songId) {
+  try {
+    fetch(`/api/songs/${songId || 'guest'}/play`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (err) {
+    console.warn('playCount non aggiornato (offline o errore server)');
   }
+}
 
   static async aiReharmonize(measures) {
     const res = await fetch('/api/songs/ai-reharmonize', {
