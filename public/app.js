@@ -430,6 +430,42 @@ class GypsyApp {
       e.preventDefault();
     }, { passive: false });
 
+    // === NUOVO: ABILITA SCROLL SU SWIPE PER PALETTE MOBILE ===
+    if (window.innerWidth <= 768) {
+      const enableScrollOnSwipe = (container) => {
+        let isScrolling = false;
+        let startX = 0;
+        let scrollLeft = 0;
+
+        container.addEventListener('touchstart', (e) => {
+          // Solo se il touch è sul container, non sui pulsanti durante drag
+          if (e.target.closest('.chord-btn') || e.target.closest('.extension-btn')) {
+            startX = e.touches[0].pageX - container.offsetLeft;
+            scrollLeft = container.scrollLeft;
+            isScrolling = true;
+          }
+        }, { passive: true });
+
+        container.addEventListener('touchmove', (e) => {
+          if (!isScrolling) return;
+
+          const x = e.touches[0].pageX - container.offsetLeft;
+          const walk = (x - startX) * 2; // Moltiplicatore per velocità scroll
+          container.scrollLeft = scrollLeft - walk;
+        }, { passive: true });
+
+        container.addEventListener('touchend', () => {
+          isScrolling = false;
+        }, { passive: true });
+      };
+
+      const chordList = document.querySelector('.chord-list');
+      const extList = document.querySelector('.extension-list');
+
+      if (chordList) enableScrollOnSwipe(chordList);
+      if (extList) enableScrollOnSwipe(extList);
+    }
+
   }
 
 
