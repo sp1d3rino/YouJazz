@@ -43,6 +43,7 @@ class GypsyPlayer {
     filenameChord = filenameChord
       .replace(/ø7/g, 'half').replace(/ø/g, 'half')
       .replace(/o7/g, 'dim').replace(/o/g, 'dim')
+      .replace(/♭/g, 'b')
       .replace(/\s+/g, '');
 
     const safeChord = encodeURIComponent(filenameChord);

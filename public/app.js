@@ -1,7 +1,7 @@
 
 
 const CHORDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'P'];
-const CHORD_EXTENSIONS = ['#', '♭', 'ø', 'o', '6', '7', '9', 'm', 'maj7'];
+const CHORD_EXTENSIONS = ['#', '♭', 'ø', 'o', '6', '7', '9', 'm', 'maj7', '♭9', '#9'];
 const SONG_STYLES = ['swing', 'bossa'];
 
 class GypsyApp {
@@ -312,16 +312,17 @@ class GypsyApp {
       const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
       const measure = elementAtPoint?.closest('.measure');
 
-      // Remove all hover effects
+      // Rimuovi effetti hover
       document.querySelectorAll('.measure').forEach(m => m.classList.remove('drag-over'));
 
-      // Reset visual feedback
+      // Reset feedback visivo
       if (touchStartElement) {
         touchStartElement.style.opacity = '';
         touchStartElement = null;
       }
 
       if (measure && draggedType === 'chord') {
+        // Inserimento di un accordo completo (es. "C7", "Dm", "G♭7♭9")
         const measureIndex = Array.from(document.querySelectorAll('.measure')).indexOf(measure);
         const measureData = this.currentSong.measures[measureIndex];
 
@@ -331,7 +332,6 @@ class GypsyApp {
           const y = touch.clientY - rect.top;
 
           let insertIndex = measureData.chords.length;
-
           if (measureData.chords.length > 0) {
             if (x < rect.width / 2 && y < rect.height / 2) insertIndex = 0;
             else if (x >= rect.width / 2 && y < rect.height / 2) insertIndex = 1;
@@ -349,54 +349,87 @@ class GypsyApp {
 
           this.preloadIfNeeded(draggedChord);
         }
+
       } else if (measure && draggedType === 'extension') {
-        // Handle extension drop on chord box
         const chordBox = elementAtPoint?.closest('.chord-box');
-        if (chordBox) {
-          const measureIndex = Array.from(document.querySelectorAll('.measure')).indexOf(measure);
-          const measureData = this.currentSong.measures[measureIndex];
-          const chordIndex = Array.from(measure.querySelectorAll('.chord-box')).indexOf(chordBox);
+        if (!chordBox) return;
 
-          if (chordIndex !== -1) {
-            let chord = measureData.chords[chordIndex];
-            let newChord = chord;
+        const measureIndex = Array.from(document.querySelectorAll('.measure')).indexOf(measure);
+        const measureData = this.currentSong.measures[measureIndex];
+        const chordIndex = Array.from(measure.querySelectorAll('.chord-box')).indexOf(chordBox);
 
-            if (['#', '♭', 'ø', 'o'].includes(draggedChord)) {
-              const rootMatch = chord.match(/^([A-G][#♭]?)/i);
-              const root = rootMatch ? rootMatch[0] : chord[0];
+        if (chordIndex === -1) return;
 
-              if (draggedChord === '#' || draggedChord === '♭') {
-                newChord = root[0] + draggedChord;
-              } else {
-                newChord = root + draggedChord;
-              }
+        let currentChord = measureData.chords[chordIndex];
+        let newChord = currentChord;
 
-              const rest = chord.slice(root.length);
-              if (rest && !['#', '♭', 'ø', 'o'].includes(rest[0])) {
-                newChord += rest.replace(/^(maj|m)?[0-9]*/g, '');
-              }
-            } else if (draggedChord === 'm') {
-              newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'm';
-            } else if (draggedChord === 'maj7') {
-              newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'maj7';
-            } else if (['6', '7', '9'].includes(draggedChord)) {
-              newChord = chord.replace(/[0-9]+$/, '') + draggedChord;
+        // Estrai la root (C-G, opzionalmente con # o ♭)
+        const rootMatch = currentChord.match(/^([A-G][#♭]?)/i);
+        if (!rootMatch) return; // Sicurezza: accordo non valido
+        const root = rootMatch[0]; // es. "C", "G♭", "F#"
+        const rest = currentChord.slice(root.length); // tutto il resto
+
+        // Applica l'estensione trascinata
+        switch (draggedChord) {
+          case '#':
+          case '♭':
+            // Modifica solo l'alterazione della root
+            newChord = currentChord[0] + draggedChord + currentChord.slice(2);
+            break;
+
+          case 'ø':
+          case 'o':
+            // Sostituisce qualsiasi estensione con ø o o (accordi diminuiti)
+            newChord = root + draggedChord;
+            break;
+
+          case 'm':
+            // Rimuove maj7 o numeri, aggiunge m (tranne se già presente)
+            newChord = root + (rest.includes('maj7') ? '' : rest.replace(/(maj)?[0-9♭#]*/g, '')) + 'm';
+            break;
+
+          case 'maj7':
+            // Sostituisce estensioni numeriche/minori con maj7
+            newChord = root + rest.replace(/(m|[0-9♭#])*/g, '') + 'maj7';
+            break;
+
+          case '6':
+          case '7':
+          case '9':
+            // Sostituisce eventuali numeri finali, mantiene m se presente
+            const base = rest.replace(/[0-9♭#]+$/, '');
+            newChord = root + base + draggedChord;
+            break;
+
+          case '♭9':
+          case '#9':
+            // Aggiunge ♭9 o #9 solo se c'è già un 7 (o lo aggiunge se non c'è)
+            if (rest.includes('7')) {
+              newChord = root + rest.replace(/[♭#]?9$/, '') + draggedChord;
+            } else {
+              // Se non c'è 7, lo aggiungiamo prima (es. C + ♭9 → C7♭9)
+              const base = rest.replace(/[0-9♭#]+$/, '');
+              newChord = root + base + '7' + draggedChord;
             }
+            break;
 
-            measureData.chords[chordIndex] = newChord;
-            this.preloadIfNeeded(newChord);
-            this.render();
-          }
+          default:
+            return; // Estensione non riconosciuta
         }
+
+        measureData.chords[chordIndex] = newChord;
+        this.preloadIfNeeded(newChord);
+        this.render();
       }
 
-      // Reset
+      // Reset stato drag
       draggedChord = null;
       draggedType = null;
       draggedStyle = null;
 
       e.preventDefault();
     }, { passive: false });
+
   }
 
 
@@ -1095,47 +1128,82 @@ class GypsyApp {
     box.addEventListener('drop', e => {
       const type = e.dataTransfer.getData('type');
 
-      // Se è un'estensione → gestisci sul box stesso
+      // Se è un'estensione → applichiamo la logica sul chord-box corrente
       if (type === 'extension') {
         e.preventDefault();
         e.stopPropagation();
 
         const droppedText = e.dataTransfer.getData('text/plain');
-        let newChord = chord;
+        let currentChord = chord; // 'chord' è la variabile esistente con l'accordo corrente
+        let newChord = currentChord;
 
-        if (['#', '♭', 'ø', 'o'].includes(droppedText)) {
-          const rootMatch = chord.match(/^([A-G][#b]?)/i);
-          const root = rootMatch ? rootMatch[0] : chord[0];
+        // Estrai la root (C-G, opzionalmente con # o ♭)
+        const rootMatch = currentChord.match(/^([A-G][#♭]?)/i);
+        if (!rootMatch) return; // Sicurezza: accordo non valido
 
-          if (droppedText === '#' || droppedText === '♭') {
-            newChord = root[0] + droppedText;
-          } else {
+        const root = rootMatch[0]; // es. "C", "G♭", "F#"
+        const rest = currentChord.slice(root.length); // tutto dopo la root
+
+        // Applica l'estensione droppata
+        switch (droppedText) {
+          case '#':
+          case '♭':
+            // Cambia solo l'alterazione della root (es. C → C#, Db → D♭, ecc.)
+            newChord = currentChord[0] + droppedText + currentChord.slice(2);
+            break;
+
+          case 'ø':
+          case 'o':
+            // Accordo semidiminuito o diminuito: sostituisce tutto il resto
             newChord = root + droppedText;
-          }
+            break;
 
-          const rest = chord.slice(root.length);
-          if (rest && !['#', '♭', 'ø', 'o'].includes(rest[0])) {
-            newChord += rest.replace(/^(maj|m)?[0-9]*/g, '');
-          }
-        }
-        else if (droppedText === 'm') {
-          newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'm';
-        }
-        else if (droppedText === 'maj7') {
-          newChord = chord.replace(/(maj|m)?[0-9]*$/g, '') + 'maj7';
-        }
-        else if (['6', '7', '9'].includes(droppedText)) {
-          newChord = chord.replace(/[0-9]+$/, '') + droppedText;
+          case 'm':
+            // Aggiunge 'm', rimuovendo eventuali maj7 o estensioni numeriche
+            // Ma mantiene altre alterazioni se presenti (es. C7#9 → Cm)
+            newChord = root + rest.replace(/(maj)?[0-9♭#]*/g, '') + 'm';
+            break;
+
+          case 'maj7':
+            // Sostituisce estensioni minori/numeriche con maj7
+            newChord = root + rest.replace(/(m|[0-9♭#])*/g, '') + 'maj7';
+            break;
+
+          case '6':
+          case '7':
+          case '9':
+            // Sostituisce l'eventuale numero finale, mantiene 'm' o 'maj' se presente
+            const base = rest.replace(/[0-9♭#]+$/, '');
+            newChord = root + base + droppedText;
+            break;
+
+          case '♭9':
+          case '#9':
+            // Aggiunge ♭9 o #9: richiede (o aggiunge) il 7
+            if (rest.includes('7')) {
+              // Già c'è un 7 → sostituisci o aggiungi la nona alterata
+              newChord = root + rest.replace(/[♭#]?9$/, '') + droppedText;
+            } else {
+              // Non c'è 7 → lo aggiungiamo prima della nona
+              const base = rest.replace(/[0-9♭#]+$/, '');
+              newChord = root + base + '7' + droppedText;
+            }
+            break;
+
+          default:
+            // Estensione non riconosciuta → niente
+            return;
         }
 
+        // Applica il nuovo accordo
         measure.chords[index] = newChord;
         this.preloadIfNeeded(newChord);
         this.render();
         return;
       }
 
-      // Se è un accordo dalla palette → NON bloccare, lascia propagare alla misura
-      // Così la misura può aggiungere l'accordo nella posizione corretta
+      // Se è un accordo completo dalla palette → lascia propagare l'evento alla misura
+      // (la misura deciderà dove inserirlo tra i 4 slot)
     });
 
     // Tasto ×
@@ -1591,7 +1659,7 @@ class GypsyApp {
       } catch (e) {
         console.error('AI error:', e);
         YouJazz.showMessage("Error", "AI reharmonization failed. Try again.");
-      }  
+      }
     };
   }
 
