@@ -10,6 +10,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const Song = require('./models/Song');
 const User = require('./models/User');
+const AppStats = require('./models/AppStats');
 const AICache = require('./models/AICache');
 const authRoutes = require('./routes/auth');
 const app = express();
@@ -473,21 +474,21 @@ Generate an alternative jazz reharmonization using substitutions, extensions. ch
 });
 app.post('/api/songs/:id/play', async (req, res) => {
   try {
-    const song = await Song.findById(req.params.id);
+    // Incrementa stat globale SEMPRE (anche per guest)
+    await AppStats.findOneAndUpdate(
+      { _id: 'global' },
+      { $inc: { totalPlays: 1 } },
+      { upsert: true, new: true }
+    );
 
-    if (!song) {
-      return res.status(404).json({ error: 'Song not found' });
+    // Se non è guest, incrementa anche il playcount del brano
+    if (req.params.id !== 'guest') {
+      await Song.findByIdAndUpdate(req.params.id, { $inc: { playCount: 1 } });
     }
 
-    // Incrementa il contatore (se non esiste, parte da 0)
-    song.playCount = (song.playCount || 0) + 1;
-    await song.save();
-
-    // Risposta minima (il frontend non la usa, ma è buona pratica)
-    res.json({ success: true, playCount: song.playCount });
+    res.json({ success: true });
   } catch (err) {
-    console.error('Errore increment playCount:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: err.message });
   }
 });
 
