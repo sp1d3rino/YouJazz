@@ -635,18 +635,22 @@ body.ctrl-active * {
   .chord-list,
   .extension-list {
     display: flex !important;
-    /* Forza orizzontale su mobile */
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 0;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch; /* ← AGGIUNGI: scroll fluido iOS */
+    scroll-behavior: smooth; /* ← AGGIUNGI: scroll smooth */
+    touch-action: pan-x; /* ← AGGIUNGI: abilita swipe orizzontale */
   }
 
   .chord-btn,
   .extension-btn {
-    padding: 10px 8px;
-    /* Più piccolo su mobile */
+    min-width: 45px; /* ← AUMENTA da 40px a 45px */
+    padding: 12px 8px; /* ← AUMENTA da 10px 6px */
     font-size: 1em;
-    min-width: 35px;
+    flex-shrink: 0;
   }
 
   #lead-sheet {
@@ -1081,6 +1085,9 @@ body.ctrl-active * {
     overflow-x: auto;
     padding: 0;
     flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch; /* ← AGGIUNGI se non presente */
+    scroll-behavior: smooth; /* ← AGGIUNGI se non presente */
+    touch-action: pan-x; /* ← AGGIUNGI se non presente */
   }
 
   .chord-btn {
@@ -1090,33 +1097,18 @@ body.ctrl-active * {
     flex-shrink: 0;
   }
 
-  /* Estensioni in riga */
-  .extension-list {
-    display: flex !important;
-    flex-direction: row;
-    gap: 6px;
-    overflow-x: auto;
-    padding: 0;
-    flex-wrap: nowrap;
+
+
+  /* Nascondi scrollbar ma mantieni funzionalità scroll */
+  .extension-list::-webkit-scrollbar,
+  .chord-list::-webkit-scrollbar {
+    display: none; /* ← MODIFICA: nascondi completamente scrollbar */
   }
 
-  .extension-btn {
-    min-width: 40px;
-    padding: 10px 6px;
-    font-size: 1em;
-    flex-shrink: 0;
-  }
-
-  /* Scrollbar orizzontale più visibile su mobile */
-  .chord-list::-webkit-scrollbar,
-  .extension-list::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .chord-list::-webkit-scrollbar-thumb,
-  .extension-list::-webkit-scrollbar-thumb {
-    background: #d4af37;
-    border-radius: 2px;
+  .extension-list,
+  .chord-list {
+    scrollbar-width: none; /* ← AGGIUNGI: Firefox */
+    -ms-overflow-style: none; /* ← AGGIUNGI: IE/Edge */
   }
 
   /* Modal responsive */
@@ -1228,11 +1220,13 @@ body.ctrl-active * {
     padding: 10px 6px;
     font-size: 1em;
   }
+  
 
   .extension-btn {
-    min-width: 35px;
-    padding: 8px 4px;
-    font-size: 0.9em;
+    min-width: 45px; /* ← AUMENTA da 40px a 45px */
+    padding: 12px 8px; /* ← AUMENTA da 10px 6px */
+    font-size: 1em;
+    flex-shrink: 0;
   }
 
   .player-controls button {
