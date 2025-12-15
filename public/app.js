@@ -24,6 +24,7 @@ class GypsyApp {
     this.setupCopyPaste();
     this.setupFavouritesFilter();
     this.setupSaveAs();
+    this.setupRename();
     this.setupAIReharmonize();
     this.setupMobilePlaybackControls();
     this.showCreatedBy(null);
@@ -526,7 +527,7 @@ class GypsyApp {
 
       // Resetta il titolo nel campo input
       this.loadSongsList();
-      document.getElementById('song-title').value = 'Song name';
+      //document.getElementById('song-title').value = 'Song name';
       document.getElementById('bpm-slider').value = 120;
       document.getElementById('bpm-value').textContent = '120';
 
@@ -1445,48 +1446,52 @@ class GypsyApp {
       return YouJazz.showMessage("Save Error", "No song to save.");
     }
 
+    // ✅ CHIEDI IL TITOLO SE NON ESISTE
+    if (!this.currentSong._id) {
+      const title = await YouJazz.showPrompt(
+        "Save New Song",
+        "Enter song title:",
+        "Untitled Song"
+      );
 
+/*      if (!title || title.trim() === '') {
+        return YouJazz.showMessage("Cancelled", "Save cancelled");
+      }
+*/
+      this.currentSong.title = title.trim();
+    }
 
-    const title = document.getElementById('song-title').value.trim() || 'Untitled';
-    this.currentSong.title = title;
     this.currentSong.style = this.currentStyle;
+
     try {
-      // Chiediamo al backend chi è l'utente corrente
       const userRes = await fetch('/auth/me', { credentials: 'include' });
       if (!userRes.ok) throw new Error('Unauthenticated');
 
       const currentUser = await userRes.json();
 
-      // Se il brano ha già un _id → stiamo modificando un brano esistente
       if (this.currentSong._id) {
-        // Verifichiamo che il proprietario sia lo stesso dell'utente loggato
         const songRes = await fetch(`/api/songs/${this.currentSong._id}`, { credentials: 'include' });
         if (!songRes.ok) throw new Error('Unable to verify song owner');
 
         const songFromServer = await songRes.json();
-        // BLOCCO DI SICUREZZA: se il proprietario non è l'utente corrente → BLOCCA
         if (songFromServer.owner._id.toString() !== currentUser.id) {
           YouJazz.showMessage("YouJazz", "This song is not yours. You cannot modify it!");
-          await this.loadSongsList();  // ricarica la lista per sicurezza
+          await this.loadSongsList();
           return;
         }
       }
 
-
- 
       const saved = await Database.saveSong(this.currentSong);
 
-      // Aggiorniamo l'_id solo se è un nuovo brano
       if (!this.currentSong._id) {
         this.currentSong._id = saved._id;
       }
 
-      YouJazz.showMessage("YouJazz", `Song ${title} saved successfully!`);
+      YouJazz.showMessage("YouJazz", `Song "${this.currentSong.title}" saved successfully!`);
       await this.loadSongsList();
 
     } catch (e) {
       console.error('Saving error:', e);
-
       YouJazz.showMessage("Save Error", "Unable to save the song. Are you logged in?");
     }
   }
@@ -1530,11 +1535,61 @@ class GypsyApp {
       this.render();
       YouJazz.showMessage("Song deleted", 'Song successfully deleted');
       await this.loadSongsList();
-      document.getElementById('song-title').value = 'Song name';
+      //document.getElementById('song-title').value = 'Song name';
     } catch (e) {
       console.error('Saving error:', e);
       YouJazz.showMessage("Save Error", "Unable to save the song. Are you logged in?");
     }
+  }
+
+  setupRename() {
+    const btn = document.getElementById('rename-song');
+    if (!btn) return;
+
+    btn.onclick = async () => {
+      if (!this.currentSong?._id) {
+        return YouJazz.showMessage("Error", "No song loaded");
+      }
+
+      if (this.isGuest()) {
+        return YouJazz.showMessage("Permission denied", "Login to rename songs");
+      }
+
+      // Verifica ownership
+      try {
+        const userRes = await fetch('/auth/me', { credentials: 'include' });
+        if (!userRes.ok) throw new Error('Unauthenticated');
+
+        const currentUser = await userRes.json();
+        const songRes = await fetch(`/api/songs/${this.currentSong._id}`, { credentials: 'include' });
+        if (!songRes.ok) throw new Error('Unable to verify song owner');
+
+        const songFromServer = await songRes.json();
+        if (songFromServer.owner._id.toString() !== currentUser.id) {
+          return YouJazz.showMessage("Permission denied", "You can only rename your own songs");
+        }
+
+        const newTitle = await YouJazz.showPrompt(
+          "Rename Song",
+          "Enter new title:",
+          this.currentSong.title
+        );
+
+        if (!newTitle || newTitle.trim() === '') {
+          return YouJazz.showMessage("Cancelled", "Rename cancelled");
+        }
+
+        this.currentSong.title = newTitle.trim();
+        await Database.saveSong(this.currentSong);
+
+        YouJazz.showMessage("Success", `Song renamed to "${newTitle}"`);
+        await this.loadSongsList();
+
+      } catch (e) {
+        console.error('Rename error:', e);
+        YouJazz.showMessage("Error", "Unable to rename song");
+      }
+    };
   }
 
   updateFavButton(song, currentUser) {
@@ -1606,11 +1661,21 @@ class GypsyApp {
 
       if (!confirmed) return;
 
+      // ✅ CHIEDI IL NUOVO TITOLO
+      const newTitle = await YouJazz.showPrompt(
+        "Save As",
+        "Enter title for the copy:",
+        `${this.currentSong.title} (copy)`
+      );
+
+      if (!newTitle || newTitle.trim() === '') {
+        return YouJazz.showMessage("Cancelled", "Save cancelled");
+      }
+
       try {
-        // Convert to DB format
         const dbSong = {
-          title: this.currentSong.title,
-          bpm: this.currentSong.bpm,
+          title: newTitle.trim(), // ← USA IL NUOVO TITOLO
+          bpm: this.currentSong.bpm, bpm: this.currentSong.bpm,
           style: this.currentSong.style,
           grid: this.currentSong.grid,
           measures: []
@@ -1629,10 +1694,11 @@ class GypsyApp {
         const saved = await Database.saveAs(dbSong);
         this.currentSong._id = saved._id;
         this.currentSong.title = saved.title;
-        document.getElementById('song-title').value = saved.title;
+        //document.getElementById('song-title').value = saved.title;
 
         YouJazz.showMessage("Success", `Song saved as "${saved.title}"`);
         await this.loadSongsList();
+
       } catch (e) {
         console.error('Save as error:', e);
         YouJazz.showMessage("Error", "Unable to save copy");
@@ -1829,7 +1895,7 @@ class GypsyApp {
             this.currentSong.measures.push({ chords: [] });
           }
 
-          document.getElementById('song-title').value = db.title;
+          //document.getElementById('song-title').value = db.title;
           document.getElementById('bpm-slider').value = db.bpm;
           document.getElementById('bpm-value').textContent = db.bpm;
           this.showCreatedBy(db);
@@ -1837,6 +1903,7 @@ class GypsyApp {
 
           // Aggiorna solo il pulsante fav – NON richiama loadSongsList()
           this.updateFavButton(db, currentUser);
+
 
         } catch (e) {
           console.error(e);

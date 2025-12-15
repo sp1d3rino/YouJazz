@@ -14,9 +14,10 @@
       <h2 class="yj-message-title" id="yj-title">YouJazz</h2>
       <p class="yj-message-text" id="yj-text"></p>
       <div id="yj-input-container" style="display:none; margin:20px 0;">
-        <input type="text" id="yj-input" class="yj-input" placeholder="Scrivi qui...">
+        <input type="text" id="yj-input" class="yj-input" placeholder="type here...">
       </div>
       <div class="yj-message-buttons">
+        <button class="yj-message-btn yj-btn-primary" id="yj-git">Got it!</button>
         <button class="yj-message-btn yj-btn-primary" id="yj-ok">OK</button>
         <button class="yj-message-btn yj-btn-secondary" id="yj-cancel" style="display:none;">Annulla</button>
         <button class="yj-message-btn yj-btn-danger" id="yj-confirm-yes" style="display:none;">Sì, elimina</button>
@@ -32,6 +33,7 @@
   const inputContainer = document.getElementById('yj-input-container');
   const inputEl = document.getElementById('yj-input');
   const okBtn = document.getElementById('yj-ok');
+  const gitBtn = document.getElementById('yj-git');
   const cancelBtn = document.getElementById('yj-cancel');
   const yesBtn = document.getElementById('yj-confirm-yes');
   const noBtn = document.getElementById('yj-confirm-no');
@@ -54,14 +56,16 @@
       if (config.input) inputEl.value = '';
 
       // Pulsanti
-      okBtn.style.display = config.type === 'alert' ? 'inline-block' : 'none';
+      gitBtn.style.display = config.type === 'alert' ? 'inline-block' : 'none';
+      okBtn.style.display = config.type === 'prompt' ? 'inline-block' : 'none';
       cancelBtn.style.display = config.type === 'prompt' ? 'inline-block' : 'none';
       yesBtn.style.display = config.type === 'confirm' ? 'inline-block' : 'none';
       noBtn.style.display = config.type === 'confirm' ? 'inline-block' : 'none';
 
       okBtn.textContent = config.okText || "OK";
-      cancelBtn.textContent = config.cancelText || "Annulla";
-      yesBtn.textContent = config.yesText || "Sì, elimina";
+      gitBtn.textContent = config.okText || "OK";
+      cancelBtn.textContent = config.cancelText || "Cancel";
+      yesBtn.textContent = config.yesText || "Yes, delete";
       noBtn.textContent = config.noText || "No";
 
       overlay.classList.add('show');
@@ -75,6 +79,8 @@
       };
 
       okBtn.onclick = () => { cleanup(); resolve(inputEl.value || true); };
+      gitBtn.onclick = () => { cleanup(); resolve(inputEl.value || true); };
+      
       cancelBtn.onclick = () => { cleanup(); resolve(false); };
       yesBtn.onclick = () => { cleanup(); resolve(true); };
       noBtn.onclick = () => { cleanup(); resolve(false); };
@@ -87,7 +93,7 @@
   YouJazz.showMessage = (title, text, icon = "♪") =>
     show({ type: 'alert', title, text, icon });
 
-  YouJazz.showConfirm = (title, text, yesText = "Sì, elimina", noText = "No") =>
+  YouJazz.showConfirm = (title, text, yesText = "Yes, delete", noText = "No") =>
     show({ type: 'confirm', title, text, yesText, noText, icon: "Youjazz warning" });
 
   YouJazz.showPrompt = (title, text, placeholder = "") =>

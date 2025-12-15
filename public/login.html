@@ -18,23 +18,23 @@
     <div class="guitar-image">
       <img src="images/guitar-gypsy.png" alt="Gypsy Jazz Guitar">
     </div>
-    <div>
-      <!-- Google Login (unchanged) -->
+    <div style=" display: flex; flex-direction: column; gap: 15px; width: 100%;">
+      <!-- Google Login -->
       <a href="/auth/google" class="google-btn">
         <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
         Continue with Google
       </a>
-      <!-- NEW: Facebook Login Button -->
+
+      <!-- Facebook Login -->
       <a href="/auth/facebook" class="facebook-btn">
         <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook">
         Continue with Facebook
       </a>
-    </div>
-    <p style="color:#888; font-size:0.9em; margin-top:10px; max-width:380px; margin-left:auto; margin-right:auto;">
-      You can create, modify, delete, listen and rate songs.
-    </p>
-    <!-- NEW: Guest Mode Button -->
-    <div style="margin: 40px 0;">
+
+      <p style="color:#888; font-size:0.9em; margin-top:10px; max-width:380px; margin-left:auto; margin-right:auto;">
+        You can create, modify, delete, listen and rate songs.
+      </p>
+
       <a href="/?guest=true" class="guest-btn">
         Continue as Guest
       </a>
