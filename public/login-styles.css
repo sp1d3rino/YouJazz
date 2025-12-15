@@ -45,23 +45,7 @@ h1 {
 }
 
 
-.google-btn,
-.guest-btn {
-    display: inline-flex;
-    align-items: left;
-    justify-content: center;
-    gap: 16px;
-    padding: 18px 40px;
-    border-radius: 12px;
-    font-size: 1.1em;
-    font-weight: bold;
-    text-decoration: none;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-    transition: all 0.3s ease;
-    width: 100%;
-    max-width: 420px;
-    text-align: center;
-}
+ 
 
 .google-btn {
     background: white;
@@ -134,36 +118,68 @@ h1 {
 
 
 
-.facebook-btn,
-.guest-btn {
-    display: inline-flex;
-    align-items: left;
-    justify-content: center;
-    gap: 16px;
-    padding: 18px 40px;
-    border-radius: 12px;
-    font-size: 1.1em;
-    font-weight: bold;
-    text-decoration: none;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-    transition: all 0.3s ease;
-    width: 100%;
-    max-width: 420px;
-    text-align: center;
-}
-
-.facebook-btn {
-    background: white;
-    color: #444;
-}
-
+ 
  
 
-.facebook-btn:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+.google-btn,
+.facebook-btn
+ {
+  display: inline-flex;
+  align-items: center ;
+  justify-content: center;
+  gap: 16px;
+  padding: 18px 40px;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  transition: all 0.3s ease;
+  width: 100%;
+  background: white;
+  color: #444;
 }
 
+.guest-btn {
+  display: inline-flex;
+  align-items: center ;
+  justify-content: center;
+  gap: 16px;
+  padding: 18px 40px;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  transition: all 0.3s ease;
+  width: 100%;
+  background: rgb(31, 29, 29);
+  color: #a09d9d;
+}
+
+.google-btn:hover,
+.facebook-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+}
+
+.google-btn img,
 .facebook-btn img {
-    height: 28px;
+  height: 28px;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2.8em;
+    }
+
+    .guitar-image {
+        max-width: 300px;
+        margin: 30px auto;
+    }
+
+    .guest-btn {
+        padding: 15px 30px;
+        font-size: 1em;
+    }
 }
