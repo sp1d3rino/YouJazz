@@ -1,6 +1,6 @@
 
 
-const CHORDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'P'];
+const CHORDS = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'P'];
 const CHORD_EXTENSIONS = ['#', '♭', 'ø', 'o', '6', '7', '9', 'm', 'maj7', '♭9', '#9'];
 const SONG_STYLES = ['swing', 'bossa'];
 
@@ -1473,11 +1473,7 @@ class GypsyApp {
       }
 
 
-      //      const checkbox = document.getElementById('public-checkbox');
-
-      //      if (checkbox) this.currentSong.isPublic = checkbox.checked;
-      // Se arriviamo qui → l'utente può salvare (nuovo brano o suo)
-
+ 
       const saved = await Database.saveSong(this.currentSong);
 
       // Aggiorniamo l'_id solo se è un nuovo brano
