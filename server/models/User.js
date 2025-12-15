@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
   facebookId: { type: String, unique: true, sparse: true },  
-  googleId: { type: String, required: true, unique: true },
+  googleId: { type: String,  unique: true, sparse: true },
   displayName: String,
   email: { type: String, unique: true, sparse: true },  // Facoltativo ma utile
   picture: String
