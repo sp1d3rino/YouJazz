@@ -1887,3 +1887,30 @@ body.ctrl-active * {
     }
   }
 }
+
+/* Footer */
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(10, 10, 10, 0.95);
+  border-top: 1px solid #333;
+  padding: 12px 20px;
+  text-align: center;
+  color: #888;
+  font-size: 0.85em;
+  z-index: 9997;
+}
+
+.app-footer p {
+  margin: 0;
+}
+
+/* Mobile: nascondi footer durante playback */
+@media (max-width: 768px) {
+  .app-footer {
+    display: none;
+  }
+}
+

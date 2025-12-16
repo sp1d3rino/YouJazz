@@ -183,3 +183,18 @@ h1 {
         font-size: 1em;
     }
 }
+
+/* Footer */
+.login-footer {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #666;
+  font-size: 0.85em;
+}
+
+.login-footer p {
+  margin: 0;
+}
