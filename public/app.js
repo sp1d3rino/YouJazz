@@ -25,6 +25,7 @@ class GypsyApp {
     this.setupFavouritesFilter();
     this.setupSaveAs();
     this.setupRename();
+    this.setupTranspose();  
     this.setupAIReharmonize();
     this.setupMobilePlaybackControls();
     this.showCreatedBy(null);
@@ -142,6 +143,56 @@ class GypsyApp {
 
   }
 
+  setupTranspose() {
+    const btn = document.getElementById('transpose-song');
+    if (!btn) return;
+
+    btn.onclick = async () => {
+      if (!this.currentSong) {
+        return YouJazz.showMessage("Error", "No song loaded");
+      }
+
+      if (this.isGuest()) {
+        return YouJazz.showMessage("Permission denied", "Login to transpose songs");
+      }
+
+      const semitones = await YouJazz.showTranspose();
+      if (semitones === null || semitones === 0) return;
+
+      // Mappa note per trasposizione
+      const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      const flatToSharp = { 'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#' };
+
+      const transposeChord = (chord) => {
+        // Estrai root (es. "Cmaj7" → "C")
+        const rootMatch = chord.match(/^([A-G][b#]?)/i);
+        if (!rootMatch) return chord;
+
+        let root = rootMatch[0];
+        const rest = chord.slice(root.length);
+
+        // Converti bemolle in diesis
+        if (root.includes('b')) {
+          root = flatToSharp[root] || root;
+        }
+
+        // Trova indice e trasponi
+        let idx = notes.indexOf(root);
+        if (idx === -1) return chord;
+
+        idx = (idx + semitones + 12) % 12;
+        return notes[idx] + rest;
+      };
+
+      // Applica trasposizione a tutte le misure
+      this.currentSong.measures.forEach(measure => {
+        measure.chords = measure.chords.map(transposeChord);
+      });
+
+      this.render();
+      YouJazz.showMessage("Transposed", `Song transposed by ${semitones > 0 ? '+' : ''}${semitones} semitones`);
+    };
+  }
 
   setupMobilePlaybackControls() {
     if (window.innerWidth > 768) return; // Solo su mobile
@@ -1454,10 +1505,10 @@ class GypsyApp {
         "Untitled Song"
       );
 
-/*      if (!title || title.trim() === '') {
-        return YouJazz.showMessage("Cancelled", "Save cancelled");
-      }
-*/
+      /*      if (!title || title.trim() === '') {
+              return YouJazz.showMessage("Cancelled", "Save cancelled");
+            }
+      */
       this.currentSong.title = title.trim();
     }
 
