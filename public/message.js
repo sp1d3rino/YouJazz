@@ -80,7 +80,7 @@
 
       okBtn.onclick = () => { cleanup(); resolve(inputEl.value || true); };
       gitBtn.onclick = () => { cleanup(); resolve(inputEl.value || true); };
-      
+
       cancelBtn.onclick = () => { cleanup(); resolve(false); };
       yesBtn.onclick = () => { cleanup(); resolve(true); };
       noBtn.onclick = () => { cleanup(); resolve(false); };
@@ -98,4 +98,61 @@
 
   YouJazz.showPrompt = (title, text, placeholder = "") =>
     show({ type: 'prompt', title, text, input: true, icon: "Edit" });
+
+
+
+  YouJazz.showTranspose = () => {
+    return new Promise((resolve) => {
+      const overlay = document.getElementById('yj-message');
+      const box = overlay.querySelector('.yj-message-box');
+
+      // Sostituisci contenuto
+      box.innerHTML = `
+      <div class="yj-message-icon">🎵</div>
+      <h2 class="yj-message-title">Transpose Song</h2>
+      <p class="yj-message-text">Select semitones to transpose:</p>
+      
+      <div style="display:flex; align-items:center; justify-content:center; gap:15px; margin:25px 0;">
+        <button id="transpose-down" class="yj-message-btn yj-btn-secondary" style="width:50px; height:50px; font-size:24px;">−</button>
+        <span id="transpose-value" style="font-size:32px; font-weight:bold; min-width:60px; text-align:center;">0</span>
+        <button id="transpose-up" class="yj-message-btn yj-btn-secondary" style="width:50px; height:50px; font-size:24px;">+</button>
+      </div>
+      
+      <div class="yj-message-buttons">
+        <button class="yj-message-btn yj-btn-primary" id="transpose-apply">Apply</button>
+        <button class="yj-message-btn yj-btn-secondary" id="transpose-cancel">Cancel</button>
+      </div>
+    `;
+
+      let semitones = 0;
+      const valueEl = document.getElementById('transpose-value');
+      const upBtn = document.getElementById('transpose-up');
+      const downBtn = document.getElementById('transpose-down');
+      const applyBtn = document.getElementById('transpose-apply');
+      const cancelBtn = document.getElementById('transpose-cancel');
+
+      const updateValue = (delta) => {
+        semitones = Math.max(-11, Math.min(11, semitones + delta));
+        valueEl.textContent = semitones > 0 ? `+${semitones}` : semitones;
+        valueEl.style.color = semitones === 0 ? '#fff' : (semitones > 0 ? '#4CAF50' : '#e91e63');
+      };
+
+      upBtn.onclick = () => updateValue(1);
+      downBtn.onclick = () => updateValue(-1);
+
+      const cleanup = () => {
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
+      };
+
+      applyBtn.onclick = () => { cleanup(); resolve(semitones); };
+      cancelBtn.onclick = () => { cleanup(); resolve(null); };
+      overlay.onclick = (e) => { if (e.target === overlay) { cleanup(); resolve(null); } };
+
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    });
+  };
+
 })();
+
