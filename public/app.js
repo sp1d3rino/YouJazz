@@ -25,7 +25,7 @@ class GypsyApp {
     this.setupFavouritesFilter();
     this.setupSaveAs();
     this.setupRename();
-    this.setupTranspose();  
+    this.setupTranspose();
     this.setupAIReharmonize();
     this.setupMobilePlaybackControls();
     this.showCreatedBy(null);
@@ -156,7 +156,11 @@ class GypsyApp {
         return YouJazz.showMessage("Permission denied", "Login to transpose songs");
       }
 
-      const semitones = await YouJazz.showTranspose();
+      const semitones = await YouJazz.showTranspose("Transpose Song", "Select semitones to transpose:");
+
+      // ✅ ASPETTA CHE IL MODAL SIA COMPLETAMENTE CHIUSO
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       if (semitones === null || semitones === 0) return;
 
       // Mappa note per trasposizione
@@ -190,10 +194,9 @@ class GypsyApp {
       });
 
       this.render();
-      YouJazz.showMessage("Transposed", `Song transposed by ${semitones > 0 ? '+' : ''}${semitones} semitones`);
+      //YouJazz.showMessage("Transposed", `Song transposed by ${semitones > 0 ? '+' : ''}${semitones} semitones`);
     };
   }
-
   setupMobilePlaybackControls() {
     if (window.innerWidth > 768) return; // Solo su mobile
 
