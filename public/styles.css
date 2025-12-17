@@ -357,7 +357,7 @@ header h1 {
 
 .extension-list {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-top: 12px;
 }
@@ -579,23 +579,33 @@ body.ctrl-active * {
   overflow: hidden;
 }
 
-
-/* Palette Sticky per Desktop */
+/* Palette Sticky per Desktop - NO SCROLLBAR, TUTTO VISIBILE */
 .chord-palette {
   background: #222;
-  padding: 10px;
+  padding: 20px;
   border-radius: 12px;
   position: sticky;
-  /* Fissa in alto durante scroll verticale */
   top: 20px;
-  /* Distanza dal top del viewport */
-  height: fit-content;
-  overflow-y: auto;
-  /* Scroll interno se palette troppo alta */
-  max-height: 80vh;
-  /* Limita altezza per evitare overflow */
+  max-height: calc(100vh - 40px); /* Occupa quasi tutta l'altezza dello schermo */
+  overflow-y: auto;                /* Mantiene lo scroll interno */
+  overflow-x: hidden;
+
+  /* NASCONDI LA SCROLLBAR SU TUTTI I BROWSER */
+  scrollbar-width: none;           /* Firefox */
+  -ms-overflow-style: none;        /* Internet Explorer / Edge vecchio */
+
+  /* Padding extra in fondo per evitare che l'ultimo elemento sia attaccato al bordo */
+  padding-bottom: 30px;
 }
 
+/* Nasconde scrollbar su WebKit (Chrome, Safari, Edge nuovo) */
+.chord-palette::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+ 
 /* Mobile: Palette orizzontale in basso, si sposta su/giù con scroll */
 @media (max-width: 768px) {
   .main {
@@ -672,19 +682,6 @@ body.ctrl-active * {
 
 }
 
-/* Scrollbar personalizzata per palette su desktop */
-.chord-palette::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chord-palette::-webkit-scrollbar-track {
-  background: #333;
-}
-
-.chord-palette::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 3px;
-}
 
 .style-selector {
   display: flex;
