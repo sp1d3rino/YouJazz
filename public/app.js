@@ -923,13 +923,18 @@ class GypsyApp {
           ">
             Create a new song or load one from the list <br/><br/>
 
-            How to create a song: <br/>
+            How to use YouJazz.org: <br/>
               - use drag and drop chords into the grid.<br/>
               - use the extension buttons to modify chords (minor, 7th, diminished, etc.).<br/>
               - user ctrl + drag to copy chords or entire measures.<br/>
               - use the style tabs to change the rhythm style (swing, bossa).<br/>
               - set the BPM with the slider.<br/>
+              - save your songs as private or public.<br/>
+              - save as to save a copy of other user songs<br/>
+              - create your favirite songs list.<br/>
               - choose the song title.<br/>
+              - transpose songs with the transpose feature.<br/>
+              - use AI powered Reharmonization feature to get chord suggestions.<br/>
               - save your song to your account.   
           </p>
 
