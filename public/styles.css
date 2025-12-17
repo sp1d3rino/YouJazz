@@ -1663,13 +1663,6 @@ body.ctrl-active * {
     margin-left: 12px;
   }
 
-  #main-menu {
-    left: 12px !important;
-    right: auto;
-    transform: none;
-    min-width: calc(100vw - 24px);
-    max-width: none;
-  }
 
   /* Overlay scuro + blur quando aperto */
   #main-menu.show::before {
