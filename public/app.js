@@ -104,6 +104,9 @@ class GypsyApp {
 
     // Icona manina con Ctrl (per copy)
     document.addEventListener('keydown', e => {
+      if (e.key === ' ' || e.code === 'Space') {
+        if (this.isPlaying) this.stopPlayback(); else this.play();
+      }
       if (e.ctrlKey || e.metaKey) {
         document.body.classList.add('ctrl-drag');
       }
@@ -1433,6 +1436,7 @@ class GypsyApp {
     try {
       this.player.playVariableSequence(
         seq,
+        this.currentStyle,
         beatCounts.map(b => b * (60 / this.currentSong.bpm)),
         this.currentSong.bpm,
         onChordPlay,

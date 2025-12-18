@@ -12,7 +12,7 @@ class GypsyPlayer {
   }
 
   async load(chord, style) {
-    if (this.buffers.has(chord)) return this.buffers.get(chord);
+    //if (this.buffers.has(chord)) return this.buffers.get(chord);
     // === FIX AUTOMATICO per accordi "impossibili" (B#, E#, Cb, Fb) ===
     const fixMap = {
       'B#': 'C', 'B#maj7': 'Cmaj7', 'B#7': 'C7', 'B#m7': 'Cm7',
@@ -67,85 +67,53 @@ class GypsyPlayer {
       throw removeErr;
     }
   }
-  async getStretchedBuffer(chord, bpm) {
+  async getStretchedBuffer(chord, bpm ,style) {
     const cacheKey = `${chord}_${bpm}`;
-    /*if (this.processedBuffers.has(cacheKey)) {
+/*    disabled because it caused issues with updated audio files
+if (this.processedBuffers.has(cacheKey)) {
       return this.processedBuffers.get(cacheKey);
-    }*/
-
-    const originalBuffer = await this.load(chord);
-    const tempoRatio = bpm / 120;
-
-    const kali = new Kali(originalBuffer.numberOfChannels);
-    kali.setup(originalBuffer.sampleRate, tempoRatio, false);
-
-    // Forza parametri ottimali per qualità
-    kali.fftSize = 4096;
-    kali.hopSize = kali.fftSize / 8;  // overlap 8x invece di 4x
-
-    let inputData;
-    if (originalBuffer.numberOfChannels === 2) {
-      const left = originalBuffer.getChannelData(0);
-      const right = originalBuffer.getChannelData(1);
-      inputData = new Float32Array(left.length * 2);
-      for (let i = 0; i < left.length; i++) {
-        inputData[i * 2] = left[i];
-        inputData[i * 2 + 1] = right[i];
-      }
-    } else {
-      inputData = originalBuffer.getChannelData(0);
     }
+*/
+    const originalBuffer = await this.load(chord,style);
 
-    kali.input(inputData);
-    kali.process();
+    // Calcola durata target: 4 battiti alla nuova velocità
+    const targetDuration = (60 / bpm) * 4; // 4 beats in secondi
+    const originalDuration = originalBuffer.duration;
+    const playbackRate = originalDuration / targetDuration;
 
-    const expectedSamples = Math.ceil(inputData.length / tempoRatio);
-    let output = new Float32Array(expectedSamples + 16384);
-    let totalSamples = 0;
-    let read;
-    do {
-      read = kali.output(output.subarray(totalSamples));
-      totalSamples += read;
-    } while (read > 0);
+    // ✅ Usa Tone.Offline per time-stretching senza pitch shift
+    const stretchedBuffer = await Tone.Offline(async () => {
+      const player = new Tone.Player({
+        url: originalBuffer,
+        playbackRate: 1 // ← mantieni pitch originale
+      }).toDestination();
 
-    kali.flush();
-    read = kali.output(output.subarray(totalSamples));
-    totalSamples += read;
+      // ✅ Usa Tone.GrainPlayer per time-stretching puro
+      const grainPlayer = new Tone.GrainPlayer({
+        url: originalBuffer,
+        playbackRate: playbackRate, // ← controlla velocità
+        grainSize: 0.1,              // dimensione grani (100ms)
+        overlap: 0.11,               // overlap tra grani
+        loop: false
+      }).toDestination();
 
-    const finalOutput = output.subarray(0, totalSamples);
+      grainPlayer.start(0);
 
-    const stretchedBuffer = this.audioContext.createBuffer(
-      originalBuffer.numberOfChannels,
-      Math.floor(finalOutput.length / originalBuffer.numberOfChannels),
-      originalBuffer.sampleRate
-    );
+    }, targetDuration); // ← durata esatta del rendering
 
-    if (originalBuffer.numberOfChannels === 2) {
-      const left = new Float32Array(stretchedBuffer.length);
-      const right = new Float32Array(stretchedBuffer.length);
-      for (let i = 0; i < stretchedBuffer.length; i++) {
-        left[i] = finalOutput[i * 2];
-        right[i] = finalOutput[i * 2 + 1];
-      }
-      stretchedBuffer.copyToChannel(left, 0);
-      stretchedBuffer.copyToChannel(right, 1);
-    } else {
-      stretchedBuffer.copyToChannel(finalOutput, 0);
-    }
-
-    this.processedBuffers.set(cacheKey, stretchedBuffer);
-    return stretchedBuffer;
+    const finalBuffer = stretchedBuffer.get();
+    this.processedBuffers.set(cacheKey, finalBuffer);
+    return finalBuffer;
   }
 
   // ←←← UNICO METODO USATO DALL'APP ←←←
   // ←←← METODO AGGIORNATO CON COUNT-IN INTEGRATO ←←←
-  async playVariableSequence(chords, beatDurations, bpm, onChordCallback = null, onEndCallback = null, enableCountIn = true) {
+  async playVariableSequence(chords, style, beatDurations, bpm, onChordCallback = null, onEndCallback = null, enableCountIn = true) {
     if (this.isPlaying) this.stop();
-
     this.isPlaying = true;
     this.bpm = bpm;
 
-    await Promise.all(chords.map(ch => this.getStretchedBuffer(ch, bpm)));
+    await Promise.all(chords.map(ch => this.getStretchedBuffer(ch, bpm,style)));
 
     if (this.audioContext.state === "suspended") {
       await this.audioContext.resume();
