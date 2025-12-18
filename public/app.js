@@ -720,7 +720,7 @@ class GypsyApp {
       btn.addEventListener('click', () => {
         // Imposta stile globale
         this.currentStyle = style;
-
+        
         // Aggiorna UI
         document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -1433,6 +1433,7 @@ class GypsyApp {
     try {
       this.player.playVariableSequence(
         seq,
+        this.currentStyle,
         beatCounts.map(b => b * (60 / this.currentSong.bpm)),
         this.currentSong.bpm,
         onChordPlay,
@@ -1475,6 +1476,7 @@ class GypsyApp {
 
 
     try {
+      console.log(`Preloading chord: ${chord} (style: ${style})`);
       await this.player.load(chord, style); // passa stile
       if (this.player.buffers.has(chord)) return;
     } catch (err) {
