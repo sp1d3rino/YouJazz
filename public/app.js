@@ -169,8 +169,8 @@ setupTranspose() {
 
     // Mappa per convertire bemolli in diesis
     const flatToSharp = {
-      'D♭': 'C#', 'E♭': 'D#', 'F♭': 'E', 'G♭': 'F#',
-      'A♭': 'G#', 'B♭': 'A#', 'C♭': 'B'
+      'Db': 'C#', 'Eb': 'D#', 'Fb': 'E', 'Gb': 'F#',
+      'Ab': 'G#', 'Bb': 'A#', 'Cb': 'B'
     };
 
     const normalizeRoot = (root) => {
@@ -184,7 +184,6 @@ setupTranspose() {
 
       let root = rootMatch[0].toUpperCase(); // Normalizza case
       let rest = chord.slice(rootMatch[0].length);
-      rest = rest.replace(/[♭#]/, ''); 
       // Converti eventuali bemolli in diesis
       root = normalizeRoot(root);
 
@@ -196,6 +195,7 @@ setupTranspose() {
       idx = (idx + semitones + 120) % 12; // +120 per sicurezza con numeri negativi
 
       const newRoot = notes[idx];
+      rest = rest.replace(/[b#]/, ''); 
 
       return newRoot + rest;
     };
