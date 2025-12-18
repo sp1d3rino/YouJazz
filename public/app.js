@@ -146,60 +146,70 @@ class GypsyApp {
 
   }
 
-  setupTranspose() {
-    const btn = document.getElementById('transpose-song');
-    if (!btn) return;
+setupTranspose() {
+  const btn = document.getElementById('transpose-song');
+  if (!btn) return;
 
-    btn.onclick = async () => {
-      if (!this.currentSong) {
-        return YouJazz.showMessage("Error", "No song loaded");
-      }
+  btn.onclick = async () => {
+    if (!this.currentSong) {
+      return YouJazz.showMessage("Error", "No song loaded");
+    }
 
-      if (this.isGuest()) {
-        return YouJazz.showMessage("Permission denied", "Login to transpose songs");
-      }
+    if (this.isGuest()) {
+      return YouJazz.showMessage("Permission denied", "Login to transpose songs");
+    }
 
-      const semitones = await YouJazz.showTranspose("Transpose Song", "Select semitones to transpose:");
+    const semitones = await YouJazz.showTranspose("Transpose Song", "Select semitones to transpose:");
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-      // ✅ ASPETTA CHE IL MODAL SIA COMPLETAMENTE CHIUSO
-      await new Promise(resolve => setTimeout(resolve, 100));
+    if (semitones === null || semitones === 0) return;
 
-      if (semitones === null || semitones === 0) return;
+    // Lista note in diesis (preferenza jazz comune)
+    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-      // Mappa note per trasposizione
-      const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-      const flatToSharp = { 'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#' };
-
-      const transposeChord = (chord) => {
-        // Estrai root (es. "Cmaj7" → "C")
-        const rootMatch = chord.match(/^([A-G][b#]?)/i);
-        if (!rootMatch) return chord;
-
-        let root = rootMatch[0];
-        const rest = chord.slice(root.length);
-
-        // Converti bemolle in diesis
-        if (root.includes('b')) {
-          root = flatToSharp[root] || root;
-        }
-
-        // Trova indice e trasponi
-        let idx = notes.indexOf(root);
-        if (idx === -1) return chord;
-
-        idx = (idx + semitones + 12) % 12;
-        return notes[idx] + rest;
-      };
-
-      // Applica trasposizione a tutte le misure
-      this.currentSong.measures.forEach(measure => {
-        measure.chords = measure.chords.map(transposeChord);
-      });
-
-      this.render();
-      //YouJazz.showMessage("Transposed", `Song transposed by ${semitones > 0 ? '+' : ''}${semitones} semitones`);
+    // Mappa per convertire bemolli in diesis
+    const flatToSharp = {
+      'D♭': 'C#', 'E♭': 'D#', 'F♭': 'E', 'G♭': 'F#',
+      'A♭': 'G#', 'B♭': 'A#', 'C♭': 'B'
     };
-  }
+
+    const normalizeRoot = (root) => {
+      return flatToSharp[root] || root;
+    };
+
+    const transposeChord = (chord) => {
+      // Cattura la root: lettera + opzionale # o b
+      const rootMatch = chord.match(/^([A-G](#|b)?)/i);
+      if (!rootMatch) return chord;
+
+      let root = rootMatch[0].toUpperCase(); // Normalizza case
+      let rest = chord.slice(rootMatch[0].length);
+      rest = rest.replace(/[♭#]/, ''); 
+      // Converti eventuali bemolli in diesis
+      root = normalizeRoot(root);
+
+      // Trova indice
+      let idx = notes.indexOf(root);
+      if (idx === -1) return chord; // Sicurezza
+
+      // Trasponi
+      idx = (idx + semitones + 120) % 12; // +120 per sicurezza con numeri negativi
+
+      const newRoot = notes[idx];
+
+      return newRoot + rest;
+    };
+
+    // Applica a tutti gli accordi
+    this.currentSong.measures.forEach(measure => {
+      measure.chords = measure.chords.map(transposeChord);
+    });
+
+    this.render();
+    // YouJazz.showMessage("Success", `Song transposed by ${semitones > 0 ? '+' : ''}${semitones} semitones`);
+  };
+}
+
   setupMobilePlaybackControls() {
     if (window.innerWidth > 768) return; // Solo su mobile
 
