@@ -49,7 +49,6 @@ class GypsyPlayer {
     const safeChord = encodeURIComponent(filenameChord);
 
     try {
-      console.log(`Loading audio for chord: "${chord}" (file: "${safeChord}.mp3", style: "${style}")`);
       const res = await fetch(`audio/chords/${style}/${safeChord}.mp3`);
       if (!res.ok) throw new Error();
 

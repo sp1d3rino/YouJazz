@@ -104,6 +104,9 @@ class GypsyApp {
 
     // Icona manina con Ctrl (per copy)
     document.addEventListener('keydown', e => {
+      if (e.key === ' ' || e.code === 'Space') {
+        if (this.isPlaying) this.stopPlayback(); else this.play();
+      }
       if (e.ctrlKey || e.metaKey) {
         document.body.classList.add('ctrl-drag');
       }
@@ -720,7 +723,7 @@ class GypsyApp {
       btn.addEventListener('click', () => {
         // Imposta stile globale
         this.currentStyle = style;
-        
+
         // Aggiorna UI
         document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -1476,7 +1479,6 @@ class GypsyApp {
 
 
     try {
-      console.log(`Preloading chord: ${chord} (style: ${style})`);
       await this.player.load(chord, style); // passa stile
       if (this.player.buffers.has(chord)) return;
     } catch (err) {
