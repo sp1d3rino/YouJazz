@@ -1904,3 +1904,18 @@ body.ctrl-active * {
   }
 }
 
+/* Long press feedback mobile */
+@media (max-width: 768px) {
+  .chord-box {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .chord-box.long-press-active {
+    transform: scale(1.15) !important;
+    opacity: 0.6 !important;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.6) !important;
+    z-index: 9999 !important;
+  }
+}
