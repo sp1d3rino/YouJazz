@@ -17,7 +17,7 @@ class GypsyApp {
 
     this.loadChordsPalette();
     this.setupMobileDragDrop();
-this.setupMobileChordMove();  
+    this.setupMobileChordMove();
     this.render();                    // mostra griglia vuota o messaggio
     this.loadSongsList();             // carica subito la dropdown
     this.setupGlobalEvents();
@@ -105,7 +105,18 @@ this.setupMobileChordMove();
     // Icona manina con Ctrl (per copy)
     document.addEventListener('keydown', e => {
       if (e.key === ' ' || e.code === 'Space') {
-        if (this.isPlaying) this.stopPlayback(); else this.play();
+        // ✅ FIX: Non triggerare play/stop se si sta scrivendo in un input
+        const activeElement = document.activeElement;
+        const isTyping = activeElement && (
+          activeElement.tagName === 'INPUT' ||
+          activeElement.tagName === 'TEXTAREA' ||
+          activeElement.isContentEditable
+        );
+
+        if (!isTyping) {
+          e.preventDefault(); // Previeni scroll della pagina
+          if (this.isPlaying) this.stopPlayback(); else this.play();
+        }
       }
       if (e.ctrlKey || e.metaKey) {
         document.body.classList.add('ctrl-drag');
@@ -262,6 +273,7 @@ this.setupMobileChordMove();
 
     // Mostra controlli quando stoppa playback
     const originalStop = this.stopPlayback.bind(this);
+
     this.stopPlayback = function () {
       originalStop();
       if (window.innerWidth <= 768) {
@@ -652,7 +664,7 @@ this.setupMobileChordMove();
       touchStartElement = null;
 
     }, { passive: false });
-  }s
+  } s
 
 
   isGuest() {
@@ -1458,12 +1470,17 @@ this.setupMobileChordMove();
   async play() {
     if (this.isPlaying || !this.currentSong) return;
 
+    // ✅ FIX: Ferma playback precedente se ancora attivo
+    if (this.player) {
+      this.player.stop();
+    }
+
     if (this.currentSong?._id) {
       Database.incrementPlayCount(this.currentSong._id);
     }
 
     this.isPlaying = true;
-    this.currentChordIndex = 0;
+    this.currentChordIndex = 0; // ✅ Reset indice per ripartire sempre dall'inizio
     this.updateUIControls();
 
     // Pulizia highlight residuo
@@ -1604,8 +1621,17 @@ this.setupMobileChordMove();
   stopPlayback() {
     this.player.stop();
     this.isPlaying = false;
+    this.currentChordIndex = 0; // ✅ Reset indice accordo corrente
+
+    // ✅ FIX: Rimuovi tutte le evidenziazioni quando stoppi
+    document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => {
+      el.classList.remove('playing');
+    });
+    document.querySelectorAll('.measure').forEach(m => {
+      m.classList.remove('measure-playing');
+    });
+
     this.updateUIControls();
-    this.currentChordIndex = 0;
   }
 
   async preloadIfNeeded(chord) {
