@@ -1,5 +1,3 @@
-
-
 const CHORDS = ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'P'];
 const CHORD_EXTENSIONS = ['#', '♭', 'ø', 'o', '6', '7', '9', 'm', 'maj7', '♭9', '#9'];
 const SONG_STYLES = ['swing', 'bossa'];
@@ -11,9 +9,13 @@ class GypsyApp {
     this.isPlaying = false;
     this.currentChordIndex = 0;
     this.FavFilterSearch = false;
+    this.currentStyle = 'swing'; // default  
+    this.initialize();
+  }
 
+  async initialize() {
 
-    // AVVIO IMMEDIATO – NON SERVE PIÙ init() dopo New Song
+    //await this.initSession();
     this.loadChordsPalette();
     this.setupMobileDragDrop();
     this.render();                    // mostra griglia vuota o messaggio
@@ -30,8 +32,6 @@ class GypsyApp {
     this.setupMobilePlaybackControls();
     this.showCreatedBy(null);
 
-
-    this.currentStyle = 'swing'; // default  
     if (window.innerWidth <= 768) {
       const palette = document.querySelector('.chord-palette');
       let lastScrollY = window.scrollY;
@@ -146,69 +146,69 @@ class GypsyApp {
 
   }
 
-setupTranspose() {
-  const btn = document.getElementById('transpose-song');
-  if (!btn) return;
+  setupTranspose() {
+    const btn = document.getElementById('transpose-song');
+    if (!btn) return;
 
-  btn.onclick = async () => {
-    if (!this.currentSong) {
-      return YouJazz.showMessage("Error", "No song loaded");
-    }
+    btn.onclick = async () => {
+      if (!this.currentSong) {
+        return YouJazz.showMessage("Error", "No song loaded");
+      }
 
-    if (this.isGuest()) {
-      return YouJazz.showMessage("Permission denied", "Login to transpose songs");
-    }
+      if (this.isGuest()) {
+        return YouJazz.showMessage("Permission denied", "Login to transpose songs");
+      }
 
-    const semitones = await YouJazz.showTranspose("Transpose Song", "Select semitones to transpose:");
-    await new Promise(resolve => setTimeout(resolve, 100));
+      const semitones = await YouJazz.showTranspose("Transpose Song", "Select semitones to transpose:");
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-    if (semitones === null || semitones === 0) return;
+      if (semitones === null || semitones === 0) return;
 
-    // Lista note in diesis (preferenza jazz comune)
-    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      // Lista note in diesis (preferenza jazz comune)
+      const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-    // Mappa per convertire bemolli in diesis
-    const flatToSharp = {
-      'Db': 'C#', 'Eb': 'D#', 'Fb': 'E', 'Gb': 'F#',
-      'Ab': 'G#', 'Bb': 'A#', 'Cb': 'B'
+      // Mappa per convertire bemolli in diesis
+      const flatToSharp = {
+        'Db': 'C#', 'Eb': 'D#', 'Fb': 'E', 'Gb': 'F#',
+        'Ab': 'G#', 'Bb': 'A#', 'Cb': 'B'
+      };
+
+      const normalizeRoot = (root) => {
+        return flatToSharp[root] || root;
+      };
+
+      const transposeChord = (chord) => {
+        // Cattura la root: lettera + opzionale # o b
+        const rootMatch = chord.match(/^([A-G](#|b)?)/i);
+        if (!rootMatch) return chord;
+
+        let root = rootMatch[0].toUpperCase(); // Normalizza case
+        let rest = chord.slice(rootMatch[0].length);
+        // Converti eventuali bemolli in diesis
+        root = normalizeRoot(root);
+
+        // Trova indice
+        let idx = notes.indexOf(root);
+        if (idx === -1) return chord; // Sicurezza
+
+        // Trasponi
+        idx = (idx + semitones + 120) % 12; // +120 per sicurezza con numeri negativi
+
+        const newRoot = notes[idx];
+        rest = rest.replace(/[b#]/, '');
+
+        return newRoot + rest;
+      };
+
+      // Applica a tutti gli accordi
+      this.currentSong.measures.forEach(measure => {
+        measure.chords = measure.chords.map(transposeChord);
+      });
+
+      this.render();
+      // YouJazz.showMessage("Success", `Song transposed by ${semitones > 0 ? '+' : ''}${semitones} semitones`);
     };
-
-    const normalizeRoot = (root) => {
-      return flatToSharp[root] || root;
-    };
-
-    const transposeChord = (chord) => {
-      // Cattura la root: lettera + opzionale # o b
-      const rootMatch = chord.match(/^([A-G](#|b)?)/i);
-      if (!rootMatch) return chord;
-
-      let root = rootMatch[0].toUpperCase(); // Normalizza case
-      let rest = chord.slice(rootMatch[0].length);
-      // Converti eventuali bemolli in diesis
-      root = normalizeRoot(root);
-
-      // Trova indice
-      let idx = notes.indexOf(root);
-      if (idx === -1) return chord; // Sicurezza
-
-      // Trasponi
-      idx = (idx + semitones + 120) % 12; // +120 per sicurezza con numeri negativi
-
-      const newRoot = notes[idx];
-      rest = rest.replace(/[b#]/, ''); 
-
-      return newRoot + rest;
-    };
-
-    // Applica a tutti gli accordi
-    this.currentSong.measures.forEach(measure => {
-      measure.chords = measure.chords.map(transposeChord);
-    });
-
-    this.render();
-    // YouJazz.showMessage("Success", `Song transposed by ${semitones > 0 ? '+' : ''}${semitones} semitones`);
-  };
-}
+  }
 
   setupMobilePlaybackControls() {
     if (window.innerWidth > 768) return; // Solo su mobile
@@ -1630,7 +1630,8 @@ setupTranspose() {
 
       // Verifica ownership
       try {
-        const userRes = await fetch('/auth/me', { credentials: 'include' });
+        let userRes = null;
+        if (!this.isGuest()) userRes = await fetch('/auth/me', { credentials: 'include' });
         if (!userRes.ok) throw new Error('Unauthenticated');
 
         const currentUser = await userRes.json();
@@ -1834,6 +1835,26 @@ setupTranspose() {
     };
   }
 
+  async initSession() {
+    try {
+      const response = await fetch('/api/init-session', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Unable to initialize session');
+      }
+
+      console.log('✅ Session initialized');
+    } catch (err) {
+      console.error('❌ Session initialization  error:', err);
+      YouJazz.showMessage("Connection Error", "Unable to connect to server");
+    }
+  }
+
+
   reconstructGridFromMeasures(dbMeasures) {
     // Reset grid
     this.currentSong.measures = Array(this.currentSong.grid.rows * this.currentSong.grid.cols)
@@ -1892,11 +1913,12 @@ setupTranspose() {
 
       // Utente loggato (una sola volta)
       let currentUser = null;
-      try {
-        const res = await fetch('/auth/me', { credentials: 'include' });
-        if (res.ok) currentUser = await res.json();
-      } catch (e) { }
-
+      if (!this.isGuest()) {
+        try {
+          const res = await fetch('/auth/me', { credentials: 'include' });
+          if (res.ok) currentUser = await res.json();
+        } catch (e) { }
+      }
 
       const showOnlyFavourites = this.FavFilterSearch;
       const visibleSongs = songs.filter(song => {

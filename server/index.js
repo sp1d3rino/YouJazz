@@ -15,7 +15,6 @@ const AICache = require('./models/AICache');
 const authRoutes = require('./routes/auth');
 const app = express();
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 // ==== VERIFICA SUBITO SE LE VARIABILI SONO CARICATE ====
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
@@ -29,12 +28,17 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Sessioni
+// Sessions
 app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
+  cookie: { 
+    secure: false, // allow nginx ssl temination  
+    maxAge: 24 * 60 * 60 * 1000,
+    httpOnly: true,  
+    sameSite: 'lax'  
+  }
 }));
 
 app.use(passport.initialize());
@@ -117,8 +121,37 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
+
+
+
+const requireSiteAccess = (req, res, next) => {
+  // Se è loggato → sempre OK
+  if (req.user) return next();
+  // Per guest: controlla solo che la richiesta venga dal tuo dominio
+  const origin = req.get('origin');
+  const referer = req.get('referer');
+  const allowed = process.env.SITE_URL || 'https://www.youjazz.org';
+
+  if (origin && origin.startsWith(allowed) || referer && referer.startsWith(allowed)) {
+    return next();
+  }
+
+  return res.status(403).json({ error: 'Unauthorized access' });
+};
+
+
+/*
+app.post('/api/init-session', (req, res) => {
+  req.session.siteAccess = true;
+  req.session.save((err) => {
+    if (err) return res.status(500).json({ error: 'Init error' });
+    res.json({ success: true });
+  });
+});
+*/
+
 // GET /api/songs — Lista con owner popolato
-app.get('/api/songs', async (req, res) => {
+app.get('/api/songs', requireSiteAccess, async (req, res) => {
   try {
     const query = req.user
       ? { $or: [{ isPublic: true }, { owner: req.user._id }] }
@@ -129,12 +162,12 @@ app.get('/api/songs', async (req, res) => {
       .sort({ createdAt: -1 });
     res.json(songs);
   } catch (err) {
-    res.status(500).json({ error: 'Errore del server' });
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
 // GET /api/songs/:id — Singolo con owner popolato
-app.get('/api/songs/:id', async (req, res) => {
+app.get('/api/songs/:id', requireSiteAccess, async (req, res) => {
   try {
     const song = await Song.findById(req.params.id)
       .populate('owner', 'displayName');  // ← Aggiungi questo

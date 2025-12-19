@@ -1,7 +1,7 @@
 class Database {
   static async getSongs() {
     const res = await fetch('/api/songs');
-    if (!res.ok) throw new Error('Errore caricamento brani');
+    if (!res.ok) throw new Error('Load songs error');
     return await res.json();
   }
 
