@@ -186,7 +186,6 @@ header h1 {
 }
 
 .select-wrapper::after {
-  content: '▼';
   position: absolute;
   right: 12px;
   top: 50%;
@@ -196,29 +195,34 @@ header h1 {
   font-size: 0.8em;
 }
 
-#song-list {
-  padding: 12px 36px 12px 16px;
+
+
+#song-list-input {
+  padding: 12px 16px;
   background: #222;
   border: 2px solid #444;
   border-radius: 10px;
   color: #eee;
   font-size: 1em;
-  min-width: 220px;
-  appearance: none;
-  cursor: pointer;
+  min-width: 420px;
+  width: 100%;
+  cursor: text;
   outline: none;
 }
 
-#song-list:hover {
+#song-list-input:hover {
   border-color: #666;
 }
 
-#song-list:focus {
+#song-list-input:focus {
   border-color: #3498db;
   box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
 }
 
-
+#song-list-input::placeholder {
+  color: #888;
+  font-style: italic;
+}
 
 .danger:hover {
   background: #c0392b !important;
@@ -680,6 +684,16 @@ body.ctrl-active * {
     overflow-x: hidden;
   }
 
+    #song-list-input {
+    width: 100%;
+    min-width: auto;
+    font-size: 16px; /* Previene zoom su iOS */
+  }
+
+  .select-wrapper {
+    width: 100%;
+  }
+
 }
 
 
@@ -933,7 +947,15 @@ body.ctrl-active * {
     padding: 8px;
   }
 
+  #song-list-input {
+    width: 100%;
+    min-width: auto;
+    font-size: 16px; /* Previene zoom su iOS */
+  }
 
+  .select-wrapper {
+    width: 100%;
+  }
 
   #user-name {
     font-size: 0.9em !important;
@@ -1275,6 +1297,16 @@ body.ctrl-active * {
   #lead-sheet {
     margin-bottom: 140px;
     padding: 10px;
+  }
+
+    #song-list-input {
+    width: 100%;
+    min-width: auto;
+    font-size: 16px; /* Previene zoom su iOS */
+  }
+
+  .select-wrapper {
+    width: 100%;
   }
 }
 

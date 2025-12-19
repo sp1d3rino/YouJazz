@@ -1715,6 +1715,20 @@ class GypsyApp {
       YouJazz.showMessage("YouJazz", `Song "${this.currentSong.title}" saved successfully!`);
       await this.loadSongsList();
 
+      // ✅ FIX: Seleziona il brano appena salvato nella combobox
+      // ✅ FIX AGGIORNATO: Seleziona il brano appena salvato
+      const input = document.getElementById('song-list-input');
+      const datalist = document.getElementById('song-list-datalist');
+
+      if (input && datalist && this.currentSong._id) {
+        // Trova l'option con il songId corretto
+        const options = Array.from(datalist.querySelectorAll('option'));
+        const savedOption = options.find(opt => opt.dataset.songId === this.currentSong._id);
+
+        if (savedOption) {
+          input.value = savedOption.value; // Imposta il testo completo
+        }
+      }
     } catch (e) {
       console.error('Saving error:', e);
       YouJazz.showMessage("Save Error", "Unable to save the song. Are you logged in?");
@@ -2058,10 +2072,13 @@ class GypsyApp {
         const titleB = (b.title || '').trim().toLowerCase();
         return titleA.localeCompare(titleB);
       });
-      const sel = document.getElementById('song-list');
+      const input = document.getElementById('song-list-input');
+      const datalist = document.getElementById('song-list-datalist');
 
-      // PULIZIA TOTALE – QUESTO È IL FIX DEFINITIVO
-      sel.innerHTML = `<option value="">${publicSongsCount} public songs available!</option>`;
+      if (!input || !datalist) return;
+
+      // Pulizia datalist
+      datalist.innerHTML = '';
 
       // Utente loggato (una sola volta)
       let currentUser = null;
@@ -2089,20 +2106,40 @@ class GypsyApp {
       // Popola la lista – UNA SOLA VOLTA per brano
       visibleSongs.forEach(song => {
         const opt = document.createElement('option');
-        opt.value = song._id;
 
         const isFavourite = currentUser && song.favourites?.includes(currentUser.id);
         const favIcon = isFavourite ? '⭐ ' : '';
         const privacyIcon = !song.isPublic ? '' : '🌏 ';
 
-        opt.textContent = `${privacyIcon}${song.title} (${this.getOwnerName(song)})${favIcon}`;
-        sel.appendChild(opt);
+        opt.value = `${privacyIcon}${song.title} (${this.getOwnerName(song)})${favIcon}`;
+        opt.dataset.songId = song._id; // ✅ Salva l'ID nel dataset
+
+        datalist.appendChild(opt);
       });
 
+      // ✅ AGGIUNGI: Placeholder dinamico
+      input.placeholder = `🔍 Search among ${publicSongsCount} public songs...`;
+
       // onchange – NON RICHIAMA loadSongsList() qui dentro!
-      sel.onchange = async () => {
-        const id = sel.value;
-        if (!id) return;
+      // ✅ GESTIONE INPUT + FILTRO
+      input.oninput = () => {
+        // Niente da fare - il filtro è automatico con datalist
+      };
+
+      input.onchange = async () => {
+        const selectedText = input.value;
+        if (!selectedText) return;
+
+        // Trova l'option corrispondente nel datalist
+        const options = Array.from(datalist.querySelectorAll('option'));
+        const selected = options.find(opt => opt.value === selectedText);
+
+        if (!selected || !selected.dataset.songId) {
+          input.value = ''; // Reset se selezione non valida
+          return;
+        }
+
+        const id = selected.dataset.songId;
 
         try {
           const res = await fetch(`/api/songs/${id}`, { credentials: 'include' });
@@ -2154,7 +2191,8 @@ class GypsyApp {
 
         } catch (e) {
           console.error(e);
-          YouJazz.showMessage("Errore", "Impossibile caricare il brano");
+          YouJazz.showMessage("Error", "Unable to load song");
+          input.value = ''; // ✅ Reset input in caso di errore
         }
       };
 
