@@ -214,9 +214,9 @@
     <header>
       <div class="controls">
         <div class="select-wrapper">
-          <select id="song-list">
-            <option value="">— Load Song —</option>
-          </select>
+          <input type="text" id="song-list-input" placeholder="🔍 Search or select a song..." list="song-list-datalist"
+            autocomplete="off" />
+          <datalist id="song-list-datalist"></datalist>
         </div>
 
         <!-- Rimanenti controlli centrati -->
