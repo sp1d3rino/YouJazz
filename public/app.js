@@ -15,9 +15,9 @@ class GypsyApp {
 
   async initialize() {
 
-    //await this.initSession();
     this.loadChordsPalette();
     this.setupMobileDragDrop();
+this.setupMobileChordMove();  
     this.render();                    // mostra griglia vuota o messaggio
     this.loadSongsList();             // carica subito la dropdown
     this.setupGlobalEvents();
@@ -408,6 +408,8 @@ class GypsyApp {
           }
 
           measureData.chords.splice(insertIndex, 0, draggedChord);
+          this._scrollY = window.scrollY; // Salva posizione scroll
+          this._preventScroll = true;      // Flag per bloccare auto-scroll
           this.render();
 
           setTimeout(() => {
@@ -536,6 +538,121 @@ class GypsyApp {
 
   }
 
+  setupMobileChordMove() {
+    if (window.innerWidth > 768) return; // Solo mobile
+
+    let longPressTimer = null;
+    let isDragging = false;
+    let draggedChord = null;
+    let draggedMeasure = null;
+    let draggedChordIndex = null;
+    let touchStartElement = null;
+
+    document.addEventListener('touchstart', (e) => {
+      const chordBox = e.target.closest('.chord-box');
+      if (!chordBox || this.isGuest()) return;
+
+      touchStartElement = chordBox;
+
+      // Trova misura e indice accordo
+      const measure = chordBox.closest('.measure');
+      if (!measure) return;
+
+      const measureIndex = Array.from(document.querySelectorAll('.measure')).indexOf(measure);
+      const chordIndex = Array.from(measure.querySelectorAll('.chord-box')).indexOf(chordBox);
+
+      // Long press timer (500ms)
+      longPressTimer = setTimeout(() => {
+        isDragging = true;
+        draggedChord = this.currentSong.measures[measureIndex].chords[chordIndex];
+        draggedMeasure = measureIndex;
+        draggedChordIndex = chordIndex;
+
+        // Feedback visivo
+        chordBox.style.opacity = '0.6';
+        chordBox.style.transform = 'scale(1.15)';
+        chordBox.style.transition = 'all 0.2s';
+
+        // Vibrazione (se supportata)
+        if (navigator.vibrate) navigator.vibrate(50);
+      }, 500);
+
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!isDragging) {
+        // Cancella timer se l'utente muove il dito prima del long press
+        clearTimeout(longPressTimer);
+        return;
+      }
+
+      e.preventDefault();
+
+      const touch = e.touches[0];
+      const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+
+      // Rimuovi highlight precedente
+      document.querySelectorAll('.measure').forEach(m => m.classList.remove('drag-over'));
+
+      // Aggiungi highlight alla misura target
+      const targetMeasure = elementAtPoint?.closest('.measure');
+      if (targetMeasure) {
+        targetMeasure.classList.add('drag-over');
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+      clearTimeout(longPressTimer);
+
+      if (!isDragging) {
+        if (touchStartElement) {
+          touchStartElement.style.opacity = '';
+          touchStartElement.style.transform = '';
+        }
+        return;
+      }
+
+      const touch = e.changedTouches[0];
+      const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+      const targetMeasure = elementAtPoint?.closest('.measure');
+
+      // Rimuovi feedback
+      document.querySelectorAll('.measure').forEach(m => m.classList.remove('drag-over'));
+      if (touchStartElement) {
+        touchStartElement.style.opacity = '';
+        touchStartElement.style.transform = '';
+      }
+
+      if (targetMeasure) {
+        const targetMeasureIndex = Array.from(document.querySelectorAll('.measure')).indexOf(targetMeasure);
+        const targetChordBox = elementAtPoint?.closest('.chord-box');
+
+        // Rimuovi dalla misura originale
+        this.currentSong.measures[draggedMeasure].chords.splice(draggedChordIndex, 1);
+
+        if (targetChordBox) {
+          // Inserisci nella posizione specifica
+          const targetChordIndex = Array.from(targetMeasure.querySelectorAll('.chord-box')).indexOf(targetChordBox);
+          this.currentSong.measures[targetMeasureIndex].chords.splice(targetChordIndex, 0, draggedChord);
+        } else {
+          // Aggiungi in fondo alla misura
+          this.currentSong.measures[targetMeasureIndex].chords.push(draggedChord);
+        }
+
+        this._scrollY = window.scrollY;
+        this._preventScroll = true;
+        this.render();
+      }
+
+      // Reset stato
+      isDragging = false;
+      draggedChord = null;
+      draggedMeasure = null;
+      draggedChordIndex = null;
+      touchStartElement = null;
+
+    }, { passive: false });
+  }s
 
 
   isGuest() {
@@ -996,6 +1113,8 @@ class GypsyApp {
           }
 
           measureData.chords.splice(insertIndex, 0, droppedText);
+          this._scrollY = window.scrollY; // Salva posizione scroll
+          this._preventScroll = true;      // Flag per bloccare auto-scroll
           this.render();
 
           setTimeout(() => {
@@ -1104,6 +1223,13 @@ class GypsyApp {
       }
 
       sheet.appendChild(measure);
+      if (this._preventScroll) {
+        const scrollY = this._scrollY || 0;
+        setTimeout(() => {
+          window.scrollTo({ top: scrollY, behavior: 'instant' });
+          this._preventScroll = false;
+        }, 0);
+      }
     });
 
     // NEW: Disable editing for guests

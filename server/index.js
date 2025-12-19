@@ -140,15 +140,6 @@ const requireSiteAccess = (req, res, next) => {
 };
 
 
-/*
-app.post('/api/init-session', (req, res) => {
-  req.session.siteAccess = true;
-  req.session.save((err) => {
-    if (err) return res.status(500).json({ error: 'Init error' });
-    res.json({ success: true });
-  });
-});
-*/
 
 // GET /api/songs — Lista con owner popolato
 app.get('/api/songs', requireSiteAccess, async (req, res) => {
