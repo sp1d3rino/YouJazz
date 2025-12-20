@@ -182,17 +182,46 @@ header h1 {
 
 .select-wrapper {
   position: relative;
-  display: inline-block;
 }
 
-.select-wrapper::after {
+.song-dropdown {
   position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: #aaa;
-  font-size: 0.8em;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background: #1a1a1a;
+  border: 2px solid #444;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  z-index: 1000;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
+}
+
+.song-dropdown.hidden {
+  display: none;
+}
+
+.song-dropdown-item {
+  padding: 12px 16px;
+  color: #eee;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid #333;
+}
+
+.song-dropdown-item:hover {
+  background: #2a2a2a;
+}
+
+.song-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.song-dropdown-item.highlighted {
+  background: #3498db;
+  color: white;
 }
 
 
@@ -590,13 +619,17 @@ body.ctrl-active * {
   border-radius: 12px;
   position: sticky;
   top: 20px;
-  max-height: calc(100vh - 40px); /* Occupa quasi tutta l'altezza dello schermo */
-  overflow-y: auto;                /* Mantiene lo scroll interno */
+  max-height: calc(100vh - 40px);
+  /* Occupa quasi tutta l'altezza dello schermo */
+  overflow-y: auto;
+  /* Mantiene lo scroll interno */
   overflow-x: hidden;
 
   /* NASCONDI LA SCROLLBAR SU TUTTI I BROWSER */
-  scrollbar-width: none;           /* Firefox */
-  -ms-overflow-style: none;        /* Internet Explorer / Edge vecchio */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* Internet Explorer / Edge vecchio */
 
   /* Padding extra in fondo per evitare che l'ultimo elemento sia attaccato al bordo */
   padding-bottom: 30px;
@@ -609,7 +642,7 @@ body.ctrl-active * {
   height: 0;
   background: transparent;
 }
- 
+
 /* Mobile: Palette orizzontale in basso, si sposta su/giù con scroll */
 @media (max-width: 768px) {
   .main {
@@ -654,15 +687,20 @@ body.ctrl-active * {
     overflow-x: auto;
     padding: 0;
     flex-wrap: nowrap;
-    -webkit-overflow-scrolling: touch; /* ← AGGIUNGI: scroll fluido iOS */
-    scroll-behavior: smooth; /* ← AGGIUNGI: scroll smooth */
-    touch-action: pan-x; /* ← AGGIUNGI: abilita swipe orizzontale */
+    -webkit-overflow-scrolling: touch;
+    /* ← AGGIUNGI: scroll fluido iOS */
+    scroll-behavior: smooth;
+    /* ← AGGIUNGI: scroll smooth */
+    touch-action: pan-x;
+    /* ← AGGIUNGI: abilita swipe orizzontale */
   }
 
   .chord-btn,
   .extension-btn {
-    min-width: 45px; /* ← AUMENTA da 40px a 45px */
-    padding: 12px 8px; /* ← AUMENTA da 10px 6px */
+    min-width: 45px;
+    /* ← AUMENTA da 40px a 45px */
+    padding: 12px 8px;
+    /* ← AUMENTA da 10px 6px */
     font-size: 1em;
     flex-shrink: 0;
   }
@@ -684,16 +722,69 @@ body.ctrl-active * {
     overflow-x: hidden;
   }
 
-    #song-list-input {
+  #song-list-input {
     width: 100%;
     min-width: auto;
-    font-size: 16px; /* Previene zoom su iOS */
+    font-size: 16px;
+    /* Previene zoom su iOS */
   }
 
   .select-wrapper {
-    width: 100%;
+    position: relative;
   }
 
+  .song-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    background: #1a1a1a;
+    border: 2px solid #444;
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    z-index: 1000;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
+  }
+
+  .song-dropdown.hidden {
+    display: none;
+  }
+
+  .song-dropdown-item {
+    padding: 12px 16px;
+    color: #eee;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid #333;
+  }
+
+  .song-dropdown-item:hover {
+    background: #2a2a2a;
+  }
+
+  .song-dropdown-item:last-child {
+    border-bottom: none;
+  }
+
+  .song-dropdown-item.highlighted {
+    background: #3498db;
+    color: white;
+  }
+
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .song-dropdown {
+    max-height: 250px;
+    font-size: 14px;
+  }
+
+  .song-dropdown-item {
+    padding: 14px 12px;
+  }
 }
 
 
@@ -950,7 +1041,8 @@ body.ctrl-active * {
   #song-list-input {
     width: 100%;
     min-width: auto;
-    font-size: 16px; /* Previene zoom su iOS */
+    font-size: 16px;
+    /* Previene zoom su iOS */
   }
 
   .select-wrapper {
@@ -1104,9 +1196,12 @@ body.ctrl-active * {
     overflow-x: auto;
     padding: 0;
     flex-wrap: nowrap;
-    -webkit-overflow-scrolling: touch; /* ← AGGIUNGI se non presente */
-    scroll-behavior: smooth; /* ← AGGIUNGI se non presente */
-    touch-action: pan-x; /* ← AGGIUNGI se non presente */
+    -webkit-overflow-scrolling: touch;
+    /* ← AGGIUNGI se non presente */
+    scroll-behavior: smooth;
+    /* ← AGGIUNGI se non presente */
+    touch-action: pan-x;
+    /* ← AGGIUNGI se non presente */
   }
 
   .chord-btn {
@@ -1121,13 +1216,16 @@ body.ctrl-active * {
   /* Nascondi scrollbar ma mantieni funzionalità scroll */
   .extension-list::-webkit-scrollbar,
   .chord-list::-webkit-scrollbar {
-    display: none; /* ← MODIFICA: nascondi completamente scrollbar */
+    display: none;
+    /* ← MODIFICA: nascondi completamente scrollbar */
   }
 
   .extension-list,
   .chord-list {
-    scrollbar-width: none; /* ← AGGIUNGI: Firefox */
-    -ms-overflow-style: none; /* ← AGGIUNGI: IE/Edge */
+    scrollbar-width: none;
+    /* ← AGGIUNGI: Firefox */
+    -ms-overflow-style: none;
+    /* ← AGGIUNGI: IE/Edge */
   }
 
   /* Modal responsive */
@@ -1239,11 +1337,13 @@ body.ctrl-active * {
     padding: 10px 6px;
     font-size: 1em;
   }
-  
+
 
   .extension-btn {
-    min-width: 45px; /* ← AUMENTA da 40px a 45px */
-    padding: 12px 8px; /* ← AUMENTA da 10px 6px */
+    min-width: 45px;
+    /* ← AUMENTA da 40px a 45px */
+    padding: 12px 8px;
+    /* ← AUMENTA da 10px 6px */
     font-size: 1em;
     flex-shrink: 0;
   }
@@ -1299,10 +1399,11 @@ body.ctrl-active * {
     padding: 10px;
   }
 
-    #song-list-input {
+  #song-list-input {
     width: 100%;
     min-width: auto;
-    font-size: 16px; /* Previene zoom su iOS */
+    font-size: 16px;
+    /* Previene zoom su iOS */
   }
 
   .select-wrapper {
@@ -1532,7 +1633,7 @@ body.ctrl-active * {
 }
 
 .toggle-btn:hover:not(:disabled) {
- 
+
   border-color: #222;
   transform: scale(1.05);
 }
