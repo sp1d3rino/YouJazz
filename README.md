@@ -11,9 +11,10 @@ YouJazz is an innovative web-based **Gypsy Jazz lead sheet composer and player**
 
 - **Grid-Based Composition**: Build chord charts on a customizable grid (e.g., 4x4 or 8x8 measures). Drag-and-drop chords and extensions from a palette.
 - **Dual Styles**: Switch between **Swing** (La Pompe rhythm) and **Bossa Nova** with one click. Audio samples adapt automatically.
-- **Real-Time Playback**: High-quality MP3 samples stretched with pitch preservation (using Kali.js). Includes count-in (4 beats) and seamless looping.
+- **Real-Time Playback**: High-quality MP3 samples stretched with pitch preservation (using Tone.js). Includes count-in (4 beats) and seamless looping.
 - **User Accounts**: Login with Google for saving, sharing, and liking songs. Guest mode for read-only access.
-- **Likes System**: Thumbs-up voting on songs – visible to all, editable only by logged-in users.
+- **Transpose**: Load or create the song and change the song tone.
+- **AI reharmonization**: Use AI to explore arrangement alternatives 
 - **Persistent Data**: Load from dropdown or create new; save to backend (MongoDB).
 
 YouJazz is built for **Gypsy Jazz lovers** – inspired by Django Reinhardt and Stéphane Grappelli – but adaptable to any jazz standard.
@@ -23,7 +24,7 @@ YouJazz is built for **Gypsy Jazz lovers** – inspired by Django Reinhardt and 
 ### Frontend
 - **Vanilla JavaScript**: Core app logic (no frameworks for lightweight performance).
 - **Web Audio API**: Real-time audio playback with `AudioContext` and `BufferSource`.
-- **Kali.js**: Time-stretching library for tempo adjustment without pitch shift (e.g., BPM 80-160).
+- **Tone.js**: Time-stretching library for tempo adjustment without pitch shift (e.g., BPM 80-160).
 - **HTML5/CSS3**: Responsive grid layout with flexbox and CSS Grid for chord measures.
 - **Drag & Drop API**: Native browser support for chord palette interactions.
 
@@ -108,9 +109,9 @@ YouJazz is built for **Gypsy Jazz lovers** – inspired by Django Reinhardt and 
 ## Contributing
 
 1. Fork the repo.
-2. Create a feature branch (`git checkout -b feature/amazing-chord`).
+2. Create a feature branch (`git checkout -b feature/gypsyjazz`).
 3. Commit changes (`git commit -m 'Add amazing chord feature'`).
-4. Push to branch (`git push origin feature/amazing-chord`).
+4. Push to branch (`git push origin feature/gypsyjazz`).
 5. Open Pull Request.
 
 I welcome PRs for new ideas, styles, or UI improvements. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
@@ -122,7 +123,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - Inspired by Gypsy Jazz masters: Django Reinhardt, Stéphane Grappelli.
-- Kali.js for audio stretching.
+- Tone.js for audio stretching.
 - Thanks to contributors and the open-source community!
 
 ---

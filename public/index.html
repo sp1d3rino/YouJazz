@@ -213,12 +213,11 @@
   <div class="container">
     <header>
       <div class="controls">
-        <div class="select-wrapper">
-          <input type="text" id="song-list-input" placeholder="🔍 Search or select a song..." list="song-list-datalist"
-            autocomplete="off" />
-          <datalist id="song-list-datalist"></datalist>
-        </div>
 
+        <div class="select-wrapper">
+          <input type="text" id="song-list-input" placeholder="🔍 Search or select a song..." autocomplete="off" />
+          <div id="song-list-dropdown" class="song-dropdown hidden"></div>
+        </div>
         <!-- Rimanenti controlli centrati -->
 
         <div class="created-by">created by </div>

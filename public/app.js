@@ -1679,10 +1679,6 @@ class GypsyApp {
         "Untitled Song"
       );
 
-      /*      if (!title || title.trim() === '') {
-              return YouJazz.showMessage("Cancelled", "Save cancelled");
-            }
-      */
       this.currentSong.title = title.trim();
     }
 
@@ -1711,24 +1707,18 @@ class GypsyApp {
       if (!this.currentSong._id) {
         this.currentSong._id = saved._id;
       }
-
       YouJazz.showMessage("YouJazz", `Song "${this.currentSong.title}" saved successfully!`);
       await this.loadSongsList();
 
-      // ✅ FIX: Seleziona il brano appena salvato nella combobox
-      // ✅ FIX AGGIORNATO: Seleziona il brano appena salvato
+      // ✅ FIX: Seleziona il brano appena salvato
       const input = document.getElementById('song-list-input');
-      const datalist = document.getElementById('song-list-datalist');
-
-      if (input && datalist && this.currentSong._id) {
-        // Trova l'option con il songId corretto
-        const options = Array.from(datalist.querySelectorAll('option'));
-        const savedOption = options.find(opt => opt.dataset.songId === this.currentSong._id);
-
-        if (savedOption) {
-          input.value = savedOption.value; // Imposta il testo completo
+      if (input && this._allSongs && this.currentSong._id) {
+        const savedSong = this._allSongs.find(s => s.id === this.currentSong._id);
+        if (savedSong) {
+          input.value = savedSong.displayText;
         }
       }
+
     } catch (e) {
       console.error('Saving error:', e);
       YouJazz.showMessage("Save Error", "Unable to save the song. Are you logged in?");
@@ -2020,6 +2010,104 @@ class GypsyApp {
     }
   }
 
+  _updateDropdown(searchTerm) {
+    const dropdown = document.getElementById('song-list-dropdown');
+    if (!dropdown || !this._allSongs) return;
+
+    const search = searchTerm.toLowerCase().trim();
+
+    // Filtra brani
+    const filtered = search
+      ? this._allSongs.filter(song => song.searchText.includes(search))
+      : this._allSongs;
+
+    // Popola dropdown
+    dropdown.innerHTML = '';
+
+    if (filtered.length === 0) {
+      dropdown.innerHTML = '<div class="song-dropdown-item" style="color:#888;cursor:default;">No songs found</div>';
+      return;
+    }
+
+    filtered.forEach(song => {
+      const item = document.createElement('div');
+      item.className = 'song-dropdown-item';
+      item.textContent = song.displayText;
+      item.dataset.songId = song.id;
+
+      item.onclick = () => {
+        this._loadSongById(song.id, song.displayText);
+        dropdown.classList.add('hidden');
+      };
+
+      dropdown.appendChild(item);
+    });
+  }
+
+  async _loadSongById(id, displayText) {
+    const input = document.getElementById('song-list-input');
+
+    try {
+      const res = await fetch(`/api/songs/${id}`, { credentials: 'include' });
+      const db = await res.json();
+
+      // ✅ Imposta valore input
+      if (input) input.value = displayText;
+
+      // Ricostruisci currentSong (codice esistente invariato)
+      this.currentSong = {
+        _id: db._id,
+        title: db.title,
+        style: db.style || 'swing',
+        isPublic: db.isPublic !== false,
+        bpm: db.bpm || 200,
+        grid: db.grid || { rows: 4, cols: 4 },
+        measures: []
+      };
+
+      this.currentStyle = db.style || 'swing';
+
+      document.querySelectorAll('.chord-box').forEach(box => box.dataset.style = this.currentStyle);
+      this.reloadAllSamples();
+      document.querySelectorAll('.style-btn').forEach(b => b.classList.toggle('active', b.dataset.style === this.currentStyle));
+
+      let cur = { chords: [] };
+      let beats = 0;
+      db.measures.forEach(m => {
+        if (beats + m.beats > 4) {
+          this.currentSong.measures.push(cur);
+          cur = { chords: [] };
+          beats = 0;
+        }
+        cur.chords.push(m.chord);
+        beats += m.beats;
+      });
+      if (cur.chords.length) this.currentSong.measures.push(cur);
+      while (this.currentSong.measures.length < this.currentSong.grid.rows * this.currentSong.grid.cols) {
+        this.currentSong.measures.push({ chords: [] });
+      }
+
+      document.getElementById('bpm-slider').value = db.bpm;
+      document.getElementById('bpm-value').textContent = db.bpm;
+      this.showCreatedBy(db);
+      this.render();
+
+      // Aggiorna fav button
+      let currentUser = null;
+      try {
+        const userRes = await fetch('/auth/me', { credentials: 'include' });
+        if (userRes.ok) currentUser = await userRes.json();
+      } catch (e) { }
+
+      this.updateFavButton(db, currentUser);
+
+    } catch (e) {
+      console.error(e);
+      YouJazz.showMessage("Errore", "Impossibile caricare il brano");
+      if (input) input.value = '';
+    }
+  }
+
 
   reconstructGridFromMeasures(dbMeasures) {
     // Reset grid
@@ -2073,12 +2161,13 @@ class GypsyApp {
         return titleA.localeCompare(titleB);
       });
       const input = document.getElementById('song-list-input');
-      const datalist = document.getElementById('song-list-datalist');
+      const dropdown = document.getElementById('song-list-dropdown');
 
-      if (!input || !datalist) return;
+      if (!input || !dropdown) return;
 
-      // Pulizia datalist
-      datalist.innerHTML = '';
+      // Pulizia dropdown
+      dropdown.innerHTML = '';
+      dropdown.classList.add('hidden');
 
       // Utente loggato (una sola volta)
       let currentUser = null;
@@ -2103,98 +2192,42 @@ class GypsyApp {
         return true;
       });
 
-      // Popola la lista – UNA SOLA VOLTA per brano
-      visibleSongs.forEach(song => {
-        const opt = document.createElement('option');
 
+      // ✅ Salva lista brani per filtro
+      this._allSongs = visibleSongs.map(song => {
         const isFavourite = currentUser && song.favourites?.includes(currentUser.id);
         const favIcon = isFavourite ? '⭐ ' : '';
         const privacyIcon = !song.isPublic ? '' : '🌏 ';
 
-        opt.value = `${privacyIcon}${song.title} (${this.getOwnerName(song)})${favIcon}`;
-        opt.dataset.songId = song._id; // ✅ Salva l'ID nel dataset
-
-        datalist.appendChild(opt);
+        return {
+          id: song._id,
+          displayText: `${privacyIcon}${song.title} (${this.getOwnerName(song)})${favIcon}`,
+          searchText: song.title.toLowerCase()
+        };
       });
 
-      // ✅ AGGIUNGI: Placeholder dinamico
       input.placeholder = `🔍 Search among ${publicSongsCount} public songs...`;
 
-      // onchange – NON RICHIAMA loadSongsList() qui dentro!
-      // ✅ GESTIONE INPUT + FILTRO
+      // ✅ Popola dropdown iniziale (tutti i brani)
+      this._updateDropdown('');
+
+      // ✅ GESTIONE INPUT + FILTRO CUSTOM
+      input.onfocus = () => {
+        this._updateDropdown(input.value);
+        dropdown.classList.remove('hidden');
+      };
       input.oninput = () => {
-        // Niente da fare - il filtro è automatico con datalist
+        this._updateDropdown(input.value);
+        dropdown.classList.remove('hidden');
       };
 
-      input.onchange = async () => {
-        const selectedText = input.value;
-        if (!selectedText) return;
-
-        // Trova l'option corrispondente nel datalist
-        const options = Array.from(datalist.querySelectorAll('option'));
-        const selected = options.find(opt => opt.value === selectedText);
-
-        if (!selected || !selected.dataset.songId) {
-          input.value = ''; // Reset se selezione non valida
-          return;
+      // ✅ Chiudi dropdown cliccando fuori
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.select-wrapper')) {
+          dropdown.classList.add('hidden');
         }
+      });
 
-        const id = selected.dataset.songId;
-
-        try {
-          const res = await fetch(`/api/songs/${id}`, { credentials: 'include' });
-          const db = await res.json();
-
-          // Ricostruisci currentSong (identico al tuo originale)
-          this.currentSong = {
-            _id: db._id,
-            title: db.title,
-            style: db.style || 'swing',
-            isPublic: db.isPublic !== false,
-            bpm: db.bpm || 200,
-            grid: db.grid || { rows: 4, cols: 4 },
-            measures: []
-          };
-          //const checkbox = document.getElementById('public-checkbox');
-          //if (checkbox) checkbox.checked = this.currentSong.isPublic;
-          this.currentStyle = db.style || 'swing';
-
-          document.querySelectorAll('.chord-box').forEach(box => box.dataset.style = this.currentStyle);
-          this.reloadAllSamples();
-          document.querySelectorAll('.style-btn').forEach(b => b.classList.toggle('active', b.dataset.style === this.currentStyle));
-
-          let cur = { chords: [] };
-          let beats = 0;
-          db.measures.forEach(m => {
-            if (beats + m.beats > 4) {
-              this.currentSong.measures.push(cur);
-              cur = { chords: [] };
-              beats = 0;
-            }
-            cur.chords.push(m.chord);
-            beats += m.beats;
-          });
-          if (cur.chords.length) this.currentSong.measures.push(cur);
-          while (this.currentSong.measures.length < this.currentSong.grid.rows * this.currentSong.grid.cols) {
-            this.currentSong.measures.push({ chords: [] });
-          }
-
-          //document.getElementById('song-title').value = db.title;
-          document.getElementById('bpm-slider').value = db.bpm;
-          document.getElementById('bpm-value').textContent = db.bpm;
-          this.showCreatedBy(db);
-          this.render();
-
-          // Aggiorna solo il pulsante fav – NON richiama loadSongsList()
-          this.updateFavButton(db, currentUser);
-
-
-        } catch (e) {
-          console.error(e);
-          YouJazz.showMessage("Error", "Unable to load song");
-          input.value = ''; // ✅ Reset input in caso di errore
-        }
-      };
 
     } catch (e) {
       console.error('Error loading songs:', e);
