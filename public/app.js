@@ -2324,7 +2324,8 @@ class GypsyApp {
 
       // ✅ GESTIONE INPUT + FILTRO CUSTOM
       input.onfocus = () => {
-        this._updateDropdown(input.value);
+        input.value = ''; // ← CANCELLA IL CONTENUTO AL FOCUS
+        this._updateDropdown(''); // ← MOSTRA TUTTI I BRANI
         dropdown.classList.remove('hidden');
       };
       input.oninput = () => {
