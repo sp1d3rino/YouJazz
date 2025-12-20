@@ -160,6 +160,21 @@ header h1 {
   cursor: pointer;
 }
 
+
+body.ctrl-copy-mode .chord-box.copy-hover {
+  outline: 3px solid #27ae60 !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 15px rgba(39, 174, 96, 0.6) !important;
+  cursor: copy !important;
+}
+
+body.ctrl-copy-mode .measure.copy-hover {
+  outline: 3px dashed #27ae60 !important;
+  outline-offset: 4px;
+  box-shadow: 0 0 20px rgba(39, 174, 96, 0.4) !important;
+  cursor: copy !important;
+}
+
 .player-controls button {
   width: 100%;
   padding: 20px;

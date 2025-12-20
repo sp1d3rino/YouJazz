@@ -955,10 +955,55 @@ class GypsyApp {
     let sourceBox = null;
 
     document.addEventListener('keydown', e => {
-      if (e.key === 'Control') isCtrlPressed = true;
+      if (e.key === 'Control' || e.key === 'Meta') {
+        isCtrlPressed = true;
+        document.body.classList.add('ctrl-copy-mode'); // ✅ AGGIUNGI classe per CSS
+      }
     });
+
     document.addEventListener('keyup', e => {
-      if (e.key === 'Control') isCtrlPressed = false;
+      if (e.key === 'Control' || e.key === 'Meta') {
+        isCtrlPressed = false;
+        document.body.classList.remove('ctrl-copy-mode'); // ✅ RIMUOVI classe
+
+        // ✅ Rimuovi evidenziazioni
+        document.querySelectorAll('.chord-box, .measure').forEach(el => {
+          el.classList.remove('copy-hover');
+        });
+      }
+    });
+
+    // ✅ NUOVO: Evidenziazione durante hover con Ctrl
+    document.addEventListener('mouseover', e => {
+      if (!isCtrlPressed) return;
+
+      const chordBox = e.target.closest('.chord-box');
+      const measure = e.target.closest('.measure');
+
+      // Evidenzia chord box
+      if (chordBox) {
+        chordBox.classList.add('copy-hover');
+      }
+
+      // Evidenzia measure (solo se ha accordi)
+      if (measure && measure.querySelectorAll('.chord-box').length > 0) {
+        measure.classList.add('copy-hover');
+      }
+    });
+
+    document.addEventListener('mouseout', e => {
+      if (!isCtrlPressed) return;
+
+      const chordBox = e.target.closest('.chord-box');
+      const measure = e.target.closest('.measure');
+
+      if (chordBox) {
+        chordBox.classList.remove('copy-hover');
+      }
+
+      if (measure) {
+        measure.classList.remove('copy-hover');
+      }
     });
 
     document.addEventListener('mousedown', e => {
@@ -967,17 +1012,16 @@ class GypsyApp {
       const box = e.target.closest('.chord-box');
       if (!box) return;
 
-      // THE FIX: Get only the chord name, NOT the × button!
-      sourceChord = box.firstChild.textContent.trim(); // This is the chord text node
-      // OR even safer:
-      // sourceChord = box.childNodes[0].textContent.trim();
-
+      sourceChord = box.firstChild.textContent.trim();
       sourceBox = box;
       e.preventDefault();
 
       sourceBox.style.opacity = '0.6';
       sourceBox.style.transform = 'scale(1.12)';
       sourceBox.style.transition = 'all 0.12s';
+
+      // ✅ AGGIUNGI: Crea ghost visibile
+      this._createCopyGhost(sourceChord, e.clientX, e.clientY);
     });
 
     document.addEventListener('mouseup', e => {
@@ -985,6 +1029,7 @@ class GypsyApp {
 
       const targetMeasure = e.target.closest('.measure');
       if (!targetMeasure) {
+        this._removeCopyGhost(); // ✅ AGGIUNGI
         sourceBox.style.opacity = '';
         sourceBox.style.transform = '';
         sourceChord = null;
@@ -1006,6 +1051,9 @@ class GypsyApp {
       this.preloadIfNeeded(sourceChord);
       this.render();
 
+      // ✅ Rimuovi ghost
+      this._removeCopyGhost();
+
       // Reset
       sourceBox.style.opacity = '';
       sourceBox.style.transform = '';
@@ -1015,6 +1063,54 @@ class GypsyApp {
   }
 
 
+  _createCopyGhost(chordText, x, y) {
+    // Rimuovi ghost precedente se esiste
+    this._removeCopyGhost();
+
+    const ghost = document.createElement('div');
+    ghost.id = 'copy-ghost';
+    ghost.textContent = chordText;
+    ghost.style.cssText = `
+    position: fixed;
+    left: ${x}px;
+    top: ${y}px;
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 1.3em;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 10000;
+    box-shadow: 0 8px 30px rgba(39, 174, 96, 0.6);
+    transform: translate(-50%, -50%) scale(1.1);
+    border: 3px solid #fff;
+    opacity: 0.9;
+  `;
+
+    document.body.appendChild(ghost);
+
+    // ✅ Aggiorna posizione ghost durante movimento
+    const moveHandler = (e) => {
+      ghost.style.left = e.clientX + 'px';
+      ghost.style.top = e.clientY + 'px';
+    };
+
+    document.addEventListener('mousemove', moveHandler);
+    ghost.dataset.moveHandler = 'attached'; // Flag per cleanup
+    this._ghostMoveHandler = moveHandler; // Salva riferimento
+  }
+
+  _removeCopyGhost() {
+    const ghost = document.getElementById('copy-ghost');
+    if (ghost) {
+      if (this._ghostMoveHandler) {
+        document.removeEventListener('mousemove', this._ghostMoveHandler);
+        this._ghostMoveHandler = null;
+      }
+      ghost.remove();
+    }
+  }
 
   showCopyFeedback() {
     // Optional: show a little toast
@@ -1289,7 +1385,6 @@ class GypsyApp {
     measureEl.draggable = true;
 
     measureEl.addEventListener('dragstart', e => {
-      // Se si sta trascinando un chord-box → lascia che sia il box a gestire
       if (e.target.closest('.chord-box')) {
         return;
       }
@@ -1299,26 +1394,42 @@ class GypsyApp {
         return;
       }
 
-      const measureIndex = measureEl.dataset.index;  // ← FIX: era measureIndex.toString()
+      const measureIndex = measureEl.dataset.index;
 
-      // SPOSTAMENTO/COPIA (sposta di default, copia con Ctrl)
       e.dataTransfer.setData('youjazz/measure-clone', JSON.stringify(chords));
       e.dataTransfer.setData('youjazz/source-index', measureIndex);
       e.dataTransfer.setData('text/plain', chords.join(' '));
       e.dataTransfer.effectAllowed = 'copyMove';
 
-      // Ghost image visibile
+      // ✅ Ghost con indicazione copy/move
+      const isCopy = e.ctrlKey || e.metaKey;
       const ghost = document.createElement('div');
-      ghost.textContent = chords.join('  │  ');
+
+      // ✅ Icona + testo
+      const icon = isCopy ? '📋' : '✂️';
+      const action = isCopy ? 'COPY' : 'MOVE';
+
+      ghost.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:2em;">${icon}</span>
+      <div>
+        <div style="font-size:0.8em;opacity:0.8;margin-bottom:4px;">${action}</div>
+        <div>${chords.join('  │  ')}</div>
+      </div>
+    </div>
+  `;
+
       ghost.style.cssText = `
     position: absolute; top: -9999px; left: -9999px;
-    background: linear-gradient(135deg, #6a1b9a, #8e24aa);
-    color: white; padding: 14px 22px; border-radius: 12px;
-    font-size: 1.6em; font-weight: bold; font-family: system-ui;
-    border: 3px solid #e91e63; box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    background: linear-gradient(135deg, ${isCopy ? '#27ae60, #2ecc71' : '#6a1b9a, #8e24aa'});
+    color: white; padding: 16px 24px; border-radius: 12px;
+    font-size: 1.4em; font-weight: bold; font-family: system-ui;
+    border: 3px solid ${isCopy ? '#fff' : '#e91e63'}; 
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
     pointer-events: none; white-space: nowrap; z-index: 9999;
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
   `;
+
       document.body.appendChild(ghost);
       e.dataTransfer.setDragImage(ghost, ghost.offsetWidth / 2, ghost.offsetHeight / 2);
       setTimeout(() => ghost.remove(), 0);
