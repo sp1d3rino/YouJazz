@@ -92,8 +92,8 @@ if (this.processedBuffers.has(cacheKey)) {
       const grainPlayer = new Tone.GrainPlayer({
         url: originalBuffer,
         playbackRate: playbackRate, // ← controlla velocità
-        grainSize: 0.1,              // dimensione grani (100ms)
-        overlap: 0.11,               // overlap tra grani
+        grainSize: 0.12,              // dimensione grani (100ms)
+        overlap: 0.07,               // overlap tra grani
         loop: false
       }).toDestination();
 
