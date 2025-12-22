@@ -6,7 +6,7 @@
     "clean-all": "rm -rf dist dist-1 dist-2",
     "clean:i-1": "rm -rf dist-1",
     "clean:i-2": "rm -rf dist-2",
-    "build:code": "esbuild server/index.js --platform=node --packages=external --bundle --minify --sourcemap --outdir=dist --format=cjs",
+    "build:code": "esbuild server/server.js --platform=node --packages=external --bundle --minify --sourcemap --outdir=dist --format=cjs",
     "build:static-i-1": "mkdir dist-1 && mv dist dist-1 && cp -r public dist-1/ && cp .env1 dist-1/.env",
     "build:static-i-2": "mkdir dist-2 && mv dist dist-2 && cp -r public dist-2/ && cp .env2 dist-2/.env",
     "build-all": "npm run clean-all && npm run build:code && npm run build:static-i-1 && npm run build:static-i-2",
