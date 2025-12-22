@@ -163,15 +163,24 @@ const requireSiteAccess = (req, res, next) => {
 // GET /api/songs — Lista con owner popolato
 app.get('/api/songs', requireSiteAccess, async (req, res) => {
   try {
+     // ✅ FIX: Assicurati che req.user sia impostato per local auth
+    if (!req.user && req.session.userId) {
+      req.user = await User.findById(req.session.userId);
+    }
+
     const query = req.user
       ? { $or: [{ isPublic: true }, { owner: req.user._id }] }
       : { isPublic: true };
 
+ 
     const songs = await Song.find(query)
-      .populate('owner', 'displayName')
+      .populate('owner', 'displayName username')
       .sort({ createdAt: -1 });
+    
+    
     res.json(songs);
   } catch (err) {
+    console.error('❌ Error loading songs:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -181,11 +190,11 @@ app.get('/api/songs/:id', requireSiteAccess, async (req, res) => {
   try {
     const song = await Song.findById(req.params.id)
       .populate('owner', 'displayName');  // ← Aggiungi questo
-    if (!song) return res.status(404).json({ error: 'Brano non trovato' });
+    if (!song) return res.status(404).json({ error: 'Song not found' });
     res.json(song);
   } catch (err) {
     console.error('Errore caricamento brano:', err);
-    res.status(500).json({ error: 'Errore del server' });
+    res.status(500).json({ error: 'Server error'});
   }
 });
 
