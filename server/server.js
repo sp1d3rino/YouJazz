@@ -114,11 +114,30 @@ async (accessToken, refreshToken, profile, done) => {
 
 // Rotte
 app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 
 // ==== ROTTE PROTETTE ====
-const requireAuth = (req, res, next) => {
-  if (!req.user) return res.status(401).json({ error: 'Login richiesto' });
-  next();
+const requireAuth = async (req, res, next) => {
+  // OAuth user (Google/Facebook)
+  if (req.user) {
+    return next();
+  }
+
+  // Local auth user (username/password)
+  if (req.session.userId) {
+    try {
+      const user = await User.findById(req.session.userId);
+      if (user && user.isActivated) {
+        // Attach user to request for consistency
+        req.user = user;
+        return next();
+      }
+    } catch (err) {
+      console.error('Session user lookup error:', err);
+    }
+  }
+
+  return res.status(401).json({ error: 'Login richiesto' });
 };
 
 

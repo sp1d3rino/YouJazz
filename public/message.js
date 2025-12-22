@@ -5,6 +5,7 @@
   window.YouJazz.messageReady = true;
 
   // Crea overlay una sola volta
+  
   const overlay = document.createElement('div');
   overlay.id = 'yj-message';
   overlay.className = 'yj-message-overlay';
@@ -31,6 +32,7 @@
     </div>
   `;
   document.body.appendChild(overlay);
+  
   let semitones = 0;
   const iconEl = document.getElementById('yj-icon');
   const titleEl = document.getElementById('yj-title');

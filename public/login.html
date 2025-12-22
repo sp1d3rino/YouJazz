@@ -13,6 +13,7 @@
 </head>
 
 <body>
+  <script src="message.js"></script>
   <div class="login-container">
     <h1 class="neon">YouJazz</h1>
     <div class="guitar-image">
@@ -21,36 +22,46 @@
     <div style=" display: flex; flex-direction: column; gap: 15px; width: 100%;">
       <!-- Google Login -->
       <a href="/auth/google" class="google-btn">
+
         <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
         Continue with Google
       </a>
+
+      <div class="divider"><span>OR</span></div>
+
+      <div class="auth-buttons">
+        <button class="signin-btn" onclick="openSignInModal()">Sign In</button>
+        <button class="register-btn" onclick="openRegisterModal()">Register</button>
+      </div>
 
       <!-- Facebook Login 
       <a href="/auth/facebook" class="facebook-btn">
         <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook">
         Continue with Facebook
       </a>-->
-
-      <p style="color:#888; font-size:0.9em; margin-top:10px; max-width:380px; margin-left:auto; margin-right:auto;">
-        You can create, modify, delete, listen and rate songs.
-      </p>
-
+      <div class="divider"><span>OR</span></div>
       <a href="/?guest=true" class="guest-btn">
         Continue as Guest
       </a>
-      <p style="color:#888; font-size:0.9em; margin-top:10px; max-width:380px; margin-left:auto; margin-right:auto;">
-        You can only load and listen to existing songs.
-      </p>
     </div>
   </div>
   <!-- AGGIUNGI QUESTO FOOTER -->
   <footer class="login-footer">
-    <p>© YouJazz.org 2025 - All rights reserved</p>    
+    <p>© YouJazz.org 2025 - All rights reserved</p>
     <p style="margin-top: 8px; font-size: 0.8em;">
-      <a href="/privacy.html" style="color: #888; text-decoration: none;">Privacy Policy</a> 
+      <a href="/privacy.html" style="color: #888; text-decoration: none;">Privacy Policy</a>
     </p>
 
   </footer>
+  <div id="authModal" class="modal-overlay">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <h2 id="modalTitle">Sign In</h2>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script src="auth-modal.js"></script>
 </body>
 
 </html>
