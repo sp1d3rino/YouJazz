@@ -1806,7 +1806,7 @@ class GypsyApp {
         if (!songRes.ok) throw new Error('Unable to verify song owner');
 
         const songFromServer = await songRes.json();
-        if (songFromServer.owner._id.toString() !== currentUser.id) {
+        if (songFromServer.owner._id.toString() !== currentUser.id.toString()) {
           YouJazz.showMessage("YouJazz", "This song is not yours. You cannot modify it!");
           await this.loadSongsList();
           return;
@@ -1862,7 +1862,7 @@ class GypsyApp {
         const songFromServer = await songRes.json();
 
         // BLOCCO DI SICUREZZA: se il proprietario non è l'utente corrente → BLOCCA
-        if (songFromServer.owner._id.toString() !== currentUser.id) {
+        if (songFromServer.owner._id.toString() !== currentUser.id.toString()) {
           YouJazz.showMessage("Unable to delete", 'This song is not yours. You cannot delete it!');
           await this.loadSongsList();  // ricarica la lista per sicurezza
           return;
@@ -1906,7 +1906,7 @@ class GypsyApp {
         if (!songRes.ok) throw new Error('Unable to verify song owner');
 
         const songFromServer = await songRes.json();
-        if (songFromServer.owner._id.toString() !== currentUser.id) {
+        if (songFromServer.owner._id.toString() !== currentUser.id.toString()) {
           return YouJazz.showMessage("Permission denied", "You can only rename your own songs");
         }
 
@@ -2285,24 +2285,39 @@ class GypsyApp {
       if (!this.isGuest()) {
         try {
           const res = await fetch('/auth/me', { credentials: 'include' });
-          if (res.ok) currentUser = await res.json();
-        } catch (e) { }
+          if (res.ok) {
+            currentUser = await res.json();
+          } else {
+            console.error('❌ /auth/me failed:', res.status);
+          }
+        } catch (e) {
+          console.error('❌ /auth/me error:', e);
+        }
       }
+
 
       const showOnlyFavourites = this.FavFilterSearch;
       const visibleSongs = songs.filter(song => {
-        // Privacy filter (existing)
-        const passesPrivacy = song.isPublic || (currentUser && song.owner._id === currentUser.id);
-        if (!passesPrivacy) return false;
+        // Log di debug per ogni brano
+        const ownerIdStr = song.owner?._id?.toString();
+        const currentUserIdStr = currentUser?.id?.toString();
+        const isOwner = ownerIdStr === currentUserIdStr;
+
+
+        // Privacy filter with proper ID comparison
+        const passesPrivacy = song.isPublic || (currentUser && isOwner);
+
+        if (!passesPrivacy) {
+          return false;
+        }
 
         // Favourites filter (new)
         if (showOnlyFavourites && currentUser) {
-          return song.favourites?.includes(currentUser.id);
+          return song.favourites?.some(fav => fav.toString() === currentUser.id.toString());
         }
 
         return true;
       });
-
 
       // ✅ Salva lista brani per filtro
       this._allSongs = visibleSongs.map(song => {

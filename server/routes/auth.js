@@ -44,7 +44,7 @@ router.get('/me', async (req, res) => {
     // Check OAuth user first (Passport)
     if (req.user) {
       return res.json({
-        id: req.user._id,
+        id: req.user._id.toString(),
         displayName: req.user.displayName,
         email: req.user.email,
         picture: req.user.picture
@@ -56,7 +56,7 @@ router.get('/me', async (req, res) => {
       const user = await User.findById(req.session.userId);
       if (user) {
         return res.json({
-          id: user._id,
+          id: user._id.toString(),
           displayName: user.displayName || user.username,
           email: user.email,
           username: user.username
@@ -215,9 +215,9 @@ router.post('/login', async (req, res) => {
     }
 
     // Set session
-    req.session.userId = user._id;
+    req.session.userId = user._id.toString();
     req.session.user = {
-      id: user._id,
+      id: user._id.toString(),
       username: user.username,
       displayName: user.displayName
     };

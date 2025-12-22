@@ -11,7 +11,7 @@ class Auth {
         const nameEl = document.getElementById('user-name');
         const picEl = document.getElementById('user-pic');
         if (nameEl) nameEl.textContent = user.displayName || 'User';
-        if (picEl) picEl.src = user.picture || 'https://via.placeholder.com/40';
+        if (picEl) picEl.src = user.picture || 'https://i.pravatar.cc/300';
 
         // Hide loader and show page
         this.hideLoader();
