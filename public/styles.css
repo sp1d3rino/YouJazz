@@ -5,16 +5,33 @@
 }
 
 body {
-  font-family: 'Georgia', serif;
+  font-family: 'Garamond', serif;
   background: #0a0a0a;
   color: #eee;
+}
+
+body.ctrl-copy-mode .chord-box.copy-hover {
+  outline: 3px solid #27ae60 !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 15px rgba(39, 174, 96, 0.6) !important;
+  cursor: copy !important;
+}
+
+body.ctrl-copy-mode .measure.copy-hover {
+  outline: 3px dashed #27ae60 !important;
+  outline-offset: 4px;
+  box-shadow: 0 0 20px rgba(39, 174, 96, 0.4) !important;
+  cursor: copy !important;
 }
 
 .container {
   max-width: 1600px;
   margin: 0 auto;
   padding: 20px;
+  margin-top: 20px !important;
 }
+
+
 
 header {
   text-align: center;
@@ -62,10 +79,25 @@ header h1 {
   gap: 14px;
 }
 
+/* Palette Sticky per Desktop - NO SCROLLBAR, TUTTO VISIBILE */
 .chord-palette {
   background: #222;
   padding: 20px;
   border-radius: 12px;
+  position: sticky;
+  top: 20px;
+  max-height: calc(100vh - 40px);
+  /* Occupa quasi tutta l'altezza dello schermo */
+  overflow-y: auto;
+  /* Mantiene lo scroll interno */
+  overflow-x: hidden;
+  /* NASCONDI LA SCROLLBAR SU TUTTI I BROWSER */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* Internet Explorer / Edge vecchio */
+  /* Padding extra in fondo per evitare che l'ultimo elemento sia attaccato al bordo */
+  padding-bottom: 30px;
 }
 
 .chord-list {
@@ -100,19 +132,26 @@ header h1 {
   min-height: 600px;
 }
 
+ 
+
+/* Assicura che tutte le celle abbiano la stessa altezza */
 .measure {
   background: #1e1e1e;
   border: 2px solid #444;
   border-radius: 10px;
-  min-height: 100px;
-  padding: 10px;
+  min-height: 80px;
+  /* Ridotto da 100px — celle più compatte */
+  padding: 6px;
+  /* Ridotto da 10px per più spazio interno */
   position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 6px;
+  gap: 4px;
+  /* Ridotto da 6px per fit tighter */
   overflow: hidden;
 }
+
 
 .measure.empty {
   border-style: dashed;
@@ -161,19 +200,6 @@ header h1 {
 }
 
 
-body.ctrl-copy-mode .chord-box.copy-hover {
-  outline: 3px solid #27ae60 !important;
-  outline-offset: 2px;
-  box-shadow: 0 0 15px rgba(39, 174, 96, 0.6) !important;
-  cursor: copy !important;
-}
-
-body.ctrl-copy-mode .measure.copy-hover {
-  outline: 3px dashed #27ae60 !important;
-  outline-offset: 4px;
-  box-shadow: 0 0 20px rgba(39, 174, 96, 0.4) !important;
-  cursor: copy !important;
-}
 
 .player-controls button {
   width: 100%;
@@ -186,14 +212,6 @@ body.ctrl-copy-mode .measure.copy-hover {
   cursor: pointer;
 }
 
-#play {
-  background: #3498db;
-}
-
-#stop {
-  background: #3498db;
-}
-
 
 .select-wrapper {
   position: relative;
@@ -204,7 +222,7 @@ body.ctrl-copy-mode .measure.copy-hover {
   top: 100%;
   left: 0;
   right: 0;
-  max-height: 300px;
+  max-height: 600px;
   overflow-y: auto;
   background: #1a1a1a;
   border: 2px solid #444;
@@ -221,6 +239,7 @@ body.ctrl-copy-mode .measure.copy-hover {
 .song-dropdown-item {
   padding: 12px 16px;
   color: #eee;
+  font-size: 1.6em;
   cursor: pointer;
   transition: background 0.2s;
   border-bottom: 1px solid #333;
@@ -247,7 +266,7 @@ body.ctrl-copy-mode .measure.copy-hover {
   border: 2px solid #444;
   border-radius: 10px;
   color: #eee;
-  font-size: 1em;
+  font-size: 1.5em;
   min-width: 420px;
   width: 100%;
   cursor: text;
@@ -375,7 +394,7 @@ body.ctrl-copy-mode .measure.copy-hover {
   }
 }
 
-/* EVIDENZIAZIONE DEL CHORD IN RIPRODUZIONE – ORA SI VEDE DAVVERO */
+ 
 .chord-box.playing {
   background: #ffff00 !important;
   /* Giallo fluo */
@@ -456,9 +475,7 @@ body.ctrl-copy-mode .measure.copy-hover {
   cursor: default !important;
 }
 
-body[data-copy-mode] {
-  cursor: copy !important;
-}
+
 
 button:disabled,
 input[type="range"]:disabled {
@@ -472,7 +489,7 @@ input[type="range"]:disabled {
 }
 
 .created-by {
-  font-size: 0.9em;
+  font-size: 1.8em;
   color: #888;
   margin-top: 5px;
   text-align: right;
@@ -514,11 +531,6 @@ input[type="range"]:disabled {
   background: rgba(39, 174, 96, 0.2) !important;
 }
 
-/* Icona manina con Ctrl premuto */
-body.ctrl-drag {
-  cursor: copy !important;
-  /* manina per copy */
-}
 
 .sub-chord-box {
   font-size: 1.05em !important;
@@ -532,10 +544,7 @@ body.ctrl-drag {
   background: rgba(39, 174, 96, 0.2) !important;
 }
 
-/* Ctrl = manina */
-body.ctrl-active * {
-  cursor: copy !important;
-}
+
 
 /* FIX FINALE: box nella sub-griglia identici a quelli normali */
 .sub-chord-cell {
@@ -562,7 +571,7 @@ body.ctrl-active * {
   border: 1px solid #444;
   border-radius: 5px;
   font-weight: bold;
-  font-family: 'Georgia', serif;
+  font-family: 'Garamond', serif;
   font-size: xx-large;
   color: #fff;
   position: relative;
@@ -609,46 +618,9 @@ body.ctrl-active * {
   color: #ff5b5b;
 }
 
-/* Assicura che tutte le celle abbiano la stessa altezza */
-.measure {
-  background: #1e1e1e;
-  border: 2px solid #444;
-  border-radius: 10px;
-  min-height: 80px;
-  /* Ridotto da 100px — celle più compatte */
-  padding: 6px;
-  /* Ridotto da 10px per più spazio interno */
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 4px;
-  /* Ridotto da 6px per fit tighter */
-  overflow: hidden;
-}
 
-/* Palette Sticky per Desktop - NO SCROLLBAR, TUTTO VISIBILE */
-.chord-palette {
-  background: #222;
-  padding: 20px;
-  border-radius: 12px;
-  position: sticky;
-  top: 20px;
-  max-height: calc(100vh - 40px);
-  /* Occupa quasi tutta l'altezza dello schermo */
-  overflow-y: auto;
-  /* Mantiene lo scroll interno */
-  overflow-x: hidden;
 
-  /* NASCONDI LA SCROLLBAR SU TUTTI I BROWSER */
-  scrollbar-width: none;
-  /* Firefox */
-  -ms-overflow-style: none;
-  /* Internet Explorer / Edge vecchio */
 
-  /* Padding extra in fondo per evitare che l'ultimo elemento sia attaccato al bordo */
-  padding-bottom: 30px;
-}
 
 /* Nasconde scrollbar su WebKit (Chrome, Safari, Edge nuovo) */
 .chord-palette::-webkit-scrollbar {
@@ -732,10 +704,15 @@ body.ctrl-active * {
     scroll-behavior: smooth;
   }
 
-  /* Previeni layout shift */
-  body {
-    overflow-x: hidden;
-  }
+.song-dropdown-item {
+  padding: 12px 16px;
+  color: #eee;
+  font-size: 1.3em;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid #333;
+}
+
 
   #song-list-input {
     width: 100%;
@@ -876,7 +853,7 @@ body.ctrl-active * {
   font-weight: bold;
   color: #d4af37;
   margin: 0 0 12px 0;
-  font-family: 'Georgia', serif;
+  font-family: 'Garamond', serif;
 }
 
 .yj-message-text {
@@ -1035,10 +1012,7 @@ body.ctrl-active * {
     scroll-behavior: smooth;
   }
 
-  /* Previeni layout shift */
-  body {
-    overflow-x: hidden;
-  }
+
 
   /* User info compatta */
   header>div[style*="position:absolute"] {
@@ -1387,10 +1361,6 @@ body.ctrl-active * {
     scroll-behavior: smooth;
   }
 
-  /* Previeni layout shift */
-  body {
-    overflow-x: hidden;
-  }
 
   header h1 {
     font-size: 1.3em;
@@ -1867,7 +1837,7 @@ body.ctrl-active * {
   margin: 0;
   font-size: 2.2em;
   font-weight: 900;
-  font-family: 'Georgia', serif;
+  font-family: 'Garamond', serif;
   letter-spacing: 2px;
   background: linear-gradient(90deg, #ff6b6b, #f1c40f, #d4af37, #f1c40f, #ff6b6b);
   -webkit-background-clip: text;
@@ -1951,7 +1921,7 @@ body.ctrl-active * {
   margin: 0;
   font-size: 2.2em;
   font-weight: 900;
-  font-family: 'Georgia', serif;
+  font-family: 'Garamond', serif;
   letter-spacing: 2px;
   background: linear-gradient(90deg, #ff6b6b, #f1c40f, #d4af37, #f1c40f, #ff6b6b);
   -webkit-background-clip: text;
@@ -1986,11 +1956,7 @@ body.ctrl-active * {
   transform: scale(1.05);
 }
 
-/* Spazio sotto la barra fissa */
-.container {
-  margin-top: 20px !important;
-  /* importante: sposta tutto giù */
-}
+
 
 /* Mobile: titolo più piccolo ma sempre centrato */
 @media (max-width: 768px) {
