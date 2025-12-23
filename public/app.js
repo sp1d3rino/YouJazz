@@ -180,8 +180,8 @@ class GypsyApp {
 
       // Mappa per convertire bemolli in diesis
       const flatToSharp = {
-        'Db': 'C#', 'Eb': 'D#', 'Fb': 'E', 'Gb': 'F#',
-        'Ab': 'G#', 'Bb': 'A#', 'Cb': 'B'
+        'D♭': 'C#', 'E♭': 'D#', 'F♭': 'E', 'G♭': 'F#',
+        'A♭': 'G#', 'B♭': 'A#', 'C♭': 'B'
       };
 
       const normalizeRoot = (root) => {
@@ -190,7 +190,7 @@ class GypsyApp {
 
       const transposeChord = (chord) => {
         // Cattura la root: lettera + opzionale # o b
-        const rootMatch = chord.match(/^([A-G](#|b)?)/i);
+        const rootMatch = chord.match(/^([A-G](#|♭)?)/i);
         if (!rootMatch) return chord;
 
         let root = rootMatch[0].toUpperCase(); // Normalizza case
@@ -206,7 +206,7 @@ class GypsyApp {
         idx = (idx + semitones + 120) % 12; // +120 per sicurezza con numeri negativi
 
         const newRoot = notes[idx];
-        rest = rest.replace(/[b#]/, '');
+        rest = rest.replace(/[♭#]/, '');
 
         return newRoot + rest;
       };
