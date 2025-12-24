@@ -31,7 +31,7 @@ class GypsyApp {
     this.setupAIReharmonize();
     this.setupMobilePlaybackControls();
     this.showCreatedBy(null);
-
+    this.setupAnalytics();
     if (window.innerWidth <= 768) {
       const palette = document.querySelector('.chord-palette');
       let lastScrollY = window.scrollY;
@@ -59,6 +59,8 @@ class GypsyApp {
         }
       });
     }
+
+
 
 
 
@@ -155,6 +157,94 @@ class GypsyApp {
       }
     });
 
+  }
+
+
+
+  setupAnalytics() {
+    // Track: Play button
+    document.getElementById('play').addEventListener('click', () => {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'play_song', {
+          event_category: 'playback',
+          event_label: this.currentSong?.title || 'Unknown Song'
+        });
+      }
+    });
+
+    // Track: New Song creation
+    document.getElementById('new-song').addEventListener('click', () => {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'create_new_song', {
+          event_category: 'composition'
+        });
+      }
+    });
+
+    // Track: Save Song
+    document.getElementById('save-song').addEventListener('click', () => {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'save_song', {
+          event_category: 'composition',
+          event_label: this.currentSong?.title || 'Unknown Song'
+        });
+      }
+    });
+
+    // Track: Delete Song
+    document.getElementById('delete-song').addEventListener('click', () => {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'delete_song', {
+          event_category: 'composition'
+        });
+      }
+    });
+
+    // Track: Style Change (Swing/Bossa)
+    document.querySelectorAll('.style-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'change_style', {
+            event_category: 'composition',
+            event_label: btn.dataset.style
+          });
+        }
+      });
+    });
+
+    // Track: AI Reharmonize
+    document.getElementById('ai-reharmonize').addEventListener('click', () => {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'ai_reharmonize', {
+          event_category: 'ai_features'
+        });
+      }
+    });
+
+    // Track: Login clicks (on login page)
+    const googleBtn = document.querySelector('.google-btn');
+    if (googleBtn) {
+      googleBtn.addEventListener('click', () => {
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'login_attempt', {
+            event_category: 'authentication',
+            event_label: 'google'
+          });
+        }
+      });
+    }
+
+    const guestBtn = document.querySelector('.guest-btn');
+    if (guestBtn) {
+      guestBtn.addEventListener('click', () => {
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'login_attempt', {
+            event_category: 'authentication',
+            event_label: 'guest'
+          });
+        }
+      });
+    }
   }
 
   setupTranspose() {
