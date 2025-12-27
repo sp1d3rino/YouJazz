@@ -2,7 +2,7 @@
 .env1
 .env2
 server/node_modules
-public/audio/chords
+public/audio
 node_modules
 dist
 dist-1
