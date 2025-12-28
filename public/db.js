@@ -36,6 +36,9 @@ class Database {
       style: song.style,
       grid: song.grid,
       isPublic: song.isPublic,
+      introMeasuresCount: song.introMeasuresCount,
+      outroMeasuresCount: song.outroMeasuresCount,
+      loops: song.loops,
       bpm: song.bpm,
       introMeasuresCount: song.introMeasuresCount || 0,   
       measures: []

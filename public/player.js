@@ -108,7 +108,7 @@ class GypsyPlayer {
 
   // ←←← UNICO METODO USATO DALL'APP ←←←
   // ←←← METODO AGGIORNATO CON COUNT-IN INTEGRATO ←←←
-  async playVariableSequence(chords, style, beatDurations, bpm, onChordCallback = null, onEndCallback = null, enableCountIn = true, introMeasuresCount = 0) {
+  async playVariableSequence(chords, style, beatDurations, bpm, onChordCallback = null, onEndCallback = null, enableCountIn = true, introMeasuresCount = 0, outroMeasuresCount = 0, maxLoops = 0) {
     if (this.isPlaying) this.stop();
     this.isPlaying = true;
     this.bpm = bpm;
@@ -124,7 +124,7 @@ class GypsyPlayer {
     let seqIndex = 0;           // ← indice solo per la sequenza (loopa da 0)
     let countInCount = 0;       // ← contatore separato per i 4 tick
     let hasLooped = false;
-
+    let currentLoop = 0;
 
     let introChordsCount = 0;
     let introPlayed = false;
@@ -141,6 +141,19 @@ class GypsyPlayer {
         introChordsCount++;
       }
     }
+
+    let outroChordsCount = 0;
+    if (outroMeasuresCount > 0) {
+      let measuresProcessed = 0;
+      for (let i = chords.length - 1; i >= 0 && measuresProcessed < outroMeasuresCount; i--) {
+        const beats = beatDurations[i] / (60 / bpm);
+        if (beats >= 3.9) measuresProcessed++;
+        else if (beats >= 1.9) measuresProcessed += 0.5;
+        else measuresProcessed += 0.25;
+        outroChordsCount++;
+      }
+    }
+    const loopEndIndex = chords.length - outroChordsCount;
     const quarter = 60 / bpm;
 
     const schedule = () => {
@@ -170,15 +183,49 @@ class GypsyPlayer {
         }
 
         // 2. LOOP NORMALE DEGLI ACCORDI
-        if (seqIndex >= chords.length) {
-          // ← MODIFICA: Riparte dall'accordo DOPO l'intro
+        if (seqIndex >= loopEndIndex && outroChordsCount > 0 && !hasLooped) {
+          // ✅ Verifica se dobbiamo continuare a loopare o passare all'outro
+          currentLoop++;
+
+          if (maxLoops > 0 && currentLoop >= maxLoops) {
+            // Loops finiti → passa all'outro
+            seqIndex = loopEndIndex;
+            hasLooped = true;
+          } else {
+            // Continua loop
+            if (introMeasuresCount > 0 && introChordsCount > 0) {
+              seqIndex = introChordsCount; // Salta intro
+            } else {
+              seqIndex = 0;
+            }
+            if (onEndCallback) onEndCallback();
+          }
+
+        } else if (seqIndex >= chords.length) {
+          if (outroChordsCount > 0) {
+            // Fine outro → stop definitivo
+            this.stop();
+            if (onEndCallback) onEndCallback();
+            return;
+          }
+
+          // ✅ Gestione loop senza outro
+          currentLoop++;
+
+          if (maxLoops > 0 && currentLoop >= maxLoops) {
+            // Loops finiti → stop
+            this.stop();
+            if (onEndCallback) onEndCallback();
+            return;
+          }
+
+          // Continua loop infinito
           if (introMeasuresCount > 0 && introChordsCount > 0) {
-            seqIndex = introChordsCount;  // Salta l'intro nel loop
-            introPlayed = true;
+            seqIndex = introChordsCount;
           } else {
             seqIndex = 0;
           }
-          hasLooped = true;
+
           if (onEndCallback) onEndCallback();
         }
 

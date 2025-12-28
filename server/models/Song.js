@@ -11,6 +11,8 @@ const SongSchema = new mongoose.Schema({
     cols: { type: Number, default: 4 }
   },
   introMeasuresCount: { type: Number, default: 0 },
+  outroMeasuresCount: { type: Number, default: 0 },
+  loops: { type: Number, default: 0 },
   measures: [{
     chord: String,
     beats: Number

@@ -9,6 +9,8 @@ class GypsyApp {
     this.isPlaying = false;
     this.currentChordIndex = 0;
     this.introMeasuresCount = 0;
+    this.outroMeasuresCount = 0;
+    this.loopsRemaining = 0;
     this.FavFilterSearch = false;
     this.currentStyle = 'swing'; // default  
     this.initialize();
@@ -30,6 +32,7 @@ class GypsyApp {
     this.setupRename();
     this.setupTranspose();
     this.setupIntro();
+    this.setupOutro();
     this.setupAIReharmonize();
     this.setupMobilePlaybackControls();
     this.showCreatedBy(null);
@@ -315,7 +318,6 @@ class GypsyApp {
     const menuItem = document.getElementById('add-intro');
     if (!menuItem) return;
 
-    // Funzione per aggiornare il testo del menu item
     const updateMenuText = () => {
       if (this.introMeasuresCount > 0) {
         menuItem.innerHTML = `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -339,7 +341,7 @@ class GypsyApp {
         return YouJazz.showMessage("Permission denied", "Login to modify intro");
       }
 
-      // ✅ SE ESISTE GIÀ INTRO → RIMUOVILA
+      // Rimuovi intro se esiste
       if (this.introMeasuresCount > 0) {
         const confirmed = await YouJazz.showConfirm(
           "Remove Intro",
@@ -350,53 +352,144 @@ class GypsyApp {
 
         if (!confirmed) return;
 
-        // Rimuovi le prime N misure (l'intro)
         this.currentSong.measures.splice(0, this.introMeasuresCount);
         this.introMeasuresCount = 0;
 
         this.render();
         updateMenuText();
-        YouJazz.showMessage("Intro Removed", "Intro successfully removed");
         return;
       }
 
-      // ✅ ALTRIMENTI AGGIUNGI INTRO (logica esistente)
-      const modal = document.getElementById('intro-setup-modal');
+      // Mostra modal per aggiungere intro
+      const modal = document.getElementById('intro-outro-modal');
+      const title = document.getElementById('intro-outro-title');
+      const barsInput = document.getElementById('intro-outro-bars');
+      const createBtn = document.getElementById('create-intro-outro');
+      const abortBtn = document.getElementById('abort-intro-outro');
+
+      title.textContent = 'Add Intro';
+      barsInput.value = 4;
       modal.classList.remove('hidden');
 
-      const createBtn = document.getElementById('create-intro');
-      const abortCreateBtn = document.getElementById('abort-create-intro');
-
       const handler = () => {
-        const rows = parseInt(document.getElementById('intro-rows').value) || 1;
-        const cols = parseInt(document.getElementById('intro-cols').value) || 4;
+        const bars = parseInt(barsInput.value) || 4;
 
-        if (rows < 1 || rows > 10) rows = 1;
-        if (cols < 1 || cols > 10) cols = 4;
+        if (bars < 1 || bars > 32) {
+          YouJazz.showMessage("Invalid Input", "Number of bars must be between 1 and 32");
+          return;
+        }
 
-        const introMeasures = Array(rows * cols).fill(null).map(() => ({ chords: [] }));
-
-        // Aggiungi intro all'inizio
+        const introMeasures = Array(bars).fill(null).map(() => ({ chords: [] }));
         this.currentSong.measures = [...introMeasures, ...this.currentSong.measures];
-        this.introMeasuresCount = rows * cols;
+        this.introMeasuresCount = bars;
 
         this.render();
         modal.classList.add('hidden');
         createBtn.removeEventListener('click', handler);
+        abortBtn.removeEventListener('click', abortHandler);
         updateMenuText();
-
       };
 
       const abortHandler = () => {
         modal.classList.add('hidden');
         createBtn.removeEventListener('click', handler);
+        abortBtn.removeEventListener('click', abortHandler);
       };
 
-      abortCreateBtn.onclick = abortHandler;
       createBtn.onclick = handler;
+      abortBtn.onclick = abortHandler;
     };
 
-    // Aggiorna il testo iniziale
+    updateMenuText();
+  }
+
+  setupOutro() {
+    const menuItem = document.getElementById('add-outro');
+    if (!menuItem) return;
+
+    const updateMenuText = () => {
+      if (this.outroMeasuresCount > 0) {
+        menuItem.innerHTML = `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+      Remove Outro`;
+      } else {
+        menuItem.innerHTML = `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 12h18M3 6h18M3 18h18" />
+        <path d="M8 18v4M16 18v4" />
+      </svg>
+      Add Outro`;
+      }
+    };
+
+    menuItem.onclick = async () => {
+      if (!this.currentSong) {
+        return YouJazz.showMessage("No Song", "Create or load a song first");
+      }
+
+      if (this.isGuest()) {
+        return YouJazz.showMessage("Permission denied", "Login to modify outro");
+      }
+
+      // Rimuovi outro se esiste
+      if (this.outroMeasuresCount > 0) {
+        const confirmed = await YouJazz.showConfirm(
+          "Remove Outro",
+          `Remove the ${this.outroMeasuresCount}-measure outro from this song?`,
+          "Yes, remove",
+          "Cancel"
+        );
+
+        if (!confirmed) return;
+
+        this.currentSong.measures.splice(-this.outroMeasuresCount);
+        this.outroMeasuresCount = 0;
+
+        this.render();
+        updateMenuText();
+        return;
+      }
+
+      // Mostra modal per aggiungere outro
+      const modal = document.getElementById('intro-outro-modal');
+      const title = document.getElementById('intro-outro-title');
+      const barsInput = document.getElementById('intro-outro-bars');
+      const createBtn = document.getElementById('create-intro-outro');
+      const abortBtn = document.getElementById('abort-intro-outro');
+
+      title.textContent = 'Add Outro';
+      barsInput.value = 4;
+      modal.classList.remove('hidden');
+
+      const handler = () => {
+        const bars = parseInt(barsInput.value) || 4;
+
+        if (bars < 1 || bars > 32) {
+          YouJazz.showMessage("Invalid Input", "Number of bars must be between 1 and 32");
+          return;
+        }
+
+        const outroMeasures = Array(bars).fill(null).map(() => ({ chords: [] }));
+        this.currentSong.measures.push(...outroMeasures);
+        this.outroMeasuresCount = bars;
+
+        this.render();
+        modal.classList.add('hidden');
+        createBtn.removeEventListener('click', handler);
+        abortBtn.removeEventListener('click', abortHandler);
+        updateMenuText();
+      };
+
+      const abortHandler = () => {
+        modal.classList.add('hidden');
+        createBtn.removeEventListener('click', handler);
+        abortBtn.removeEventListener('click', abortHandler);
+      };
+
+      createBtn.onclick = handler;
+      abortBtn.onclick = abortHandler;
+    };
+
     updateMenuText();
   }
 
@@ -903,11 +996,14 @@ class GypsyApp {
         measures: Array(rows * cols).fill(null).map(() => ({ chords: [] }))
       };
       this.introMeasuresCount = 0;
+      this.outroMeasuresCount = 0;
       // Resetta il titolo nel campo input
       this.loadSongsList();
       //document.getElementById('song-title').value = 'Song name';
       document.getElementById('bpm-slider').value = 120;
       document.getElementById('bpm-value').textContent = '120';
+      const loopsInput = document.getElementById('loops-input');
+      if (loopsInput) loopsInput.value = 0;
 
       // Aggiorna "Created by:" con l'utente corrente (senza await!)
       fetch('/auth/me', { credentials: 'include' })
@@ -961,6 +1057,13 @@ class GypsyApp {
     };
 
 
+    document.getElementById('loops-input').oninput = e => {
+      let value = parseInt(e.target.value) || 0;
+      if (value < 0) value = 0;
+      if (value > 99) value = 99;
+      e.target.value = value;
+      if (this.currentSong) this.currentSong.loops = value;
+    };
 
     document.getElementById('play').onclick = () => this.play();
     document.getElementById('stop').onclick = () => this.stopPlayback();
@@ -1380,9 +1483,11 @@ class GypsyApp {
 
       // ✅ AGGIUNGI: Classe speciale per misure intro
       const isIntro = measureIndex < this.introMeasuresCount;
+      const isOutro = this.currentSong.measures.length - measureIndex <= this.outroMeasuresCount;
+      const specialClass = isIntro ? ' intro-measure' : (isOutro ? ' outro-measure' : '');
       const introClass = isIntro ? ' intro-measure' : '';
 
-      measure.className = 'measure' + (measureData.chords.length === 0 ? ' empty' : '') + introClass;
+      measure.className = 'measure' + (measureData.chords.length === 0 ? ' empty' : '') + specialClass;
       measure.dataset.index = measureIndex;
 
       // === 1. DROP DALLA PALETTE (singolo accordo) ===
@@ -1583,6 +1688,22 @@ class GypsyApp {
       <path d="M12 5v14M5 12h14"/>
     </svg>
     Add Intro`;
+      }
+    }
+
+    const outroMenuItem = document.getElementById('add-outro');
+    if (outroMenuItem) {
+      if (this.outroMeasuresCount > 0) {
+        outroMenuItem.innerHTML = `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 6L6 18M6 6l12 12"/>
+    </svg>
+    Remove Outro`;
+      } else {
+        outroMenuItem.innerHTML = `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 12h18M3 6h18M3 18h18" />
+      <path d="M8 18v4M16 18v4" />
+    </svg>
+    Add Outro`;
       }
     }
 
@@ -1800,7 +1921,9 @@ class GypsyApp {
     this.isPlaying = true;
     this.currentChordIndex = 0; // ✅ Reset indice per ripartire sempre dall'inizio
     this.updateUIControls();
-
+    const loopsInput = document.getElementById('loops-input');
+    const maxLoops = parseInt(loopsInput?.value) || 0;
+    this.loopsRemaining = maxLoops; // 0 = infinito
     // Pulizia highlight residuo
     document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => el.classList.remove('playing'));
     document.querySelectorAll('.measure').forEach(m => m.classList.remove('measure-playing'));
@@ -1905,6 +2028,7 @@ class GypsyApp {
 
     // Avvia con count-in integrato
     try {
+      // Sostituisci con:
       this.player.playVariableSequence(
         seq,
         this.currentStyle,
@@ -1912,8 +2036,10 @@ class GypsyApp {
         this.currentSong.bpm,
         onChordPlay,
         onEnd,
-        true,  // enableCountIn
-        this.introMeasuresCount  // ← NUOVO: numero di misure intro da non loopare
+        true,
+        this.introMeasuresCount,
+        this.outroMeasuresCount,
+        maxLoops
       );
     } catch (err) {
       console.error("Playback error:", err);
@@ -2002,6 +2128,8 @@ class GypsyApp {
 
     this.currentSong.style = this.currentStyle;
     this.currentSong.introMeasuresCount = this.introMeasuresCount;
+    this.currentSong.outroMeasuresCount = this.outroMeasuresCount;
+    this.currentSong.loops = parseInt(document.getElementById('loops-input').value) || 0;
     try {
       const userRes = await fetch('/auth/me', { credentials: 'include' });
       if (!userRes.ok) throw new Error('Unauthenticated');
@@ -2226,6 +2354,9 @@ class GypsyApp {
           bpm: this.currentSong.bpm, bpm: this.currentSong.bpm,
           style: this.currentSong.style,
           grid: this.currentSong.grid,
+          introMeasuresCount: this.introMeasuresCount,
+          outroMeasuresCount: this.outroMeasuresCount,
+          loops: parseInt(document.getElementById('loops-input').value) || 0,
           measures: []
         };
 
@@ -2258,8 +2389,10 @@ class GypsyApp {
   async setupAIReharmonize() {
     const btn = document.getElementById('ai-reharmonize');
     if (!btn) return;
-
     btn.onclick = async () => {
+      YouJazz.showMessage("Error", "Feature not available!");
+      return;
+
       if (!this.currentSong || this.currentSong.measures.length === 0) {
         return YouJazz.showMessage("Error", "No song loaded");
       }
@@ -2380,9 +2513,15 @@ class GypsyApp {
         isPublic: db.isPublic !== false,
         bpm: db.bpm || 200,
         grid: db.grid || { rows: 4, cols: 4 },
+        introMeasuresCount: db.introMeasuresCount || 0,
+        outroMeasuresCount: db.outroMeasuresCount || 0,
+        loops: db.loops || 0,
         measures: []
       };
       this.introMeasuresCount = db.introMeasuresCount || 0;
+      this.outroMeasuresCount = db.outroMeasuresCount || 0;
+      const loopsInput = document.getElementById('loops-input');
+      if (loopsInput) loopsInput.value = db.loops || 0;
       this.currentStyle = db.style || 'swing';
 
       document.querySelectorAll('.chord-box').forEach(box => box.dataset.style = this.currentStyle);

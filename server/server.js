@@ -33,11 +33,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { 
+  cookie: {
     secure: false, // allow nginx ssl temination  
     maxAge: 24 * 60 * 60 * 1000,
-    httpOnly: true,  
-    sameSite: 'lax'  
+    httpOnly: true,
+    sameSite: 'lax'
   }
 }));
 
@@ -85,31 +85,31 @@ passport.use(new FacebookStrategy({
   callbackURL: process.env.FACEBOOK_CALLBACK_URL,  // Adatta se localhost
   profileFields: ['id', 'displayName', 'photos', 'email']  // Richiedi questi campi
 },
-async (accessToken, refreshToken, profile, done) => {
-  try {
-    let user = await User.findOne({ facebookId: profile.id });
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+      let user = await User.findOne({ facebookId: profile.id });
 
-    if (!user) {
-      // Crea nuovo utente se non esiste
-      user = new User({
-        facebookId: profile.id,
-        displayName: profile.displayName,
-        email: profile.emails ? profile.emails[0].value : null,
-        picture: profile.photos ? profile.photos[0].value : null
-      });
-      await user.save();
-    } else {
-      // Aggiorna info se necessario
-      user.displayName = user.displayName || profile.displayName;
-      user.picture = user.picture || (profile.photos ? profile.photos[0].value : null);
-      await user.save();
+      if (!user) {
+        // Crea nuovo utente se non esiste
+        user = new User({
+          facebookId: profile.id,
+          displayName: profile.displayName,
+          email: profile.emails ? profile.emails[0].value : null,
+          picture: profile.photos ? profile.photos[0].value : null
+        });
+        await user.save();
+      } else {
+        // Aggiorna info se necessario
+        user.displayName = user.displayName || profile.displayName;
+        user.picture = user.picture || (profile.photos ? profile.photos[0].value : null);
+        await user.save();
+      }
+
+      return done(null, user);
+    } catch (err) {
+      return done(err);
     }
-
-    return done(null, user);
-  } catch (err) {
-    return done(err);
-  }
-}));
+  }));
 
 
 // Rotte
@@ -163,7 +163,7 @@ const requireSiteAccess = (req, res, next) => {
 // GET /api/songs — Lista con owner popolato
 app.get('/api/songs', requireSiteAccess, async (req, res) => {
   try {
-     // ✅ FIX: Assicurati che req.user sia impostato per local auth
+    // ✅ FIX: Assicurati che req.user sia impostato per local auth
     if (!req.user && req.session.userId) {
       req.user = await User.findById(req.session.userId);
     }
@@ -172,12 +172,12 @@ app.get('/api/songs', requireSiteAccess, async (req, res) => {
       ? { $or: [{ isPublic: true }, { owner: req.user._id }] }
       : { isPublic: true };
 
- 
+
     const songs = await Song.find(query)
       .populate('owner', 'displayName username')
       .sort({ createdAt: -1 });
-    
-    
+
+
     res.json(songs);
   } catch (err) {
     console.error('❌ Error loading songs:', err);
@@ -194,7 +194,7 @@ app.get('/api/songs/:id', requireSiteAccess, async (req, res) => {
     res.json(song);
   } catch (err) {
     console.error('Errore caricamento brano:', err);
-    res.status(500).json({ error: 'Server error'});
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -264,13 +264,16 @@ app.post('/api/songs/:id/favourite', requireAuth, async (req, res) => {
 });
 app.post('/api/songs/save-as', requireAuth, async (req, res) => {
   try {
-    const { title, bpm, style, grid, measures } = req.body;
+    const { title, bpm, style, introMeasuresCount, outroMeasuresCount, loops, grid, measures } = req.body;
 
     const newSong = new Song({
       title: title,
       bpm,
       style,
       grid,
+      introMeasuresCount,
+      outroMeasuresCount,
+      loops,
       measures,
       owner: req.user._id,
       isPublic: false
@@ -297,9 +300,9 @@ app.post('/api/songs/ai-reharmonize', requireAuth, async (req, res) => {
       .join(' ');
 
     // ✅ STEP 1: Cerca nella cache
-    const cached = await AICache.findOne({ 
+    const cached = await AICache.findOne({
       songTitle: title,
-      originalProgression: chordsInput 
+      originalProgression: chordsInput
     });
 
     if (cached) {
