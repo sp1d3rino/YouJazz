@@ -1406,10 +1406,10 @@ class GypsyApp {
 
           if (measureData.chords.length > 0) {
             // Divisione semplice e perfetta in 4 quadranti (orario)
-            if (x < rect.width / 2 && y < rect.height / 2) insertIndex = 0;     // alto-sinistra
-            else if (x >= rect.width / 2 && y < rect.height / 2) insertIndex = 1; // alto-destra
-            else if (x >= rect.width / 2 && y >= rect.height / 2) insertIndex = 2; // basso-destra
-            else if (x < rect.width / 2 && y >= rect.height / 2) insertIndex = 3;  // basso-sinistra
+            if (x < rect.width / 2 && y < rect.height / 2) insertIndex = 0;        // alto-sinistra
+            else if (x >= rect.width / 2 && y < rect.height / 2) insertIndex = 1;  // alto-destra
+            else if (x < rect.width / 2 && y >= rect.height / 2) insertIndex = 2;  // basso-sinistra ← FIX
+            else if (x >= rect.width / 2 && y >= rect.height / 2) insertIndex = 3; // basso-destra ← FIX
           }
 
           measureData.chords.splice(insertIndex, 0, droppedText);
@@ -1492,8 +1492,8 @@ class GypsyApp {
           const positions = [
             { row: 1, col: 1, idx: 0 },
             { row: 1, col: 2, idx: 1 },
-            { row: 2, col: 2, idx: 2 },
-            { row: 2, col: 1, idx: 3 }
+            { row: 2, col: 1, idx: 2 },
+            { row: 2, col: 2, idx: 3 }
           ];
 
           positions.forEach((pos, i) => {
