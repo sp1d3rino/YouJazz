@@ -8,6 +8,7 @@ class GypsyApp {
     this.currentSong = null;
     this.isPlaying = false;
     this.currentChordIndex = 0;
+    this.introMeasuresCount = 0;
     this.FavFilterSearch = false;
     this.currentStyle = 'swing'; // default  
     this.initialize();
@@ -28,6 +29,7 @@ class GypsyApp {
     this.setupSaveAs();
     this.setupRename();
     this.setupTranspose();
+    this.setupIntro();
     this.setupAIReharmonize();
     this.setupMobilePlaybackControls();
     this.showCreatedBy(null);
@@ -59,8 +61,6 @@ class GypsyApp {
         }
       });
     }
-
-
 
 
 
@@ -310,6 +310,96 @@ class GypsyApp {
       // YouJazz.showMessage("Success", `Song transposed by ${semitones > 0 ? '+' : ''}${semitones} semitones`);
     };
   }
+
+  setupIntro() {
+    const menuItem = document.getElementById('add-intro');
+    if (!menuItem) return;
+
+    // Funzione per aggiornare il testo del menu item
+    const updateMenuText = () => {
+      if (this.introMeasuresCount > 0) {
+        menuItem.innerHTML = `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+      Remove Intro`;
+      } else {
+        menuItem.innerHTML = `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      Add Intro`;
+      }
+    };
+
+    menuItem.onclick = async () => {
+      if (!this.currentSong) {
+        return YouJazz.showMessage("No Song", "Create or load a song first");
+      }
+
+      if (this.isGuest()) {
+        return YouJazz.showMessage("Permission denied", "Login to modify intro");
+      }
+
+      // ✅ SE ESISTE GIÀ INTRO → RIMUOVILA
+      if (this.introMeasuresCount > 0) {
+        const confirmed = await YouJazz.showConfirm(
+          "Remove Intro",
+          `Remove the ${this.introMeasuresCount}-measure intro from this song?`,
+          "Yes, remove",
+          "Cancel"
+        );
+
+        if (!confirmed) return;
+
+        // Rimuovi le prime N misure (l'intro)
+        this.currentSong.measures.splice(0, this.introMeasuresCount);
+        this.introMeasuresCount = 0;
+
+        this.render();
+        updateMenuText();
+        YouJazz.showMessage("Intro Removed", "Intro successfully removed");
+        return;
+      }
+
+      // ✅ ALTRIMENTI AGGIUNGI INTRO (logica esistente)
+      const modal = document.getElementById('intro-setup-modal');
+      modal.classList.remove('hidden');
+
+      const createBtn = document.getElementById('create-intro');
+      const abortCreateBtn = document.getElementById('abort-create-intro');
+
+      const handler = () => {
+        const rows = parseInt(document.getElementById('intro-rows').value) || 1;
+        const cols = parseInt(document.getElementById('intro-cols').value) || 4;
+
+        if (rows < 1 || rows > 10) rows = 1;
+        if (cols < 1 || cols > 10) cols = 4;
+
+        const introMeasures = Array(rows * cols).fill(null).map(() => ({ chords: [] }));
+
+        // Aggiungi intro all'inizio
+        this.currentSong.measures = [...introMeasures, ...this.currentSong.measures];
+        this.introMeasuresCount = rows * cols;
+
+        this.render();
+        modal.classList.add('hidden');
+        createBtn.removeEventListener('click', handler);
+        updateMenuText();
+
+      };
+
+      const abortHandler = () => {
+        modal.classList.add('hidden');
+        createBtn.removeEventListener('click', handler);
+      };
+
+      abortCreateBtn.onclick = abortHandler;
+      createBtn.onclick = handler;
+    };
+
+    // Aggiorna il testo iniziale
+    updateMenuText();
+  }
+
 
   setupMobilePlaybackControls() {
     if (window.innerWidth > 768) return; // Solo su mobile
@@ -793,6 +883,8 @@ class GypsyApp {
     modal.classList.remove('hidden');
 
     const createBtn = document.getElementById('create-grid');
+    const abortCreateBtn = document.getElementById('abort-create-grid');
+
     const handler = () => {
       const rows_temp = parseInt(document.getElementById('grid-rows').value) || 4;
       const cols_temp = parseInt(document.getElementById('grid-cols').value) || 4;
@@ -810,7 +902,7 @@ class GypsyApp {
         grid: { rows, cols },
         measures: Array(rows * cols).fill(null).map(() => ({ chords: [] }))
       };
-
+      this.introMeasuresCount = 0;
       // Resetta il titolo nel campo input
       this.loadSongsList();
       //document.getElementById('song-title').value = 'Song name';
@@ -837,7 +929,12 @@ class GypsyApp {
 
     };
 
+    const abortHandler = () => {
+      modal.classList.add('hidden');
+      createBtn.removeEventListener('click', handler);
+    };
     createBtn.onclick = handler;
+    abortCreateBtn.onclick = abortHandler;
   }
 
   setupGlobalEvents() {
@@ -1280,7 +1377,12 @@ class GypsyApp {
 
     this.currentSong.measures.forEach((measureData, measureIndex) => {
       const measure = document.createElement('div');
-      measure.className = 'measure' + (measureData.chords.length === 0 ? ' empty' : '');
+
+      // ✅ AGGIUNGI: Classe speciale per misure intro
+      const isIntro = measureIndex < this.introMeasuresCount;
+      const introClass = isIntro ? ' intro-measure' : '';
+
+      measure.className = 'measure' + (measureData.chords.length === 0 ? ' empty' : '') + introClass;
       measure.dataset.index = measureIndex;
 
       // === 1. DROP DALLA PALETTE (singolo accordo) ===
@@ -1467,6 +1569,21 @@ class GypsyApp {
     if (publicBtn2 && this.currentSong) {
       publicBtn2.classList.toggle('active', this.currentSong.isPublic !== false);
       publicBtn2.disabled = false;
+    }
+
+    const introMenuItem = document.getElementById('add-intro');
+    if (introMenuItem) {
+      if (this.introMeasuresCount > 0) {
+        introMenuItem.innerHTML = `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 6L6 18M6 6l12 12"/>
+    </svg>
+    Remove Intro`;
+      } else {
+        introMenuItem.innerHTML = `<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
+    Add Intro`;
+      }
     }
 
   }
@@ -1795,9 +1912,9 @@ class GypsyApp {
         this.currentSong.bpm,
         onChordPlay,
         onEnd,
-        true  // enableCountIn
+        true,  // enableCountIn
+        this.introMeasuresCount  // ← NUOVO: numero di misure intro da non loopare
       );
-
     } catch (err) {
       console.error("Playback error:", err);
       YouJazz.showMessage("Playback Error", "An error occurred during playback.");
@@ -1884,7 +2001,7 @@ class GypsyApp {
     }
 
     this.currentSong.style = this.currentStyle;
-
+    this.currentSong.introMeasuresCount = this.introMeasuresCount;
     try {
       const userRes = await fetch('/auth/me', { credentials: 'include' });
       if (!userRes.ok) throw new Error('Unauthenticated');
@@ -2265,7 +2382,7 @@ class GypsyApp {
         grid: db.grid || { rows: 4, cols: 4 },
         measures: []
       };
-
+      this.introMeasuresCount = db.introMeasuresCount || 0;
       this.currentStyle = db.style || 'swing';
 
       document.querySelectorAll('.chord-box').forEach(box => box.dataset.style = this.currentStyle);
