@@ -130,9 +130,39 @@ header h1 {
   border-radius: 16px;
   border: 4px solid #333;
   min-height: 600px;
+  max-height: calc(100vh - 200px);
+  /* Limita altezza per permettere scroll */
+  overflow-y: auto;
+  /* Abilita scroll verticale */
+  overflow-x: hidden;
 }
 
+/* Nascondi scrollbar ma mantieni funzionalità */
+#lead-sheet::-webkit-scrollbar {
+  width: 8px;
+}
 
+#lead-sheet::-webkit-scrollbar-track {
+  background: #0a0a0a;
+  border-radius: 4px;
+}
+
+#lead-sheet::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+#lead-sheet::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+@media (max-width: 768px) {
+  #lead-sheet {
+    max-height: calc(100vh - 400px);
+    /* Più spazio per controlli mobile */
+    padding: 15px 10px;
+  }
+}
 
 /* Assicura che tutte le celle abbiano la stessa altezza */
 .measure {
@@ -190,6 +220,38 @@ header h1 {
 .measure.intro-measure.measure-playing {
   background: rgba(255, 255, 0, 0.2) !important;
   border-color: #ffff00 !important;
+}
+
+/* Evidenziazione visiva misure outro */
+.measure.outro-measure {
+  background: #2a2a2a !important;
+  border-color: #9b59b6 !important;
+  box-shadow: 0 0 10px rgba(155, 89, 182, 0.2);
+  position: relative;
+}
+
+.measure.outro-measure::before {
+  content: "OUTRO";
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 0.6em;
+  color: #9b59b6;
+  font-weight: bold;
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.measure.outro-measure.empty {
+  background: rgba(42, 42, 42, 0.5) !important;
+  border-style: dashed;
+  border-color: #9b59b6 !important;
+}
+
+.measure.outro-measure.measure-playing {
+  background: rgba(155, 89, 182, 0.2) !important;
+  border-color: #9b59b6 !important;
 }
 
 /* Adatta box accordo alla cella — riempie senza padding extra */
@@ -338,7 +400,7 @@ header h1 {
   z-index: 1000;
 }
 
-#intro-setup-modal {
+#intro-outro-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -395,7 +457,7 @@ header h1 {
 }
 
 #create-grid,
-#create-intro {
+#create-intro-outro {
   padding: 14px 40px;
   font-size: 1.3em;
   background: #b8860b;
@@ -407,7 +469,7 @@ header h1 {
 }
 
 #abort-create-grid,
-#abort-create-intro {
+#abort-intro-outro {
   padding: 14px 40px;
   font-size: 1.3em;
   background: #b8870b98;
@@ -2094,5 +2156,15 @@ input[type="range"]:disabled {
     opacity: 0.6 !important;
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.6) !important;
     z-index: 9999 !important;
+  }
+
+  #loops-input {
+    width: 50px !important;
+    font-size: 1em !important;
+    padding: 6px !important;
+  }
+
+  #loops-input+label {
+    font-size: 0.75em !important;
   }
 }

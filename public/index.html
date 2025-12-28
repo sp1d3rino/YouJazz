@@ -188,6 +188,13 @@
           </svg>
           Add Intro
         </div>
+        <div class="menu-item" id="add-outro">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12h18M3 6h18M3 18h18" />
+            <path d="M8 18v4M16 18v4" />
+          </svg>
+          Add Outro
+        </div>
         <div class="menu-item" id="transpose-song">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 12h18M3 6h18M3 18h18" />
@@ -204,9 +211,11 @@
           </svg>
           Delete Song
         </div>
+       
         <div class="menu-item" id="ai-reharmonize">
           🤖 Reharmonization
-        </div>
+        </div> 
+        
         <div class="menu-divider"></div>
         <div class="menu-item danger" onclick="Auth.logout()">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -267,6 +276,15 @@
         <label style="color: #aaa;"><span id="bpm-value">120</span></label>
 
         <input type="range" id="bpm-slider" min="60" max="280" value="120" step="5">
+      </div>
+
+      <div style="margin-top:20px;display: flex; align-items: center; justify-content:left; gap: 12px;">
+        <h3 style="color: #aaa; margin: 0;">Loops</h3>
+      </div>
+      <div style="display: flex;align-items: center; justify-content:center; gap: 10px;">
+        <input type="number" id="loops-input" min="0" max="99" value="0" style="width: 60px; padding: 8px; font-size: 0.9em; text-align: center; 
+                background: #333; border: 2px solid #555; border-radius: 8px; color: #eee;">
+        <label style="color: #888; font-size: 0.9em;">(0 = infinite)</label>
       </div>
       <h3 style="margin-top: 30px; color: #aaa;">Chords</h3>
 
@@ -335,22 +353,38 @@
       <button id="abort-create-grid">Cancel</button>
     </div>
   </div>
-  <div id="intro-setup-modal" class="modal hidden">
 
+  <!-- INTRO MODAL -->
+
+  <div id="intro-outro-modal" class="modal hidden">
     <div class="modal-content">
-      <h2>Add Intro</h2>
+      <h2 id="intro-outro-title">Add Intro</h2>
       <p>Choose intro size:</p>
       <div class="grid-inputs">
-        <label>Rows:
-          <input type="number" id="intro-rows" min="1" max="5" value="1">
-        </label>
-        <label>Columns:
-          <input type="number" id="intro-cols" min="1" max="5" value="4">
+        <label>Bars:
+          <input type="number" id="intro-outro-bars" min="1" max="32" value="4">
         </label>
       </div>
-      <button id="create-intro">Create Intro</button>
-      <button id="abort-create-intro">Cancel</button>
-
+      <div>
+        <button id="create-intro-outro">Ok</button>
+        <button id="abort-intro-outro">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <!-- OUTRO MODAL -->
+  <div id="outro-setup-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Add outro</h2>
+      <p>Choose outro size:</p>
+      <div class="grid-inputs">
+        <label>Bars:
+          <input type="number" id="intro-outro-bars" min="1" max="32" value="4">
+        </label>
+      </div>
+      <div>
+        <button id="create-outro">Ok</button>
+        <button id="abort-create-outro">Cancel</button>
+      </div>
     </div>
   </div>
 
