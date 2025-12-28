@@ -92,7 +92,7 @@ class GypsyPlayer {
       const grainPlayer = new Tone.GrainPlayer({
         url: originalBuffer,
         playbackRate: playbackRate, // ← controlla velocità
-        grainSize: 0.15,              // dimensione grani (100ms)
+        grainSize: 0.12,              // dimensione grani (100ms)
         overlap: 0.11,               // overlap tra grani
         loop: false
       }).toDestination();

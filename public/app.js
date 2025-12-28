@@ -1731,7 +1731,7 @@ class GypsyApp {
 
           case 'maj7':
             // Sostituisce estensioni minori/numeriche con maj7
-            newChord = root + rest.replace(/(m|[0-9♭#])*/g, '') + 'maj7';
+            newChord = root + rest.replace(/([0-9♭#])*/g, '') + 'maj7';
             break;
 
           case '6':
