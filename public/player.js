@@ -67,14 +67,14 @@ class GypsyPlayer {
       throw removeErr;
     }
   }
-  async getStretchedBuffer(chord, bpm ,style) {
+  async getStretchedBuffer(chord, bpm, style) {
     const cacheKey = `${chord}_${bpm}`;
-/*    disabled because it caused issues with updated audio files
-if (this.processedBuffers.has(cacheKey)) {
-      return this.processedBuffers.get(cacheKey);
-    }
-*/
-    const originalBuffer = await this.load(chord,style);
+    /*    disabled because it caused issues with updated audio files
+    if (this.processedBuffers.has(cacheKey)) {
+          return this.processedBuffers.get(cacheKey);
+        }
+    */
+    const originalBuffer = await this.load(chord, style);
 
     // Calcola durata target: 4 battiti alla nuova velocità
     const targetDuration = (60 / bpm) * 4; // 4 beats in secondi
@@ -92,8 +92,8 @@ if (this.processedBuffers.has(cacheKey)) {
       const grainPlayer = new Tone.GrainPlayer({
         url: originalBuffer,
         playbackRate: playbackRate, // ← controlla velocità
-        grainSize: 0.12,              // dimensione grani (100ms)
-        overlap: 0.07,               // overlap tra grani
+        grainSize: 0.15,              // dimensione grani (100ms)
+        overlap: 0.11,               // overlap tra grani
         loop: false
       }).toDestination();
 
@@ -108,12 +108,12 @@ if (this.processedBuffers.has(cacheKey)) {
 
   // ←←← UNICO METODO USATO DALL'APP ←←←
   // ←←← METODO AGGIORNATO CON COUNT-IN INTEGRATO ←←←
-  async playVariableSequence(chords, style, beatDurations, bpm, onChordCallback = null, onEndCallback = null, enableCountIn = true) {
+  async playVariableSequence(chords, style, beatDurations, bpm, onChordCallback = null, onEndCallback = null, enableCountIn = true, introMeasuresCount = 0) {
     if (this.isPlaying) this.stop();
     this.isPlaying = true;
     this.bpm = bpm;
 
-    await Promise.all(chords.map(ch => this.getStretchedBuffer(ch, bpm,style)));
+    await Promise.all(chords.map(ch => this.getStretchedBuffer(ch, bpm, style)));
 
     if (this.audioContext.state === "suspended") {
       await this.audioContext.resume();
@@ -125,6 +125,22 @@ if (this.processedBuffers.has(cacheKey)) {
     let countInCount = 0;       // ← contatore separato per i 4 tick
     let hasLooped = false;
 
+
+    let introChordsCount = 0;
+    let introPlayed = false;
+
+    // Calcola quanti accordi ci sono nell'intro
+    if (introMeasuresCount > 0) {
+      let measuresProcessed = 0;
+      for (let i = 0; i < chords.length && measuresProcessed < introMeasuresCount; i++) {
+        // Ogni accordo potrebbe occupare 1, 2 o 4 battiti (1/4, 1/2, o intera misura)
+        const beats = beatDurations[i] / (60 / bpm);
+        if (beats >= 3.9) measuresProcessed++; // misura intera
+        else if (beats >= 1.9) measuresProcessed += 0.5; // mezza misura
+        else measuresProcessed += 0.25; // quarto
+        introChordsCount++;
+      }
+    }
     const quarter = 60 / bpm;
 
     const schedule = () => {
@@ -155,7 +171,13 @@ if (this.processedBuffers.has(cacheKey)) {
 
         // 2. LOOP NORMALE DEGLI ACCORDI
         if (seqIndex >= chords.length) {
-          seqIndex = 0;
+          // ← MODIFICA: Riparte dall'accordo DOPO l'intro
+          if (introMeasuresCount > 0 && introChordsCount > 0) {
+            seqIndex = introChordsCount;  // Salta l'intro nel loop
+            introPlayed = true;
+          } else {
+            seqIndex = 0;
+          }
           hasLooped = true;
           if (onEndCallback) onEndCallback();
         }

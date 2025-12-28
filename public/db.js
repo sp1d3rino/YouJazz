@@ -37,6 +37,7 @@ class Database {
       grid: song.grid,
       isPublic: song.isPublic,
       bpm: song.bpm,
+      introMeasuresCount: song.introMeasuresCount || 0,   
       measures: []
     };
 
