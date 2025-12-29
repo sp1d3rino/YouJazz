@@ -2021,6 +2021,7 @@ class GypsyApp {
     };
 
     const onEnd = () => {
+ 
       document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => el.classList.remove('playing'));
       document.querySelectorAll('.measure').forEach(m => m.classList.remove('measure-playing'));
       if (this.isPlaying) {
