@@ -198,14 +198,17 @@ class GypsyPlayer {
             } else {
               seqIndex = 0;
             }
-            if (onEndCallback) onEndCallback();
+ 
           }
 
         } else if (seqIndex >= chords.length) {
           if (outroChordsCount > 0) {
             // Fine outro → stop definitivo
             this.stop();
-            if (onEndCallback) onEndCallback();
+            if (onEndCallback) {
+              
+              onEndCallback();
+            }
             return;
           }
 
@@ -213,10 +216,13 @@ class GypsyPlayer {
           currentLoop++;
 
           if (maxLoops > 0 && currentLoop >= maxLoops) {
- 
+
             // Loops finiti → stop
             this.stop();
-            if (onEndCallback) onEndCallback();
+            if (onEndCallback) {
+               
+              onEndCallback();
+            }
             return;
           }
 
@@ -226,8 +232,7 @@ class GypsyPlayer {
           } else {
             seqIndex = 0;
           }
-
-          if (onEndCallback) onEndCallback();
+ 
         }
 
         const chord = chords[seqIndex];
@@ -253,6 +258,7 @@ class GypsyPlayer {
 
       // Chiamata fine giro (opzionale)
       if (hasLooped && seqIndex === 0 && onEndCallback) {
+        console.log("Chiamata fine loop");
         onEndCallback();
         hasLooped = false;
       }
