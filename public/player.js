@@ -213,6 +213,7 @@ class GypsyPlayer {
           currentLoop++;
 
           if (maxLoops > 0 && currentLoop >= maxLoops) {
+ 
             // Loops finiti → stop
             this.stop();
             if (onEndCallback) onEndCallback();
