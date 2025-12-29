@@ -946,7 +946,7 @@ class GypsyApp {
 
   updateUIControls() {
     const isPlaying = this.isPlaying;
-
+    
     const addRowBtn = document.getElementById('add-row');
     if (addRowBtn) {
       const canAddRow = this.currentSong &&
@@ -2024,6 +2024,7 @@ class GypsyApp {
     const onEnd = () => {
       document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => el.classList.remove('playing'));
       document.querySelectorAll('.measure').forEach(m => m.classList.remove('measure-playing'));
+      this.stopPlayback();
     };
 
     // Avvia con count-in integrato
@@ -2041,6 +2042,7 @@ class GypsyApp {
         this.outroMeasuresCount,
         maxLoops
       );
+
     } catch (err) {
       console.error("Playback error:", err);
       YouJazz.showMessage("Playback Error", "An error occurred during playback.");
@@ -2048,6 +2050,7 @@ class GypsyApp {
       this.updateUIControls();
     }
   }
+
 
   reloadAllSamples() {
     // Svuota la cache del player

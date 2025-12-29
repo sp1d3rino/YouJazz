@@ -132,13 +132,7 @@ header h1 {
   min-height: 600px;
 }
 
-@media (max-width: 768px) {
-  #lead-sheet {
-    max-height: calc(100vh - 400px);
-    /* Più spazio per controlli mobile */
-    padding: 15px 10px;
-  }
-}
+ 
 
 /* Assicura che tutte le celle abbiano la stessa altezza */
 .measure {
@@ -1098,7 +1092,7 @@ input[type="range"]:disabled {
   background: rgba(255, 255, 0, 0.1) !important;
 }
 
- 
+
 
 @media (max-width: 768px) {
 
@@ -1194,8 +1188,10 @@ input[type="range"]:disabled {
     padding: 15px 10px;
     gap: 12px;
     min-height: auto;
-    margin-bottom: 180px;
-    /* Spazio per palette e controlli */
+    margin-bottom: 280px;
+    /* ✅ AUMENTATO da 180px a 280px */
+    padding-bottom: 40px;
+    /* ✅ AGGIUNGI padding extra in fondo */
   }
 
   /* Misure più compatte */
@@ -1423,7 +1419,8 @@ input[type="range"]:disabled {
   header h1 {
     font-size: 1.2em;
   }
-    /* Smooth scrolling durante playback */
+
+  /* Smooth scrolling durante playback */
   html {
     scroll-behavior: smooth;
   }
@@ -1496,8 +1493,11 @@ input[type="range"]:disabled {
   }
 
   #lead-sheet {
-    margin-bottom: 140px;
+    margin-bottom: 200px;
+    /* ✅ AUMENTATO da 140px a 200px */
     padding: 10px;
+    padding-bottom: 30px;
+    /* ✅ AGGIUNGI padding extra */
   }
 
   #song-list-input {
@@ -2148,5 +2148,16 @@ input[type="range"]:disabled {
     opacity: 0.6 !important;
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.6) !important;
     z-index: 9999 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  html {
+    overflow-y: auto !important;
   }
 }
