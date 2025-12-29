@@ -946,7 +946,7 @@ class GypsyApp {
 
   updateUIControls() {
     const isPlaying = this.isPlaying;
-    
+
     const addRowBtn = document.getElementById('add-row');
     if (addRowBtn) {
       const canAddRow = this.currentSong &&
@@ -2024,8 +2024,9 @@ class GypsyApp {
     const onEnd = () => {
       document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => el.classList.remove('playing'));
       document.querySelectorAll('.measure').forEach(m => m.classList.remove('measure-playing'));
-//      console.log("")
- //     this.stopPlayback();
+      if (this.isPlaying) {
+        this.stopPlayback();
+      }
     };
 
     // Avvia con count-in integrato
