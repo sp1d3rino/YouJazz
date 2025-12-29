@@ -1069,8 +1069,7 @@ class GypsyApp {
     document.getElementById('stop').onclick = () => this.stopPlayback();
 
     document.getElementById('add-row').onclick = () => {
-      if (!this.currentSong || this.currentSong._id || this.isPlaying) return;
-
+      if (!this.currentSong || this.isPlaying) return;
       const cols = this.currentSong.grid.cols;
       const newRow = Array(cols).fill(null).map(() => ({ chords: [] }));
       this.currentSong.measures.push(...newRow);
