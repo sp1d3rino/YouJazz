@@ -2024,7 +2024,8 @@ class GypsyApp {
     const onEnd = () => {
       document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => el.classList.remove('playing'));
       document.querySelectorAll('.measure').forEach(m => m.classList.remove('measure-playing'));
-      this.stopPlayback();
+//      console.log("")
+ //     this.stopPlayback();
     };
 
     // Avvia con count-in integrato
