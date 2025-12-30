@@ -24,10 +24,10 @@ for file in "$DIR"/*.mp3; do
     fi
     
     # Salta i file che hanno già il #
-    if [[ "$filename" == *"#"* ]]; then
-        echo "Saltato (già #): $filename"
-        continue
-    fi
+    #if [[ "$filename" == *"#"* ]]; then
+    #    echo "Saltato (già #): $filename"
+    #    continue
+    #fi
     
     # Inserisci # dopo la prima lettera
     newname="${filename:0:1}#${filename:1}"
