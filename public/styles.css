@@ -2161,3 +2161,24 @@ input[type="range"]:disabled {
     overflow-y: auto !important;
   }
 }
+
+/* Loop counter durante playback */
+#loops-input.loop-active {
+  background: #1a472a !important;
+  color: #d4af37 !important;
+  font-weight: bold;
+  text-align: center;
+  border-color: #27ae60 !important;
+  pointer-events: none;
+}
+
+/* Lampeggio beat */
+#loops-input.beat-flash {
+  background: #d4af37 !important;
+  transform: scale(1.08);
+  box-shadow: 0 0 15px rgba(46, 204, 113, 0.8);
+}
+
+#loops-input {
+  transition: all 0.1s ease;
+}
