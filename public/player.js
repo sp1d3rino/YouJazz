@@ -185,10 +185,18 @@ class GypsyPlayer {
         // 2. LOOP NORMALE DEGLI ACCORDI
         if (seqIndex >= loopEndIndex && outroChordsCount > 0 && !hasLooped) {
           // ✅ Verifica se dobbiamo continuare a loopare o passare all'outro
+
+          // âœ… Verifica se dobbiamo continuare a loopare o passare all'outro
           currentLoop++;
 
+          // âœ… AGGIUNGI: Notifica cambio loop all'app
+          if (window.app) {
+            window.app.currentLoop = currentLoop + 1;
+            window.app._updateLoopDisplay();
+          }
+
           if (maxLoops > 0 && currentLoop >= maxLoops) {
-            // Loops finiti → passa all'outro
+            // Loops finiti â†' passa all'outro
             seqIndex = loopEndIndex;
             hasLooped = true;
           } else {
@@ -198,15 +206,14 @@ class GypsyPlayer {
             } else {
               seqIndex = 0;
             }
- 
-          }
 
+          }
         } else if (seqIndex >= chords.length) {
           if (outroChordsCount > 0) {
             // Fine outro → stop definitivo
             this.stop();
             if (onEndCallback) {
-              
+
               onEndCallback();
             }
             return;
@@ -215,12 +222,18 @@ class GypsyPlayer {
           // ✅ Gestione loop senza outro
           currentLoop++;
 
+          // âœ… AGGIUNGI: Notifica cambio loop all'app
+          if (window.app) {
+            window.app.currentLoop = currentLoop + 1;
+            window.app._updateLoopDisplay();
+          }
+
           if (maxLoops > 0 && currentLoop >= maxLoops) {
 
-            // Loops finiti → stop
+            // Loops finiti â†' stop
             this.stop();
             if (onEndCallback) {
-               
+
               onEndCallback();
             }
             return;
@@ -232,7 +245,7 @@ class GypsyPlayer {
           } else {
             seqIndex = 0;
           }
- 
+
         }
 
         const chord = chords[seqIndex];

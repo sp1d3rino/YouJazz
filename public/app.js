@@ -159,7 +159,7 @@ class GypsyApp {
         menu.classList.remove('show');
       }
     });
-
+    window.app = this;
   }
 
 
@@ -1918,11 +1918,14 @@ class GypsyApp {
     }
 
     this.isPlaying = true;
-    this.currentChordIndex = 0; // ✅ Reset indice per ripartire sempre dall'inizio
+    this.currentChordIndex = 0;
     this.updateUIControls();
     const loopsInput = document.getElementById('loops-input');
     const maxLoops = parseInt(loopsInput?.value) || 0;
-    this.loopsRemaining = maxLoops; // 0 = infinito
+    this.loopsRemaining = maxLoops;
+    this.currentLoop = 1; // ✅ AGGIUNGI: Traccia loop corrente
+    loopsInput.disabled = true; // ✅ AGGIUNGI: Disabilita input
+    this._updateLoopDisplay(); // ✅ AGGIUNGI: Mostra 1/N
     // Pulizia highlight residuo
     document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => el.classList.remove('playing'));
     document.querySelectorAll('.measure').forEach(m => m.classList.remove('measure-playing'));
@@ -2018,10 +2021,15 @@ class GypsyApp {
           }
         }
       }
+      const loopsInput = document.getElementById('loops-input');
+      if (loopsInput && this.isPlaying) {
+        loopsInput.classList.add('beat-flash');
+        setTimeout(() => loopsInput.classList.remove('beat-flash'), 100);
+      }
     };
 
     const onEnd = () => {
- 
+
       document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => el.classList.remove('playing'));
       document.querySelectorAll('.measure').forEach(m => m.classList.remove('measure-playing'));
       if (this.isPlaying) {
@@ -2053,6 +2061,19 @@ class GypsyApp {
     }
   }
 
+  _updateLoopDisplay() {
+    const loopsInput = document.getElementById('loops-input');
+
+    if (!loopsInput) return;
+    if (this.isPlaying && this.loopsRemaining > 0) {
+      loopsInput.classList.add('loop-active');
+      loopsInput.value = `${this.currentLoop}`;
+
+    } else {
+      loopsInput.classList.remove('loop-active');
+    }
+  }
+
 
   reloadAllSamples() {
     // Svuota la cache del player
@@ -2071,7 +2092,12 @@ class GypsyApp {
     this.player.stop();
     this.isPlaying = false;
     this.currentChordIndex = 0; // ✅ Reset indice accordo corrente
-
+    const loopsInput = document.getElementById('loops-input');
+    if (loopsInput) {
+      loopsInput.disabled = false;
+      loopsInput.value = this.loopsRemaining || 0;
+      loopsInput.classList.remove('loop-active');
+    }
     // ✅ FIX: Rimuovi tutte le evidenziazioni quando stoppi
     document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => {
       el.classList.remove('playing');
