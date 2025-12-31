@@ -9,6 +9,8 @@ class GypsyPlayer {
     this.lookahead = 0.1;
     this.scheduleInterval = 25;
     this.nextStartTime = 0;
+    this.isPaused = false;
+    this.pausedSeqIndex = 0;
   }
 
   async load(chord, style) {
@@ -278,11 +280,14 @@ class GypsyPlayer {
     };
 
     schedule();
+    this._currentScheduleFunction = schedule;
     this.timerId = setInterval(schedule, this.scheduleInterval);
   }
 
   stop() {
     this.isPlaying = false;
+      this.isPaused = false;   
+  this.pausedSeqIndex = 0;  
 
     if (this.timerId) {
       clearInterval(this.timerId);
@@ -293,5 +298,41 @@ class GypsyPlayer {
       try { source.stop(); } catch (e) { }
     });
     this.scheduledSources = [];
+
   }
+
+
+  pause() {
+    this.isPaused = true;
+
+    if (this.timerId) {
+      clearInterval(this.timerId);
+      this.timerId = null;
+    }
+
+    // Stoppa tutti i source schedulati ma salva l'indice corrente
+    this.scheduledSources.forEach(source => {
+      try { source.stop(); } catch (e) { }
+    });
+    this.scheduledSources = [];
+
+    console.log('⏸️ Player paused');
+  }
+
+  resume() {
+    if (!this.isPaused) return;
+
+    this.isPaused = false;
+    this.nextStartTime = this.audioContext.currentTime + 0.05;
+
+    // Riprendi lo scheduling dal punto in cui era stato interrotto
+    const schedule = this._currentScheduleFunction;
+    if (schedule) {
+      schedule();
+      this.timerId = setInterval(schedule, this.scheduleInterval);
+    }
+
+    console.log('▶️ Player resumed');
+  }
+
 }
