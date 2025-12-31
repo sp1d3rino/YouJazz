@@ -10,6 +10,8 @@ class GypsyApp {
     this.currentChordIndex = 0;
     this.introMeasuresCount = 0;
     this.outroMeasuresCount = 0;
+    this.isPaused = false;
+    this.pausedAtChordIndex = 0;
     this.loopsRemaining = 0;
     this.FavFilterSearch = false;
     this.currentStyle = 'swing'; // default  
@@ -119,8 +121,14 @@ class GypsyApp {
         );
 
         if (!isTyping) {
-          e.preventDefault(); // Previeni scroll della pagina
-          if (this.isPlaying) this.stopPlayback(); else this.play();
+          e.preventDefault();
+          if (this.isPlaying && !this.isPaused) {
+            this.pausePlayback();  // ✅ Pausa se in riproduzione
+          } else if (this.isPaused) {
+            this.play();  // ✅ Resume se in pausa
+          } else {
+            this.play();  // ✅ Avvia se fermo
+          }
         }
       }
       if (e.ctrlKey || e.metaKey) {
@@ -946,6 +954,7 @@ class GypsyApp {
 
   updateUIControls() {
     const isPlaying = this.isPlaying;
+    const isPaused = this.isPaused;
 
     const addRowBtn = document.getElementById('add-row');
     if (addRowBtn) {
@@ -956,9 +965,10 @@ class GypsyApp {
       addRowBtn.disabled = !canAddRow;
     }
 
-    // Play / Stop / Clear Grid buttons
-    document.getElementById('play').disabled = isPlaying;
-    document.getElementById('stop').disabled = !isPlaying;
+    // Play / Pause / Stop buttons
+    document.getElementById('play').disabled = isPlaying && !isPaused;
+    document.getElementById('pause').disabled = !isPlaying || isPaused;
+    document.getElementById('stop').disabled = !isPlaying && !isPaused;
     document.getElementById('add-row').disabled = isPlaying;
 
     // BPM slider
@@ -1067,7 +1077,7 @@ class GypsyApp {
 
     document.getElementById('play').onclick = () => this.play();
     document.getElementById('stop').onclick = () => this.stopPlayback();
-
+    document.getElementById('pause').onclick = () => this.pausePlayback();
     document.getElementById('add-row').onclick = () => {
       if (!this.currentSong || this.isPlaying) return;
       const cols = this.currentSong.grid.cols;
@@ -1906,7 +1916,17 @@ class GypsyApp {
   }
 
   async play() {
-    if (this.isPlaying || !this.currentSong) return;
+    if (this.isPlaying && !this.isPaused) return;
+    if (!this.currentSong && !this.isPaused) return;
+
+    // ✅ Resume from pause
+    if (this.isPaused) {
+      this.isPaused = false;
+      this.player.resume();
+      this.updateUIControls();
+      this._updateLoopDisplay();
+      return;
+    }
 
     // ✅ FIX: Ferma playback precedente se ancora attivo
     if (this.player) {
@@ -1918,11 +1938,16 @@ class GypsyApp {
     }
 
     this.isPlaying = true;
+    this.isPaused = false;
+    this.currentChordIndex = 0;
+    this.pausedAtChordIndex = 0;
+    this.updateUIControls();
     this.currentChordIndex = 0;
     this.updateUIControls();
     const loopsInput = document.getElementById('loops-input');
     const maxLoops = parseInt(loopsInput?.value) || 0;
     this.loopsRemaining = maxLoops;
+    loopsInput.dataset.maxLoops = maxLoops;
     this.currentLoop = 1; // ✅ AGGIUNGI: Traccia loop corrente
     loopsInput.disabled = true; // ✅ AGGIUNGI: Disabilita input
     this._updateLoopDisplay(); // ✅ AGGIUNGI: Mostra 1/N
@@ -2007,18 +2032,16 @@ class GypsyApp {
         measure.classList.add('measure-playing');
 
         // AUTO-SCROLL SOLO SU MOBILE
-        if (window.innerWidth <= 768) {
-          const measureRect = measure.getBoundingClientRect();
-          const screenCenter = window.innerHeight / 2;
-          const measureCenter = measureRect.top + measureRect.height / 2;
-          const offset = measureCenter - screenCenter;
+        const measureRect = measure.getBoundingClientRect();
+        const screenCenter = window.innerHeight / 2;
+        const measureCenter = measureRect.top + measureRect.height / 2;
+        const offset = measureCenter - screenCenter;
 
-          if (Math.abs(offset) > 50) {
-            window.scrollBy({
-              top: offset,
-              behavior: 'smooth'
-            });
-          }
+        if (Math.abs(offset) > 50) {
+          window.scrollBy({
+            top: offset,
+            behavior: 'smooth'
+          });
         }
       }
       const loopsInput = document.getElementById('loops-input');
@@ -2061,19 +2084,43 @@ class GypsyApp {
     }
   }
 
+  pausePlayback() {
+    if (!this.isPlaying || this.isPaused) return;
+
+    this.isPaused = true;
+    this.pausedAtChordIndex = this.currentChordIndex;
+    this.player.pause();
+    this.updateUIControls();
+
+    console.log(`⏸️ Paused at chord index: ${this.pausedAtChordIndex}`);
+  }
+
   _updateLoopDisplay() {
     const loopsInput = document.getElementById('loops-input');
+    const loopLabel = document.getElementById('loop-counter-label');
 
     if (!loopsInput) return;
-    if (this.isPlaying && this.loopsRemaining > 0) {
+
+    const maxLoops = parseInt(loopsInput.dataset.maxLoops) || 0;
+
+    if (this.isPlaying && maxLoops > 0) {
       loopsInput.classList.add('loop-active');
       loopsInput.value = `${this.currentLoop}`;
 
+      // ✅ Mostra label con contatore
+      if (loopLabel) {
+        loopLabel.textContent = ` / ${maxLoops}`;
+        loopLabel.classList.add('visible');
+      }
     } else {
       loopsInput.classList.remove('loop-active');
+
+      // ✅ Nascondi label
+      if (loopLabel) {
+        loopLabel.classList.remove('visible');
+      }
     }
   }
-
 
   reloadAllSamples() {
     // Svuota la cache del player
@@ -2091,6 +2138,8 @@ class GypsyApp {
   stopPlayback() {
     this.player.stop();
     this.isPlaying = false;
+    this.isPaused = false;
+    this.pausedAtChordIndex = 0;
     this.currentChordIndex = 0; // ✅ Reset indice accordo corrente
     const loopsInput = document.getElementById('loops-input');
     if (loopsInput) {

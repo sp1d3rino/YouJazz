@@ -211,11 +211,11 @@
           </svg>
           Delete Song
         </div>
-       
+
         <div class="menu-item" id="ai-reharmonize">
           🤖 Reharmonization
-        </div> 
-        
+        </div>
+
         <div class="menu-divider"></div>
         <div class="menu-item danger" onclick="Auth.logout()">
           <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -282,6 +282,7 @@
         <h3 style="color: #aaa; margin: 0;">Loops</h3>
         <input type="number" id="loops-input" min="1" max="99" value="1" style="width: 60px; padding: 8px; font-size: 0.9em; text-align: center; 
                 background: #333; border: 2px solid #555; border-radius: 8px; color: #eee;">
+        <span id="loop-counter-label"></span>
       </div>
       <h3 style="margin-top: 30px; color: #aaa;">Chords</h3>
 
@@ -294,16 +295,26 @@
     <section id="lead-sheet"></section>
 
     <aside class="player-controls">
-      <button id="play" class="icon-btn play-btn" title="Play">
-        <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+      <button id="play" class="icon-btn play-btn">
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="5 3 19 12 5 21 5 3" />
         </svg>
+        <span id="btn-text">Play</span>
       </button>
 
-      <button id="stop" class="icon-btn stop-btn" title="Stop">
-        <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+      <button id="pause" class="icon-btn pause-btn" disabled>
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="6" y="4" width="4" height="16" />
+          <rect x="14" y="4" width="4" height="16" />
+        </svg>
+        <span id="btn-text">Pause</span>
+      </button>
+
+      <button id="stop" class="icon-btn stop-btn" disabled>
+        <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="6" y="6" width="12" height="12" />
         </svg>
+        <span id="btn-text">Stop</span>
       </button>
 
       <button id="add-row" class="icon-btn add-row-btn" title="Add Row">
@@ -313,7 +324,7 @@
           <line x1="3" y1="15" x2="21" y2="15" />
           <line x1="12" y1="15" x2="12" y2="21" />
           <line x1="9" y1="18" x2="15" y2="18" />
-        </svg>
+        </svg> <span id="btn-text">Add row</span>
       </button>
 
 

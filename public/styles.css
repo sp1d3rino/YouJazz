@@ -132,7 +132,7 @@ header h1 {
   min-height: 600px;
 }
 
- 
+
 
 /* Assicura che tutte le celle abbiano la stessa altezza */
 .measure {
@@ -1834,7 +1834,7 @@ input[type="range"]:disabled {
     background: #3498db;
     color: white;
     width: 100%;
-    height: 18px;
+
     padding: 10px;
     font-size: 1.2em;
   }
@@ -1843,7 +1843,6 @@ input[type="range"]:disabled {
     background: #3498db;
     color: white;
     width: 100%;
-    height: 18px;
     padding: 10px;
     font-size: 1.2em;
   }
@@ -1852,7 +1851,6 @@ input[type="range"]:disabled {
     background: #3498db;
     color: white;
     width: 100%;
-    height: 18px;
     padding: 10px;
     font-size: 1.2em;
   }
@@ -2149,6 +2147,7 @@ input[type="range"]:disabled {
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.6) !important;
     z-index: 9999 !important;
   }
+
 }
 
 @media (max-width: 768px) {
@@ -2156,9 +2155,15 @@ input[type="range"]:disabled {
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   html {
     overflow-y: auto !important;
+  }
+
+    #btn-text {
+    /* It hides the button text 
+                when screen size <=768px */
+    display: none;
   }
 }
 
@@ -2181,4 +2186,34 @@ input[type="range"]:disabled {
 
 #loops-input {
   transition: all 0.1s ease;
+}
+
+/* Pause/Resume buttons in player controls */
+.player-controls .pause-btn {
+  background: #3498db;
+}
+
+.player-controls .pause-btn:hover:not(:disabled) {
+  background: #3498db;
+}
+
+/* Loop counter label */
+#loop-counter-label {
+  display: none;
+  font-size: 0.9em;
+  color: #d4af37;
+  font-weight: bold;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+#loop-counter-label.visible {
+  display: inline;
+}
+
+/* Desktop auto-scroll smooth behavior */
+@media (min-width: 769px) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
