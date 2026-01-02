@@ -1,5 +1,7 @@
 # YouJazz
 
+WEBSITE: https://www.youjazz.org
+
 [![GitHub stars](https://img.shields.io/github/stars/sp1d3rino/YouJazz?style=social)](https://github.com/sp1d3rino/YouJazz) [![GitHub license](https://img.shields.io/github/license/sp1d3rino/YouJazz)](https://github.com/sp1d3rino/YouJazz/blob/main/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/sp1d3rino/YouJazz)](https://github.com/sp1d3rino/YouJazz/issues)
 
 YouJazz is an innovative web-based **Gypsy Jazz lead sheet composer and player**. Create chord progressions on an intuitive grid, switch between swing and bossa styles, and play them back with high-fidelity audio samples. Perfect for jazz musicians, educators, and enthusiasts who want to compose, rehearse, or jam on the go.
