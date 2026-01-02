@@ -1,6 +1,6 @@
 # YouJazz
 
-WEBSITE: https://www.youjazz.org
+### https://www.youjazz.org
 
 [![GitHub stars](https://img.shields.io/github/stars/sp1d3rino/YouJazz?style=social)](https://github.com/sp1d3rino/YouJazz) [![GitHub license](https://img.shields.io/github/license/sp1d3rino/YouJazz)](https://github.com/sp1d3rino/YouJazz/blob/main/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/sp1d3rino/YouJazz)](https://github.com/sp1d3rino/YouJazz/issues)
 
