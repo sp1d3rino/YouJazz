@@ -1,7 +1,5 @@
 # YouJazz
-<div style="text-align: center;"> 
-https://www.youjazz.org
-</div>
+<h1 style="text-align: center;"> https://www.youjazz.org </h1>
 
 
 YouJazz is an innovative web-based **Gypsy Jazz lead sheet composer and player**. Create chord progressions on an intuitive grid, switch between swing and bossa styles, and play them back with high-fidelity audio samples. Perfect for jazz musicians, educators, and enthusiasts who want to compose, rehearse, or jam on the go.
