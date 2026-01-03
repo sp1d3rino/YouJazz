@@ -69,7 +69,7 @@ class GypsyPlayer {
     return notes[fifthIdx];
   }
 
-  async playBassNote(noteName, startTime, duration, volume = 0.7) {
+  async playBassNote(noteName, startTime, duration, volume = 0.9) {
     const buffer = await this.loadNote(noteName);
     if (!buffer) return;
 
