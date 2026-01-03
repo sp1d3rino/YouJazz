@@ -11,6 +11,7 @@ class GypsyApp {
     this.introMeasuresCount = 0;
     this.outroMeasuresCount = 0;
     this.isPaused = false;
+    this.bassVolume = 0.7; // ✅ AGGIUNGI
     this.pausedAtChordIndex = 0;
     this.loopsRemaining = 0;
     this.FavFilterSearch = false;
@@ -1985,6 +1986,23 @@ class GypsyApp {
         const style = box?.dataset.style || this.currentStyle;
         return this.player.load(ch, style);
       }));
+
+
+      // ✅ AGGIUNGI: Preload delle note del basso
+      const bassNotes = new Set();
+      seq.forEach(chord => {
+        const root = this.player.parseChordRoot(chord);
+        if (root) {
+          bassNotes.add(root);
+          const fifth = this.player.calculateFifth(root);
+          if (fifth) bassNotes.add(fifth);
+        }
+      });
+
+      // Precarica tutte le note del basso necessarie
+      await Promise.allSettled(
+        Array.from(bassNotes).map(note => this.player.loadNote(note))
+      );
 
       // ✅ VERIFICA SE CI SONO ACCORDI NON TROVATI
       const failed = preloadResults.filter(r => r.status === 'rejected');
