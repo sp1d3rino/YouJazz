@@ -38,7 +38,7 @@ class GypsyPlayer {
     // Estrae la root note dall'accordo (es. "Cmaj7" -> "C", "F#m7" -> "F#", "Bb7" -> "Bb")
     const match = chord.match(/^([A-G][#b♭]?)/i);
     if (!match) return null;
-        const flatToSharp = {
+    const flatToSharp = {
       'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#'
     };
     let root = match[0].toUpperCase();
@@ -77,7 +77,10 @@ class GypsyPlayer {
     source.buffer = buffer;
 
     const gainNode = this.audioContext.createGain();
-    gainNode.gain.setValueAtTime(volume, startTime); // ✅ Usa volume parametrizzato
+    gainNode.gain.setValueAtTime(0, startTime); // Parte da 0
+    gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.005); // Fade-in di 5ms
+    gainNode.gain.setValueAtTime(volume, startTime + duration - 0.05); // Mantieni volume fino a 10ms prima della fine
+    gainNode.gain.linearRampToValueAtTime(0, startTime + duration); // Fade-out di 10ms
 
     source.connect(gainNode);
     gainNode.connect(this.audioContext.destination);
@@ -248,8 +251,8 @@ class GypsyPlayer {
           osc.frequency.setValueAtTime(900, this.nextStartTime);
           osc.type = 'sine';
           gain.gain.setValueAtTime(0, this.nextStartTime);
-          gain.gain.linearRampToValueAtTime(0.4, this.nextStartTime + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.01, this.nextStartTime + 0.1);
+          gain.gain.linearRampToValueAtTime(0.4, this.nextStartTime);
+
 
           osc.start(this.nextStartTime);
           osc.stop(this.nextStartTime + 0.1);
@@ -331,13 +334,22 @@ class GypsyPlayer {
         const buffer = this.processedBuffers.get(`${chord}_${bpm}`);
         if (buffer) {
           // ✅ SUONA L'ACCORDO
+
           const source = this.audioContext.createBufferSource();
           source.buffer = buffer;
-          source.connect(this.audioContext.destination);
+
+          const gainNode = this.audioContext.createGain();
+          gainNode.gain.setValueAtTime(0, this.nextStartTime); // Parte da 0
+          gainNode.gain.linearRampToValueAtTime(1, this.nextStartTime + 0.005); // Fade-in di 5ms
+          gainNode.gain.setValueAtTime(1, this.nextStartTime + duration - 0.01); // Mantieni volume
+          gainNode.gain.linearRampToValueAtTime(0, this.nextStartTime + duration); // Fade-out di 10ms
+
+          source.connect(gainNode);
+          gainNode.connect(this.audioContext.destination);
+
           source.start(this.nextStartTime);
           source.stop(this.nextStartTime + duration);
           this.scheduledSources.push(source);
-
           // ✅ AGGIUNGI TRACCIA BASSO
           const root = this.parseChordRoot(chord);
           if (root) {
