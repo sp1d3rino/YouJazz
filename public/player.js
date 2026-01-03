@@ -13,6 +13,81 @@ class GypsyPlayer {
     this.pausedSeqIndex = 0;
   }
 
+  async loadNote(noteName) {
+    // Cache per le note
+    if (this.buffers.has(`note_${noteName}`)) {
+      return this.buffers.get(`note_${noteName}`);
+    }
+
+    try {
+      const safeNote = encodeURIComponent(noteName);
+      const res = await fetch(`audio/dbnotes/${safeNote}.mp3`);
+      if (!res.ok) throw new Error(`Note ${safeNote} not found`);
+
+      const arrayBuffer = await res.arrayBuffer();
+      const buffer = await this.audioContext.decodeAudioData(arrayBuffer);
+      this.buffers.set(`note_${noteName}`, buffer);
+      return buffer;
+    } catch (err) {
+      console.warn(`Bass note not found: "${noteName}"`);
+      return null;
+    }
+  }
+
+  parseChordRoot(chord) {
+    // Estrae la root note dall'accordo (es. "Cmaj7" -> "C", "F#m7" -> "F#", "Bb7" -> "Bb")
+    const match = chord.match(/^([A-G][#b♭]?)/i);
+    if (!match) return null;
+        const flatToSharp = {
+      'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#'
+    };
+    let root = match[0].toUpperCase();
+    root = root.replace('♭', 'b');
+    root = flatToSharp[root] || root;
+
+    // Normalizza i bemolle
+    // root = root.replace('♭', 'b');
+
+    return root;
+  }
+
+  calculateFifth(root) {
+    // Mappa delle note con le loro quinte giuste
+    const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const flatToSharp = {
+      'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#'
+    };
+
+    // Normalizza bemolli in diesis
+    let normalizedRoot = flatToSharp[root] || root;
+
+    const idx = notes.indexOf(normalizedRoot);
+    if (idx === -1) return null;
+
+    // La quinta è 7 semitoni sopra (intervallo perfetto di quinta)
+    const fifthIdx = (idx + 7) % 12;
+    return notes[fifthIdx];
+  }
+
+  async playBassNote(noteName, startTime, duration, volume = 0.7) {
+    const buffer = await this.loadNote(noteName);
+    if (!buffer) return;
+
+    const source = this.audioContext.createBufferSource();
+    source.buffer = buffer;
+
+    const gainNode = this.audioContext.createGain();
+    gainNode.gain.setValueAtTime(volume, startTime); // ✅ Usa volume parametrizzato
+
+    source.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+
+    source.start(startTime);
+    source.stop(startTime + duration);
+
+    this.scheduledSources.push(source);
+  }
+
   async load(chord, style) {
     //if (this.buffers.has(chord)) return this.buffers.get(chord);
     // === FIX AUTOMATICO per accordi "impossibili" (B#, E#, Cb, Fb) ===
@@ -255,12 +330,33 @@ class GypsyPlayer {
 
         const buffer = this.processedBuffers.get(`${chord}_${bpm}`);
         if (buffer) {
+          // ✅ SUONA L'ACCORDO
           const source = this.audioContext.createBufferSource();
           source.buffer = buffer;
           source.connect(this.audioContext.destination);
           source.start(this.nextStartTime);
           source.stop(this.nextStartTime + duration);
           this.scheduledSources.push(source);
+
+          // ✅ AGGIUNGI TRACCIA BASSO
+          const root = this.parseChordRoot(chord);
+          if (root) {
+            const numBeats = duration / (60 / bpm); // Quanti beat occupa questo accordo
+
+            if (numBeats <= 2.1) {
+              // 2 beat -> suona solo la root
+              this.playBassNote(root, this.nextStartTime, duration);
+            } else {
+              // 3+ beats -> suona root + quinta
+              const halfDuration = duration / 2;
+              const fifth = this.calculateFifth(root);
+
+              this.playBassNote(root, this.nextStartTime, halfDuration);
+              if (fifth) {
+                this.playBassNote(fifth, this.nextStartTime + halfDuration, halfDuration);
+              }
+            }
+          }
 
           if (onChordCallback) {
             onChordCallback(seqIndex, chord);
@@ -286,8 +382,8 @@ class GypsyPlayer {
 
   stop() {
     this.isPlaying = false;
-      this.isPaused = false;   
-  this.pausedSeqIndex = 0;  
+    this.isPaused = false;
+    this.pausedSeqIndex = 0;
 
     if (this.timerId) {
       clearInterval(this.timerId);
