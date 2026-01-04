@@ -2602,7 +2602,12 @@ class GypsyApp {
 
       // ✅ Imposta valore input
       if (input) input.value = displayText;
-
+    this.stopPlayback(); // Ferma completamente il player precedente
+    this.isPlaying = false;
+    this.isPaused = false;
+    this.pausedAtChordIndex = 0;
+    this.currentChordIndex = 0;
+    
       // Ricostruisci currentSong (codice esistente invariato)
       this.currentSong = {
         _id: db._id,
