@@ -89,7 +89,6 @@ async function sendDailyDigest() {
     let failCount = 0;
 
     for (const user of users) {
-      if (user.email !== 'martinogianni01@gmail.com') continue;
       try {
         await transporter.sendMail({
           from: 'YouJazz <noreply@youjazz.org>',
