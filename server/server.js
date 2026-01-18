@@ -167,11 +167,16 @@ app.get('/api/songs', requireSiteAccess, async (req, res) => {
     if (!req.user && req.session.userId) {
       req.user = await User.findById(req.session.userId);
     }
-
-    const query = req.user
-      ? { $or: [{ isPublic: true }, { owner: req.user._id }] }
-      : { isPublic: true };
-
+    let query = "";
+ 
+    if (req.user?.username === 'admin') {
+      console.log('Admin access: loading all songs' + req.user?.username);
+      query = {}; // Nessun filtro
+    } else {
+      query = req.user
+        ? { $or: [{ isPublic: true }, { owner: req.user._id }] }
+        : { isPublic: true };
+    }
 
     const songs = await Song.find(query)
       .populate('owner', 'displayName username')
