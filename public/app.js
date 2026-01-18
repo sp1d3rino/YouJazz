@@ -2602,12 +2602,12 @@ class GypsyApp {
 
       // ✅ Imposta valore input
       if (input) input.value = displayText;
-    this.stopPlayback(); // Ferma completamente il player precedente
-    this.isPlaying = false;
-    this.isPaused = false;
-    this.pausedAtChordIndex = 0;
-    this.currentChordIndex = 0;
-    
+      this.stopPlayback(); // Ferma completamente il player precedente
+      this.isPlaying = false;
+      this.isPaused = false;
+      this.pausedAtChordIndex = 0;
+      this.currentChordIndex = 0;
+
       // Ricostruisci currentSong (codice esistente invariato)
       this.currentSong = {
         _id: db._id,
@@ -2747,14 +2747,17 @@ class GypsyApp {
 
       const showOnlyFavourites = this.FavFilterSearch;
       const visibleSongs = songs.filter(song => {
-        // Log di debug per ogni brano
         const ownerIdStr = song.owner?._id?.toString();
         const currentUserIdStr = currentUser?.id?.toString();
         const isOwner = ownerIdStr === currentUserIdStr;
 
+        // ✅ ADMIN vede tutto
+
+        const isAdmin = currentUser?.username === 'admin';
 
         // Privacy filter with proper ID comparison
-        const passesPrivacy = song.isPublic || (currentUser && isOwner);
+        const passesPrivacy = song.isPublic || (currentUser && isOwner) || isAdmin;
+     
 
         if (!passesPrivacy) {
           return false;
