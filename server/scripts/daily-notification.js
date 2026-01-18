@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: '/home/spi/YouJazz/server/.env' });
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const Song = require('../models/Song');
