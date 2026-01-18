@@ -1,8 +1,23 @@
-require('dotenv').config({ path: '/home/spi/YouJazz/server/.env' });
+const path = require('path');
+
+// Carica .env dalla directory del progetto (una cartella sopra scripts/)
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const Song = require('../models/Song');
 const User = require('../models/User');
+
+console.log('=== ENV CHECK ===');
+console.log('Working dir:', process.cwd());
+console.log('Script dir:', __dirname);
+console.log('.env path:', path.join(__dirname, '..', '.env'));
+console.log('EMAIL_USER:', process.env.EMAIL_USER ? '✅ OK' : '❌ MISSING');
+console.log('EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? '✅ OK' : '❌ MISSING');
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+  console.error('❌ ERRORE: Credenziali email mancanti');
+  process.exit(1);
+}
 
 // Email transporter (stesso di auth.js)
 const transporter = nodemailer.createTransport({
