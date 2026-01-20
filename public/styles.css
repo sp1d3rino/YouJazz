@@ -2217,3 +2217,12 @@ input[type="range"]:disabled {
     scroll-behavior: smooth;
   }
 }
+
+.chord-box.selected-start,
+.sub-chord-box.selected-start {
+  background: linear-gradient(135deg, #ffff00, #ffff00) !important;
+  box-shadow: 0 0 20px rgba(243, 156, 18, 0.8);
+  color:#000 !important;
+  transform: scale(1.05);
+  z-index: 10;
+}

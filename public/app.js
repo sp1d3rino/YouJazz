@@ -16,6 +16,7 @@ class GypsyApp {
     this.loopsRemaining = 0;
     this.FavFilterSearch = false;
     this.currentStyle = 'swing'; // default  
+    this.selectedChordIndex = null;
     this.initialize();
   }
 
@@ -1780,6 +1781,40 @@ class GypsyApp {
     box.textContent = chord;
     box.draggable = true;
     box.dataset.style = this.currentStyle;
+
+
+    box.onclick = (e) => {
+      if (this.isPlaying) return; // Non permettere selezione durante playback
+
+      // Trova l'indice globale di questo accordo nella sequenza
+      const measures = this.currentSong.measures;
+      let globalIndex = 0;
+      let found = false;
+
+      for (let mIdx = 0; mIdx < measures.length; mIdx++) {
+        for (let cIdx = 0; cIdx < measures[mIdx].chords.length; cIdx++) {
+          if (measures[mIdx] === measure && cIdx === index) {
+            this.selectedChordIndex = globalIndex;
+            found = true;
+            break;
+          }
+          globalIndex++;
+        }
+        if (found) break;
+      }
+
+      // Evidenzia visivamente
+      document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el =>
+        el.classList.remove('selected-start')
+      );
+      box.classList.add('selected-start');
+
+      e.stopPropagation();
+    };
+
+
+
+
     // AUTO-FIT FONT (solo per 1-2 accordi)
     if (measure.chords.length <= 2) {
       const test = document.createElement('span');
@@ -1940,11 +1975,11 @@ class GypsyApp {
 
     this.isPlaying = true;
     this.isPaused = false;
-    this.currentChordIndex = 0;
+    this.currentChordIndex = this.selectedChordIndex !== null ? this.selectedChordIndex : 0;
+    const startIndex = this.currentChordIndex;
     this.pausedAtChordIndex = 0;
     this.updateUIControls();
-    this.currentChordIndex = 0;
-    this.updateUIControls();
+
     const loopsInput = document.getElementById('loops-input');
     const maxLoops = parseInt(loopsInput?.value) || 0;
     this.loopsRemaining = maxLoops;
@@ -1970,6 +2005,13 @@ class GypsyApp {
         chordPositions.push({ measureIndex, chordIndex }); // Salva posizione esatta
       });
     });
+
+    // ✅ NUOVO: Taglia la sequenza se c'è un accordo selezionato
+    if (startIndex > 0 && startIndex < seq.length) {
+      seq.splice(0, startIndex);
+      beatCounts.splice(0, startIndex);
+      chordPositions.splice(0, startIndex);
+    }
 
     if (seq.length === 0) {
       YouJazz.showMessage("Playback Error", "No chords to play!");
@@ -2032,8 +2074,9 @@ class GypsyApp {
       document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el => el.classList.remove('playing'));
       document.querySelectorAll('.measure').forEach(m => m.classList.remove('measure-playing'));
 
-      // Trova la posizione esatta dell'accordo corrente
-      const pos = chordPositions[index];
+      // ✅ CORREZIONE: compensa l'offset dell'accordo di partenza
+      const adjustedIndex = index; // Ora l'indice è già corretto perché abbiamo tagliato l'array
+      const pos = chordPositions[adjustedIndex];
       if (!pos) return;
 
       // Trova la misura specifica
@@ -2100,6 +2143,10 @@ class GypsyApp {
       this.isPlaying = false;
       this.updateUIControls();
     }
+    this.selectedChordIndex = null;
+    document.querySelectorAll('.chord-box, .sub-chord-box').forEach(el =>
+      el.classList.remove('selected-start')
+    );
   }
 
   pausePlayback() {
@@ -2757,7 +2804,7 @@ class GypsyApp {
 
         // Privacy filter with proper ID comparison
         const passesPrivacy = song.isPublic || (currentUser && isOwner) || isAdmin;
-     
+
 
         if (!passesPrivacy) {
           return false;
