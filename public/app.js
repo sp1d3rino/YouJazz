@@ -1008,9 +1008,9 @@ class GypsyApp {
       };
       this.introMeasuresCount = 0;
       this.outroMeasuresCount = 0;
-      // Resetta il titolo nel campo input
-      this.loadSongsList();
-      //document.getElementById('song-title').value = 'Song name';
+      document.getElementById('song-list-input').placeholder = 'Song name';
+      document.getElementById('song-list-input').value = '';
+
       document.getElementById('bpm-slider').value = 120;
       document.getElementById('bpm-value').textContent = '120';
       const loopsInput = document.getElementById('loops-input');
@@ -1029,6 +1029,7 @@ class GypsyApp {
 
       // Renderizza
       this.render();
+
 
       modal.classList.add('hidden');
       createBtn.removeEventListener('click', handler);
@@ -2308,7 +2309,9 @@ class GypsyApp {
       this.render();
       YouJazz.showMessage("Song deleted", 'Song successfully deleted');
       await this.loadSongsList();
-      //document.getElementById('song-title').value = 'Song name';
+      document.getElementById('song-list-input').placeholder = 'Select a song...';
+      document.getElementById('song-list-input').value = '';
+
     } catch (e) {
       console.error('Saving error:', e);
       YouJazz.showMessage("Save Error", "Unable to save the song. Are you logged in?");
@@ -2757,7 +2760,7 @@ class GypsyApp {
 
         // Privacy filter with proper ID comparison
         const passesPrivacy = song.isPublic || (currentUser && isOwner) || isAdmin;
-     
+
 
         if (!passesPrivacy) {
           return false;
